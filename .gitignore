@@ -1,0 +1,14 @@
+
+# Include code style settings
+!.idea/
+.idea/*
+!.idea/codeStyleSettings.xml
+
+
+# Gradle:
+# .idea/gradle.xml
+# .idea/libraries
+**/build/**
+**/classes/**
+
+.gradle
