@@ -5,6 +5,7 @@ import lombok.Builder;
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import org.junit.runners.model.Statement;
+import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -18,9 +19,9 @@ public class PerformanceEvaluationStatement extends Statement {
   private final int threadCount;
   private final int testDurationMs;
   private final int warmUpPeriodMs;
-  private final int rateLimitExecutionsPerSecond;
   private final ThreadFactory threadFactory;
   private final Statement baseStatement;
+  private final RateLimiter rateLimiter;
 
   @Builder(builderMethodName = "perfEvalBuilder")
   private PerformanceEvaluationStatement(int threadCount,
@@ -44,9 +45,9 @@ public class PerformanceEvaluationStatement extends Statement {
     this.threadCount = threadCount;
     this.testDurationMs = testDurationMs;
     this.warmUpPeriodMs = warmUpPeriodMs;
-    this.rateLimitExecutionsPerSecond = rateLimitExecutionsPerSecond;
     this.baseStatement = baseStatement;
     this.threadFactory = threadFactory;
+    this.rateLimiter = rateLimitExecutionsPerSecond > 0 ? RateLimiter.create(rateLimitExecutionsPerSecond) : null;
   }
 
   @Override
@@ -54,7 +55,7 @@ public class PerformanceEvaluationStatement extends Statement {
     List<Thread> threads = newArrayList();
     try {
       for (int i = 0; i < threadCount; i++) {
-        Thread t = threadFactory.newThread(new EvaluationTask(baseStatement));
+        Thread t = threadFactory.newThread(new EvaluationTask(baseStatement, rateLimiter));
         threads.add(t);
         t.start();
       }
@@ -63,5 +64,5 @@ public class PerformanceEvaluationStatement extends Statement {
       threads.forEach(Thread::interrupt);
     }
   }
-  
+
 }
