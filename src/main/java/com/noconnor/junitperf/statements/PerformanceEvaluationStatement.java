@@ -4,17 +4,13 @@ import lombok.Builder;
 
 import org.junit.runners.model.Statement;
 
-@Builder( builderMethodName = "perfEvalBuilder")
+@Builder(builderMethodName = "perfEvalBuilder")
 public class PerformanceEvaluationStatement extends Statement {
 
-  @Builder.Default
-  private int threadCount = 1;
-  @Builder.Default
-  private int testDurationMs = 60_000;
-  @Builder.Default
-  private int warmUpPeriodMs = 0;
-  @Builder.Default
-  private int rateLimitExecutionsPerSecond = -1;
+  private final int threadCount;
+  private final int testDurationMs;
+  private final int warmUpPeriodMs;
+  private final int rateLimitExecutionsPerSecond;
 
   private final Statement baseStatement;
 
