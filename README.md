@@ -2,7 +2,7 @@
 
 API performance testing framework built using JUnit
 
-JUnitPerf provides an extension to the JUnit4 framework, allowing simple unittests to be extended to operation as 
+JUnitPerf provides an extension to the JUnit4 framework, allowing simple unittests to be extended to operate as 
 performance evaluation tests. 
 
 Using a custom [Junit Rule](https://github.com/junit-team/junit4/wiki/Rules) and by 
@@ -14,9 +14,9 @@ Statistical information includes:
 * test throughput (executions per second)
 * error percentage (exceptional test executions as a percentage of successful test executions)
 
-It also possible to apply threshold requirements to the gathered stats using the `@JUnitPerfRequirement(...)` annotation
+It also possible to apply threshold requirements to the gathered statistics using the `@JUnitPerfRequirement(...)` annotation
 
-In addition to failing a unittest is thresholds are not meet, the framework will also generate a HTML report 
+In addition to failing a unittest if thresholds are not meet, the framework will also generate a HTML report 
 containing a statistical analysis of the test run.
 
 
@@ -29,7 +29,7 @@ This library interface was heavily influenced by the interface in the deprecated
 
 `public JunitPerfRule perfTestRule = new JunitPerfRule();`
 
-* Add test setup annotation to your performance test 
+* Add `JUnitPerfTest` annotation to your performance test 
 
 ```
 @Test
@@ -39,8 +39,9 @@ public void whenExecuting11Kqps_thenApiShouldNotCrash(){
 }
 ``` 
 
-* Optionally add performance test requirements annotation to your performance test. These requirements will be 
-applied to the statistics gathered during the performance test. If thresholds are not met, test will fail
+* Optionally add performance test requirements annotation (`JUnitPerfRequirement`) to your performance test. 
+These requirements will be applied to the statistics gathered during the performance test execution. 
+If thresholds are not met, test will fail.
 
 
 ```
@@ -65,7 +66,7 @@ To run/add to this project using intellij you will require the following plugins
 To configure your IntelliJ settings to use this formatter:
     * IntelliJ IDEA > Preferences > Editor > Code Style > Scheme > Project (Apply Settings)
 
-To resolve issues with lombok annotations not being compiled during a module make try setting teh following preference:
+To resolve issues with lombok annotations not being compiled during a module make try setting the following preference:
 
 * Go to the preferences (settings) menu
 * Search for the "Compiler" section in the dialog window and then go to the "Annotation Processors" subsection
