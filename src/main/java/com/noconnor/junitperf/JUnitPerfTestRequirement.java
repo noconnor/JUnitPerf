@@ -1,6 +1,6 @@
 package com.noconnor.junitperf;
 
-public @interface JUnitPerfRequirement {
+public @interface JUnitPerfTestRequirement {
 
   // Expected target percentile distribution in the format "percentile1:expected_value_ms,percentile2:expected_value_ms,..."
   String percentiles() default "";
