@@ -27,7 +27,7 @@ This library interface was heavily influenced by the interface in the deprecated
 
 * Add the JUnitPerf Rule to your test class
 
-`public JunitPerfRule perfTestRule = new JunitPerfRule();`
+`public JUnitPerfRule perfTestRule = new JUnitPerfRule();`
 
 * Add `JUnitPerfTest` annotation to your performance test 
 

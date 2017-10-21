@@ -55,7 +55,8 @@ public class PerformanceEvaluationStatement extends Statement {
     List<Thread> threads = newArrayList();
     try {
       for (int i = 0; i < threadCount; i++) {
-        Thread t = threadFactory.newThread(new EvaluationTask(baseStatement, rateLimiter));
+        EvaluationTask task = new EvaluationTask(baseStatement, rateLimiter);
+        Thread t = threadFactory.newThread(task);
         threads.add(t);
         t.start();
       }
