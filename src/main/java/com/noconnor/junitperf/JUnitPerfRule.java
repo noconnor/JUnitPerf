@@ -8,17 +8,17 @@ import com.noconnor.junitperf.statements.PerformanceEvaluationStatement.Performa
 
 import static java.util.Objects.nonNull;
 
-public class JunitPerfRule implements TestRule {
+public class JUnitPerfRule implements TestRule {
 
   private PerformanceEvaluationStatementBuilder perEvalBuilder;
 
   @SuppressWarnings("WeakerAccess")
-  public JunitPerfRule() {
+  public JUnitPerfRule() {
     this(PerformanceEvaluationStatement.perfEvalBuilder());
   }
 
   // Test only
-  JunitPerfRule(PerformanceEvaluationStatementBuilder perEvalBuilder) {
+  JUnitPerfRule(PerformanceEvaluationStatementBuilder perEvalBuilder) {
     this.perEvalBuilder = perEvalBuilder;
   }
 

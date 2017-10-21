@@ -14,14 +14,14 @@ import static org.mockito.Answers.RETURNS_SELF;
 import static org.mockito.Mockito.*;
 
 
-public class JunitPerfRuleTest extends BaseTest {
+public class JUnitPerfRuleTest extends BaseTest {
 
   private static final int DURATION = 22_000;
   private static final int RATE_LIMIT = 1_000;
   private static final int THREADS = 50;
   private static final int WARM_UP = 20_000;
 
-  private JunitPerfRule perfRule;
+  private JUnitPerfRule perfRule;
 
   @Mock
   private Statement statementMock;
@@ -43,7 +43,7 @@ public class JunitPerfRuleTest extends BaseTest {
     initialisePerfEvalBuilder();
     initialisePerfTestAnnotationMock();
     mockJunitPerfTestAnnotationPresent();
-    perfRule = new JunitPerfRule(perfEvalBuilderMock);
+    perfRule = new JUnitPerfRule(perfEvalBuilderMock);
   }
 
   @Test
