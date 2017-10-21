@@ -6,6 +6,7 @@ import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import com.noconnor.junitperf.BaseTest;
 
+import static com.noconnor.junitperf.statements.PerformanceEvaluationStatement.perfEvalBuilder;
 import static org.mockito.Mockito.verify;
 
 public class PerformanceEvaluationStatementTest extends BaseTest {
@@ -27,7 +28,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   }
 
   private PerformanceEvaluationStatement basicPerformanceEvaluationStatement() {
-    return PerformanceEvaluationStatement.builder().baseStatement(baseStatementMock).build();
+    return perfEvalBuilder().baseStatement(baseStatementMock).build();
   }
 
 }
