@@ -14,7 +14,7 @@ Statistical information includes:
 * test throughput (executions per second)
 * error percentage (exceptional test executions as a percentage of successful test executions)
 
-It also possible to apply threshold requirements to the gathered statistics using the `@JUnitPerfRequirement(...)` annotation
+It also possible to apply threshold requirements to the gathered statistics using the `@JUnitPerfTestRequirement(...)` annotation
 
 In addition to failing a unittest if thresholds are not meet, the framework will also generate a HTML report 
 containing a statistical analysis of the test run.
@@ -39,7 +39,7 @@ public void whenExecuting11Kqps_thenApiShouldNotCrash(){
 }
 ``` 
 
-* Optionally add performance test requirements annotation (`JUnitPerfRequirement`) to your performance test. 
+* Optionally add performance test requirements annotation (`JUnitPerfTestRequirement`) to your performance test. 
 These requirements will be applied to the statistics gathered during the performance test execution. 
 If thresholds are not met, test will fail.
 
@@ -47,7 +47,7 @@ If thresholds are not met, test will fail.
 ```
 @Test
 @JUnitPerfTest(threads = 50, duration = 125_000, warmUp = 80_000, rateLimit = 11_000)
-@JUnitPerfRequirement(percentiles = "90:7,95:7,98:7,99:8", throughput = 10_000, allowedErrorsRate = 0.018)
+@JUnitPerfTestRequirement(percentiles = "90:7,95:7,98:7,99:8", throughput = 10_000, allowedErrorsRate = 0.018)
 public void whenExecuting11Kqps_thenApiShouldNotCrash(){
   ...
 }
