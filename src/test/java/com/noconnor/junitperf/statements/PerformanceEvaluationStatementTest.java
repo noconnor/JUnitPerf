@@ -11,6 +11,9 @@ import com.noconnor.junitperf.BaseTest;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement.BuildTest;
 
 import static com.noconnor.junitperf.statements.PerformanceEvaluationStatement.perfEvalBuilderTest;
+import static java.lang.System.currentTimeMillis;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -56,6 +59,15 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
     basicPerformanceEvaluationBuilder().threadCount(10).build().evaluate();
     verify(threadFactoryMock, times(10)).newThread(any(EvaluationTask.class));
     verify(threadMock, times(10)).start();
+  }
+
+  @Test
+  public void whenEvaluatingABaseStatement_thenTheTestShouldEndWhenTheTestDurationExpires() throws Throwable {
+    long starTimeNs = currentTimeMillis();
+    basicPerformanceEvaluationBuilder().threadCount(10).testDurationMs(100).build().evaluate();
+    assertThat((currentTimeMillis() - starTimeNs), is(greaterThan(95L)));
+    assertThat((currentTimeMillis() - starTimeNs), is(lessThan(3 * 100L)));
+    verify(threadMock, times(10)).interrupt();
   }
 
   private BuildTest basicPerformanceEvaluationBuilder() {

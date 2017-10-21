@@ -2,11 +2,13 @@ package com.noconnor.junitperf.statements;
 
 import lombok.Builder;
 
+import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import org.junit.runners.model.Statement;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Lists.newArrayList;
 
 public class PerformanceEvaluationStatement extends Statement {
 
@@ -49,10 +51,17 @@ public class PerformanceEvaluationStatement extends Statement {
 
   @Override
   public void evaluate() throws Throwable {
-    for (int i = 0; i < threadCount; i++) {
-      threadFactory.newThread(new EvaluationTask(baseStatement)).start();
+    List<Thread> threads = newArrayList();
+    try {
+      for (int i = 0; i < threadCount; i++) {
+        Thread t = threadFactory.newThread(new EvaluationTask(baseStatement));
+        threads.add(t);
+        t.start();
+      }
+      Thread.sleep(testDurationMs);
+    } finally {
+      threads.forEach(Thread::interrupt);
     }
   }
-
-
+  
 }
