@@ -1,5 +1,6 @@
 package com.noconnor.junitperf.statements;
 
+import java.util.function.Supplier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runners.model.Statement;
@@ -20,10 +21,14 @@ public class EvaluationTaskTest extends BaseTest {
   @Mock
   private RateLimiter rateLimiterMock;
 
+  @Mock
+  private Supplier<Boolean> terminatorMock;
+
   @Before
   public void setup() {
     initialiseRateLimiterMock();
-    task = new EvaluationTask(statementMock, rateLimiterMock);
+    initialiseTerminatorMock();
+    task = new EvaluationTask(statementMock, rateLimiterMock, terminatorMock);
   }
 
   @Test
@@ -35,18 +40,22 @@ public class EvaluationTaskTest extends BaseTest {
   @Test
   public void whenRunning_thenAnAttemptShouldBeMadeToRetrieveAPermit() {
     task.run();
-    verify(rateLimiterMock).tryAcquire();
+    verify(rateLimiterMock).acquire();
   }
 
   @Test
   public void whenRateLimiterIsNull_thenRateLimitingShouldBeSkipped() throws Throwable {
-    task = new EvaluationTask(statementMock, null);
+    task = new EvaluationTask(statementMock, null, terminatorMock);
     task.run();
     verify(statementMock).evaluate();
   }
 
   private void initialiseRateLimiterMock() {
     when(rateLimiterMock.tryAcquire()).thenReturn(true);
+  }
+
+  private void initialiseTerminatorMock() {
+    when(terminatorMock.get()).thenReturn(false).thenReturn(true);
   }
 
 }
