@@ -1,4 +1,4 @@
-package com.noconnor.junitperf.annotations;
+package com.noconnor.junitperf;
 
 public @interface JUnitPerfRequirement {
 
