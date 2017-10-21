@@ -4,7 +4,7 @@ import lombok.Builder;
 
 import org.junit.runners.model.Statement;
 
-@Builder
+@Builder( builderMethodName = "perfEvalBuilder")
 public class PerformanceEvaluationStatement extends Statement {
 
   @Builder.Default
