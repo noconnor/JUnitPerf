@@ -33,7 +33,7 @@ This library interface was heavily influenced by the interface in the deprecated
 
 ```
 @Test
-@JUnitPerfTest(threads = 50, duration = 125_000, warmUp = 80_000, rampUp = 500, rateLimit = 11_000)
+@JUnitPerfTest(threads = 50, duration = 125_000, warmUp = 80_000, rateLimit = 11_000)
 public void whenExecuting11Kqps_thenApiShouldNotCrash(){
   ...
 }
@@ -46,7 +46,7 @@ If thresholds are not met, test will fail.
 
 ```
 @Test
-@JUnitPerfTest(threads = 50, duration = 125_000, warmUp = 80_000, rampUp = 500, rateLimit = 11_000)
+@JUnitPerfTest(threads = 50, duration = 125_000, warmUp = 80_000, rateLimit = 11_000)
 @JUnitPerfRequirement(percentiles = "90:7,95:7,98:7,99:8", throughput = 10_000, allowedErrorsRate = 0.018)
 public void whenExecuting11Kqps_thenApiShouldNotCrash(){
   ...
