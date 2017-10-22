@@ -1,5 +1,6 @@
 package com.noconnor.junitperf.statements;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +50,23 @@ public class EvaluationTaskTest extends BaseTest {
   }
 
   @Test
+  public void whenRunning_andStatementEvaluationThrowsAnException_thenStatsErrorCounterShouldBeIncremented() throws Throwable {
+    setExecutionCount(10);
+    mockEvaluationFailures(5);
+    task.run();
+    verify(statsMock, times(10)).incrementEvaluationCount();
+    verify(statsMock, times(5)).incrementErrorCount();
+  }
+
+  @Test
+  public void whenRunning_andStatementEvaluationThrowsAnException_thenLatencyMeasurementShouldBeTaken() throws Throwable {
+    setExecutionCount(10);
+    mockEvaluationFailures(5);
+    task.run();
+    verify(statsMock, times(10)).addLatencyMeasurement(anyLong());
+  }
+
+  @Test
   public void whenRunning_thenAnAttemptShouldBeMadeToRetrieveAPermit() {
     setExecutionCount(10);
     task.run();
@@ -61,6 +79,17 @@ public class EvaluationTaskTest extends BaseTest {
     task = new EvaluationTask(statementMock, null, terminatorMock, statsMock);
     task.run();
     verify(statementMock, times(10)).evaluate();
+  }
+
+  private void mockEvaluationFailures(int desiredFailureCount) throws Throwable {
+    AtomicInteger executions = new AtomicInteger();
+    doAnswer(invocation -> {
+      if (executions.getAndIncrement() < desiredFailureCount) {
+        throw new RuntimeException("mock exception");
+      }
+      return null;
+    }).when(statementMock).evaluate();
+
   }
 
   private void initialiseRateLimiterMock() {
