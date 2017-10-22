@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.stubbing.OngoingStubbing;
 import com.google.common.util.concurrent.RateLimiter;
 import com.noconnor.junitperf.BaseTest;
+import com.noconnor.junitperf.statistics.StatisticsEvaluator;
 
 import static org.mockito.Mockito.*;
 
@@ -24,10 +25,13 @@ public class EvaluationTaskTest extends BaseTest {
   @Mock
   private Supplier<Boolean> terminatorMock;
 
+  @Mock
+  private StatisticsEvaluator statsMock;
+
   @Before
   public void setup() {
     initialiseRateLimiterMock();
-    task = new EvaluationTask(statementMock, rateLimiterMock, terminatorMock);
+    task = new EvaluationTask(statementMock, rateLimiterMock, terminatorMock, statsMock);
   }
 
   @Test
@@ -35,6 +39,13 @@ public class EvaluationTaskTest extends BaseTest {
     setExecutionCount(1);
     task.run();
     verify(statementMock).evaluate();
+  }
+
+  @Test
+  public void whenRunning_thenStatsExecutionCounterShouldBeIncremented() throws Throwable {
+    setExecutionCount(5);
+    task.run();
+    verify(statsMock, times(5)).incrementEvaluationCount();
   }
 
   @Test
@@ -47,7 +58,7 @@ public class EvaluationTaskTest extends BaseTest {
   @Test
   public void whenRateLimiterIsNull_thenRateLimitingShouldBeSkipped() throws Throwable {
     setExecutionCount(10);
-    task = new EvaluationTask(statementMock, null, terminatorMock);
+    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock);
     task.run();
     verify(statementMock, times(10)).evaluate();
   }
