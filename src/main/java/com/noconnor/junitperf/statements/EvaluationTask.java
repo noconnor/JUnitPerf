@@ -5,6 +5,7 @@ import org.junit.runners.model.Statement;
 import com.google.common.util.concurrent.RateLimiter;
 import com.noconnor.junitperf.statistics.StatisticsEvaluator;
 
+import static java.lang.System.nanoTime;
 import static java.util.Objects.nonNull;
 
 public class EvaluationTask implements Runnable {
@@ -31,18 +32,25 @@ public class EvaluationTask implements Runnable {
 
   @Override
   public void run() {
-    try {
-      while (!terminator.get()) {
+    while (!terminator.get()) {
+      try {
         waitForPermit();
-        // evaluate statistics here only!
+        // evaluate statistics AFTER permit acquired
         stats.incrementEvaluationCount();
-        statement.evaluate();
-
+        evaluateStatement();
+      } catch (Throwable throwable) {
+        stats.incrementErrorCount();
       }
-    } catch (Throwable throwable) {
-      // IGNORE
     }
+  }
 
+  private void evaluateStatement() throws Throwable {
+    long startTimeNs = nanoTime();
+    try {
+      statement.evaluate();
+    } finally {
+      stats.addLatencyMeasurement(nanoTime() - startTimeNs);
+    }
   }
 
   private void waitForPermit() {
