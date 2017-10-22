@@ -16,6 +16,7 @@ dependencies {
     compile "com.google.guava:guava:19.0"
     compile "commons-collections:commons-collections:3.2.2"
     compile 'junit:junit:4.12'
+    compile 'commons-math:commons-math:1.2'
 
     testCompile 'org.mockito:mockito-core:2.11.0'
     testCompile "org.hamcrest:hamcrest-junit:2.0.0.0"
