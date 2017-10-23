@@ -91,8 +91,19 @@ public class JUnitPerfRuleTest extends BaseTest {
     verify(perfEvalBuilderMock).threadCount(THREADS);
     verify(perfEvalBuilderMock).warmUpPeriodMs(WARM_UP);
     verify(perfEvalBuilderMock).baseStatement(statementMock);
+    verify(perfEvalBuilderMock).validator(validatorMock);
     verify(perfEvalBuilderMock).build();
     verifyNoMoreInteractions(perfEvalBuilderMock);
+  }
+
+  @Test
+  public void whenExecutingApply_thenJunitPerfTestRequirementAnnotationAttributesShouldBeUsedWhenBuildingValidator() {
+    perfRule.apply(statementMock, descriptionMock);
+    verify(validatorBuilderMock).allowedErrorsRate(ALLOWED_ERRORS);
+    verify(validatorBuilderMock).expectedThroughput(THROUGHPUT);
+    verify(validatorBuilderMock).percentiles(PERCENTILES);
+    verify(validatorBuilderMock).build();
+    verifyNoMoreInteractions(validatorBuilderMock);
   }
 
   private void initialisePerfEvalBuilderMock() {

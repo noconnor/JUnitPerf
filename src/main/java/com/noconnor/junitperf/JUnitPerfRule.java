@@ -31,14 +31,28 @@ public class JUnitPerfRule implements TestRule {
     Statement activeStatement = base;
     JUnitPerfTest perfTestAnnotation = description.getAnnotation(JUnitPerfTest.class);
     JUnitPerfTestRequirement requirementsAnnotation = description.getAnnotation(JUnitPerfTestRequirement.class);
+
     if (nonNull(perfTestAnnotation)) {
+      EvaluationTaskValidator validator = buildValidator(requirementsAnnotation);
       activeStatement = perEvalBuilder.baseStatement(base)
         .rateLimitExecutionsPerSecond(perfTestAnnotation.rateLimit())
         .warmUpPeriodMs(perfTestAnnotation.warmUp())
         .threadCount(perfTestAnnotation.threads())
         .testDurationMs(perfTestAnnotation.duration())
+        .validator(validator)
         .build();
     }
     return activeStatement;
+  }
+
+  private EvaluationTaskValidator buildValidator(JUnitPerfTestRequirement annotation) {
+    EvaluationTaskValidator validator = null;
+    if (nonNull(annotation)) {
+      validator = validatorBuilder.percentiles(annotation.percentiles())
+        .expectedThroughput(annotation.throughput())
+        .allowedErrorsRate(annotation.allowedErrorsRate())
+        .build();
+    }
+    return validator;
   }
 }
