@@ -5,6 +5,8 @@ import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
+import com.noconnor.junitperf.statements.EvaluationTaskValidator;
+import com.noconnor.junitperf.statements.EvaluationTaskValidator.EvaluationTaskValidatorBuilder;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
 
@@ -20,6 +22,9 @@ public class JUnitPerfRuleTest extends BaseTest {
   private static final int RATE_LIMIT = 1_000;
   private static final int THREADS = 50;
   private static final int WARM_UP = 20_000;
+  private static final float ALLOWED_ERRORS = 0.1f;
+  private static final String PERCENTILES = "98:1.5,99:3.4";
+  private static final int THROUGHPUT = 1_000;
 
   private JUnitPerfRule perfRule;
 
@@ -30,20 +35,32 @@ public class JUnitPerfRuleTest extends BaseTest {
   private PerformanceEvaluationStatement perfEvalStatement;
 
   @Mock
+  private EvaluationTaskValidator validatorMock;
+
+  @Mock
   private Description descriptionMock;
 
   @Mock
   private JUnitPerfTest perfTestAnnotationMock;
 
+  @Mock
+  private JUnitPerfTestRequirement requirementAnnotationMock;
+
   @Mock(answer = RETURNS_SELF)
   private PerformanceEvaluationStatementBuilder perfEvalBuilderMock;
 
+  @Mock(answer = RETURNS_SELF)
+  private EvaluationTaskValidatorBuilder validatorBuilderMock;
+
   @Before
   public void setup() {
-    initialisePerfEvalBuilder();
+    initialisePerfEvalBuilderMock();
+    initialiseValidatorBuilderMock();
     initialisePerfTestAnnotationMock();
+    initialisePerfTestRequirementAnnotationMock();
     mockJunitPerfTestAnnotationPresent();
-    perfRule = new JUnitPerfRule(perfEvalBuilderMock);
+    mockJunitPerfTestRequirementAnnotationPresent();
+    perfRule = new JUnitPerfRule(perfEvalBuilderMock, validatorBuilderMock);
   }
 
   @Test
@@ -51,6 +68,13 @@ public class JUnitPerfRuleTest extends BaseTest {
     mockJunitPerfTestAnnotationNotPresent();
     Statement statement = perfRule.apply(statementMock, descriptionMock);
     assertThat(statement, is(statementMock));
+  }
+
+  @Test
+  public void whenExecutingApply_andNoJunitPerfTestRequirementsAnnotationIsPresent_thenNoValidatorShouldBeBuilt() {
+    mockJunitPerfTestRequirementAnnotationNotPresent();
+    perfRule.apply(statementMock, descriptionMock);
+    verifyZeroInteractions(validatorBuilderMock);
   }
 
   @Test
@@ -71,16 +95,28 @@ public class JUnitPerfRuleTest extends BaseTest {
     verifyNoMoreInteractions(perfEvalBuilderMock);
   }
 
-  private void initialisePerfEvalBuilder() {
+  private void initialisePerfEvalBuilderMock() {
     when(perfEvalBuilderMock.build()).thenReturn(perfEvalStatement);
+  }
+
+  private void initialiseValidatorBuilderMock() {
+    when(validatorBuilderMock.build()).thenReturn(validatorMock);
   }
 
   private void mockJunitPerfTestAnnotationPresent() {
     when(descriptionMock.getAnnotation(JUnitPerfTest.class)).thenReturn(perfTestAnnotationMock);
   }
 
+  private void mockJunitPerfTestRequirementAnnotationPresent() {
+    when(descriptionMock.getAnnotation(JUnitPerfTestRequirement.class)).thenReturn(requirementAnnotationMock);
+  }
+
   private void mockJunitPerfTestAnnotationNotPresent() {
     when(descriptionMock.getAnnotation(JUnitPerfTest.class)).thenReturn(null);
+  }
+
+  private void mockJunitPerfTestRequirementAnnotationNotPresent() {
+    when(descriptionMock.getAnnotation(JUnitPerfTestRequirement.class)).thenReturn(null);
   }
 
   private void initialisePerfTestAnnotationMock() {
@@ -88,6 +124,12 @@ public class JUnitPerfRuleTest extends BaseTest {
     when(perfTestAnnotationMock.rateLimit()).thenReturn(RATE_LIMIT);
     when(perfTestAnnotationMock.threads()).thenReturn(THREADS);
     when(perfTestAnnotationMock.warmUp()).thenReturn(WARM_UP);
+  }
+
+  private void initialisePerfTestRequirementAnnotationMock() {
+    when(requirementAnnotationMock.allowedErrorsRate()).thenReturn(ALLOWED_ERRORS);
+    when(requirementAnnotationMock.percentiles()).thenReturn(PERCENTILES);
+    when(requirementAnnotationMock.throughput()).thenReturn(THROUGHPUT);
   }
 
 }
