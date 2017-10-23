@@ -24,14 +24,16 @@ public class PerformanceEvaluationStatement extends Statement {
   private final ThreadFactory threadFactory;
   private final Statement baseStatement;
   private final RateLimiter rateLimiter;
+  private final EvaluationTaskValidator validator;
 
   @Builder(builderMethodName = "perfEvalBuilder")
   private PerformanceEvaluationStatement(int threadCount,
                                          int testDurationMs,
                                          int warmUpPeriodMs,
                                          int rateLimitExecutionsPerSecond,
-                                         Statement baseStatement) {
-    this(threadCount, testDurationMs, warmUpPeriodMs, rateLimitExecutionsPerSecond, baseStatement, FACTORY);
+                                         Statement baseStatement,
+                                         EvaluationTaskValidator validator) {
+    this(threadCount, testDurationMs, warmUpPeriodMs, rateLimitExecutionsPerSecond, baseStatement, FACTORY, validator);
   }
 
   @Builder(builderMethodName = "perfEvalBuilderTest", builderClassName = "BuildTest")
@@ -40,7 +42,8 @@ public class PerformanceEvaluationStatement extends Statement {
                                          int warmUpPeriodMs,
                                          int rateLimitExecutionsPerSecond,
                                          Statement baseStatement,
-                                         ThreadFactory threadFactory) {
+                                         ThreadFactory threadFactory,
+                                         EvaluationTaskValidator validator) {
 
     checkArgument(threadCount >= 1, "Thread count must be >= 1");
     checkArgument(testDurationMs >= 1, "Test duration count must be >= 1");
@@ -50,6 +53,7 @@ public class PerformanceEvaluationStatement extends Statement {
     this.baseStatement = baseStatement;
     this.threadFactory = threadFactory;
     this.rateLimiter = rateLimitExecutionsPerSecond > 0 ? RateLimiter.create(rateLimitExecutionsPerSecond) : null;
+    this.validator = validator;
   }
 
   @Override
