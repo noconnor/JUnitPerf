@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadFactory;
 import org.junit.runners.model.Statement;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.noconnor.junitperf.statistics.DescriptiveStatisticsEvaluator;
+import com.noconnor.junitperf.statistics.providers.DescriptiveStatisticsEvaluator;
 import com.noconnor.junitperf.statistics.StatisticsEvaluator;
 
 import static com.google.common.base.Preconditions.checkArgument;
