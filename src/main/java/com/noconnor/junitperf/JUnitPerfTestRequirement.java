@@ -1,5 +1,12 @@
 package com.noconnor.junitperf;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
 public @interface JUnitPerfTestRequirement {
 
   // Expected target percentile distribution in the format "percentile1:expected_value_ms,percentile2:expected_value_ms,..."

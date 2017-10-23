@@ -8,4 +8,16 @@ public interface StatisticsEvaluator {
 
   void incrementEvaluationCount();
 
+  long getErrorCount();
+
+  long getEvaluationCount();
+
+  long getLatencyPercentile(int percentile);
+
+  long getMaxLatency();
+
+  long getMinLatency();
+
+  long getMeanLatency();
+
 }
