@@ -73,9 +73,14 @@ public class PerformanceEvaluationStatement extends Statement {
       threads.forEach(Thread::interrupt);
     }
     applyValidation();
+    generateReport();
   }
 
   private void applyValidation() {
+
+  }
+
+  private void generateReport() {
 
   }
 
