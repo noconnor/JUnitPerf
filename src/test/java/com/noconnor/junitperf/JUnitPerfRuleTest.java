@@ -5,10 +5,10 @@ import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
-import com.noconnor.junitperf.statements.EvaluationTaskValidator;
-import com.noconnor.junitperf.statements.EvaluationTaskValidator.EvaluationTaskValidatorBuilder;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
+import com.noconnor.junitperf.statistics.StatisticsValidator;
+import com.noconnor.junitperf.statistics.StatisticsValidator.StatisticsValidatorBuilder;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -35,7 +35,7 @@ public class JUnitPerfRuleTest extends BaseTest {
   private PerformanceEvaluationStatement perfEvalStatement;
 
   @Mock
-  private EvaluationTaskValidator validatorMock;
+  private StatisticsValidator validatorMock;
 
   @Mock
   private Description descriptionMock;
@@ -50,7 +50,7 @@ public class JUnitPerfRuleTest extends BaseTest {
   private PerformanceEvaluationStatementBuilder perfEvalBuilderMock;
 
   @Mock(answer = RETURNS_SELF)
-  private EvaluationTaskValidatorBuilder validatorBuilderMock;
+  private StatisticsValidatorBuilder validatorBuilderMock;
 
   @Before
   public void setup() {
