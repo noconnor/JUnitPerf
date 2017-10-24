@@ -5,8 +5,10 @@ import lombok.Value;
 
 import java.util.Map;
 
-import static com.noconnor.junitperf.statistics.utils.StatisticsUtils.calculatePercentageError;
-import static com.noconnor.junitperf.statistics.utils.StatisticsUtils.calculateThroughputPerSecond;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.noconnor.junitperf.statistics.utils.StatisticsUtils.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class StatisticsValidator {
 
@@ -22,13 +24,23 @@ public class StatisticsValidator {
     this.percentiles = percentiles;
     this.durationMs = durationMs;
   }
-  
+
   public ValidationResult validate(Statistics statistics) {
     return ValidationResult.builder()
       .isThroughputAchieved(calculateThroughputPerSecond(statistics, durationMs) >= expectedThroughput)
       .isErrorThresholdAchieved(calculatePercentageError(statistics) <= allowedErrorsRate)
-      .percentileResults(null)
+      .percentileResults(evaluateLatencyPercentiles(statistics))
       .build();
+  }
+
+  private Map<Integer, Boolean> evaluateLatencyPercentiles(Statistics statistics) {
+    Map<Integer, Boolean> results = newHashMap();
+    parsePercentileLimits(percentiles).forEach((percentile, thresholdMs) -> {
+      long thresholdNs = (long)(thresholdMs * MILLISECONDS.toNanos(1));
+      boolean result = statistics.getLatencyPercentile(percentile) <= thresholdNs;
+      results.put(percentile, result);
+    });
+    return results;
   }
 
   @Value
