@@ -6,6 +6,8 @@ import org.mockito.Mock;
 import com.noconnor.junitperf.BaseTest;
 import com.noconnor.junitperf.statistics.StatisticsValidator.ValidationResult;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
@@ -42,7 +44,7 @@ public class StatisticsValidatorTest extends BaseTest {
   }
 
   @Test
-  public void whenValidatingStatistics_andErrorRateIsAboveThreshold_thenValidationFail() {
+  public void whenValidatingStatistics_andErrorRateIsAboveThreshold_thenValidationShouldFail() {
     when(statisticsMock.getEvaluationCount()).thenReturn(1_000L);
     when(statisticsMock.getErrorCount()).thenReturn(500L);
     ValidationResult result = validator.validate(statisticsMock);
@@ -50,11 +52,29 @@ public class StatisticsValidatorTest extends BaseTest {
   }
 
   @Test
-  public void whenValidatingStatistics_andErrorRateIsBelowThreshold_thenValidationPass() {
+  public void whenValidatingStatistics_andErrorRateIsBelowThreshold_thenValidationShouldPass() {
     when(statisticsMock.getEvaluationCount()).thenReturn(1_000L);
     when(statisticsMock.getErrorCount()).thenReturn(100L);
     ValidationResult result = validator.validate(statisticsMock);
     assertThat(result.isErrorThresholdAchieved(), is(true));
+  }
+
+  @Test
+  public void whenValidatingStatistics_andPercentileLimitsHavenBeenMet_thenValidationShouldPass() {
+    when(statisticsMock.getLatencyPercentile(90)).thenReturn(NANOSECONDS.convert(5, MILLISECONDS));
+    when(statisticsMock.getLatencyPercentile(99)).thenReturn(NANOSECONDS.convert(10, MILLISECONDS));
+    ValidationResult result = validator.validate(statisticsMock);
+    assertThat(result.getPercentileResults().get(90), is(true));
+    assertThat(result.getPercentileResults().get(99), is(true));
+  }
+
+  @Test
+  public void whenValidatingStatistics_andSomePercentileLimitsHavenBeenMet_thenValidationShouldPassAndFail() {
+    when(statisticsMock.getLatencyPercentile(90)).thenReturn(NANOSECONDS.convert(5, MILLISECONDS));
+    when(statisticsMock.getLatencyPercentile(99)).thenReturn(NANOSECONDS.convert(20, MILLISECONDS));
+    ValidationResult result = validator.validate(statisticsMock);
+    assertThat(result.getPercentileResults().get(90), is(true));
+    assertThat(result.getPercentileResults().get(99), is(false));
   }
 
 }
