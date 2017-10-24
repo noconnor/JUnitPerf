@@ -3,10 +3,17 @@ package com.noconnor.junitperf.statistics.utils;
 import lombok.experimental.UtilityClass;
 
 import java.util.Map;
+import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import com.google.common.primitives.Floats;
+import com.google.common.primitives.Ints;
 import com.noconnor.junitperf.statistics.Statistics;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
+import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @UtilityClass
 public class StatisticsUtils {
@@ -27,7 +34,16 @@ public class StatisticsUtils {
   }
 
   public static Map<Integer, Float> parsePercentileLimits(String percentileLimits) {
-    return null;
+    Map<Integer, Float> limits = newHashMap();
+    if (isNotBlank(percentileLimits)) {
+      Stream.of(percentileLimits.split(","))
+        .map(entry -> entry.split(":"))
+        .filter(entry -> entry.length == 2)
+        .map(entry -> ImmutablePair.of(Ints.tryParse(entry[0]), Floats.tryParse(entry[1])))
+        .filter(entry -> nonNull(entry.getLeft()) && nonNull(entry.getRight()))
+        .forEach(entry -> limits.put(entry.getLeft(), entry.getRight()));
+    }
+    return limits;
   }
 
 }
