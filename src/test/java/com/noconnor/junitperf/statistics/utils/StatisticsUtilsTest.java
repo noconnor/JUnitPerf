@@ -1,14 +1,16 @@
 package com.noconnor.junitperf.statistics.utils;
 
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
+import com.google.common.collect.ImmutableMap;
 import com.noconnor.junitperf.BaseTest;
 import com.noconnor.junitperf.statistics.Statistics;
 
-import static com.noconnor.junitperf.statistics.utils.StatisticsUtils.calculatePercentageError;
-import static com.noconnor.junitperf.statistics.utils.StatisticsUtils.calculateThroughputPerSecond;
+import static com.noconnor.junitperf.statistics.utils.StatisticsUtils.*;
+import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -78,6 +80,31 @@ public class StatisticsUtilsTest extends BaseTest {
     exception.expect(IllegalArgumentException.class);
     exception.expectMessage("Evaluation count must be > error [count:0, error:500]");
     assertThat(calculatePercentageError(statistics), is(0F));
+  }
+
+  @Test
+  public void whenParsingPercentileLimits_thenValidLimitsShouldBeParsedCorrectly() {
+    Map<Integer, Float> limits = parsePercentileLimits("90:2,95:5,99:6.7");
+    Map<Integer, Float> expected = ImmutableMap.of(90, 2F, 95, 5F, 99, 6.7F);
+    assertThat(limits, is(expected));
+  }
+
+  @Test
+  public void whenParsingPercentileLimits_andPercentilesAreNullOrEmptyOrBlank_thenEmptyLimitsShouldBeReturned() {
+    assertThat(parsePercentileLimits(""), is(anEmptyMap()));
+    assertThat(parsePercentileLimits("  "), is(anEmptyMap()));
+    assertThat(parsePercentileLimits(null), is(anEmptyMap()));
+  }
+
+  @Test
+  public void whenParsingPercentileLimits_andEntriesAreInvalid_thenInvalidEntriesShouldBeFiltered() {
+    assertThat(parsePercentileLimits("90:,95:5"), is(ImmutableMap.of(95, 5F)));
+    assertThat(parsePercentileLimits("90:part,94:5"), is(ImmutableMap.of(94, 5F)));
+    assertThat(parsePercentileLimits("90:1.2,ss:5"), is(ImmutableMap.of(90, 1.2F)));
+    assertThat(parsePercentileLimits("90:dd,ss:5"), is(anEmptyMap()));
+    assertThat(parsePercentileLimits("90.444:1.2,ss:5"), is(anEmptyMap()));
+    assertThat(parsePercentileLimits("90.666:1.2,ss653:5"), is(anEmptyMap()));
+    assertThat(parsePercentileLimits("90,,,,ss653:5,7:9"), is(ImmutableMap.of(7, 9F)));
   }
 
 }
