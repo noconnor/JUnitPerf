@@ -3,25 +3,25 @@ package com.noconnor.junitperf;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import com.noconnor.junitperf.statements.EvaluationTaskValidator;
-import com.noconnor.junitperf.statements.EvaluationTaskValidator.EvaluationTaskValidatorBuilder;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
+import com.noconnor.junitperf.statistics.StatisticsValidator;
+import com.noconnor.junitperf.statistics.StatisticsValidator.StatisticsValidatorBuilder;
 
 import static java.util.Objects.nonNull;
 
 public class JUnitPerfRule implements TestRule {
 
   private final PerformanceEvaluationStatementBuilder perEvalBuilder;
-  private final EvaluationTaskValidatorBuilder validatorBuilder;
+  private final StatisticsValidatorBuilder validatorBuilder;
 
   @SuppressWarnings("WeakerAccess")
   public JUnitPerfRule() {
-    this(PerformanceEvaluationStatement.perfEvalBuilder(), EvaluationTaskValidator.builder());
+    this(PerformanceEvaluationStatement.perfEvalBuilder(), StatisticsValidator.builder());
   }
 
   // Test only
-  JUnitPerfRule(PerformanceEvaluationStatementBuilder perEvalBuilder, EvaluationTaskValidatorBuilder validatorBuilder) {
+  JUnitPerfRule(PerformanceEvaluationStatementBuilder perEvalBuilder, StatisticsValidatorBuilder validatorBuilder) {
     this.perEvalBuilder = perEvalBuilder;
     this.validatorBuilder = validatorBuilder;
   }
@@ -33,20 +33,19 @@ public class JUnitPerfRule implements TestRule {
     JUnitPerfTestRequirement requirementsAnnotation = description.getAnnotation(JUnitPerfTestRequirement.class);
 
     if (nonNull(perfTestAnnotation)) {
-      EvaluationTaskValidator validator = buildValidator(requirementsAnnotation);
       activeStatement = perEvalBuilder.baseStatement(base)
         .rateLimitExecutionsPerSecond(perfTestAnnotation.rateLimit())
         .warmUpPeriodMs(perfTestAnnotation.warmUp())
         .threadCount(perfTestAnnotation.threads())
         .testDurationMs(perfTestAnnotation.duration())
-        .validator(validator)
+        .validator(buildValidator(requirementsAnnotation))
         .build();
     }
     return activeStatement;
   }
 
-  private EvaluationTaskValidator buildValidator(JUnitPerfTestRequirement annotation) {
-    EvaluationTaskValidator validator = null;
+  private StatisticsValidator buildValidator(JUnitPerfTestRequirement annotation) {
+    StatisticsValidator validator = null;
     if (nonNull(annotation)) {
       validator = validatorBuilder.percentiles(annotation.percentiles())
         .expectedThroughput(annotation.throughput())

@@ -1,6 +1,5 @@
 package com.noconnor.junitperf.statistics.providers;
 
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Spy;
@@ -10,16 +9,16 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 
-public class DescriptiveStatisticsEvaluatorTest extends BaseTest {
+public class DescriptiveStatisticsTest extends BaseTest {
 
-  private DescriptiveStatisticsEvaluator evaluator;
+  private DescriptiveStatistics evaluator;
 
   @Spy
-  private DescriptiveStatistics statsMock;
+  private org.apache.commons.math.stat.descriptive.DescriptiveStatistics statsMock;
 
   @Before
   public void setup() {
-    evaluator = new DescriptiveStatisticsEvaluator(statsMock);
+    evaluator = new DescriptiveStatistics(statsMock);
   }
 
   @Test

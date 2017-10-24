@@ -7,8 +7,9 @@ import java.util.concurrent.ThreadFactory;
 import org.junit.runners.model.Statement;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.noconnor.junitperf.statistics.StatisticsEvaluator;
-import com.noconnor.junitperf.statistics.providers.DescriptiveStatisticsEvaluator;
+import com.noconnor.junitperf.statistics.Statistics;
+import com.noconnor.junitperf.statistics.StatisticsValidator;
+import com.noconnor.junitperf.statistics.providers.DescriptiveStatistics;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
@@ -24,7 +25,7 @@ public class PerformanceEvaluationStatement extends Statement {
   private final ThreadFactory threadFactory;
   private final Statement baseStatement;
   private final RateLimiter rateLimiter;
-  private final EvaluationTaskValidator validator;
+  private final StatisticsValidator validator;
 
   @Builder(builderMethodName = "perfEvalBuilder")
   private PerformanceEvaluationStatement(int threadCount,
@@ -32,7 +33,7 @@ public class PerformanceEvaluationStatement extends Statement {
                                          int warmUpPeriodMs,
                                          int rateLimitExecutionsPerSecond,
                                          Statement baseStatement,
-                                         EvaluationTaskValidator validator) {
+                                         StatisticsValidator validator) {
     this(threadCount, testDurationMs, warmUpPeriodMs, rateLimitExecutionsPerSecond, baseStatement, FACTORY, validator);
   }
 
@@ -43,7 +44,7 @@ public class PerformanceEvaluationStatement extends Statement {
                                          int rateLimitExecutionsPerSecond,
                                          Statement baseStatement,
                                          ThreadFactory threadFactory,
-                                         EvaluationTaskValidator validator) {
+                                         StatisticsValidator validator) {
 
     checkArgument(threadCount >= 1, "Thread count must be >= 1");
     checkArgument(testDurationMs >= 1, "Test duration count must be >= 1");
@@ -59,10 +60,10 @@ public class PerformanceEvaluationStatement extends Statement {
   @Override
   public void evaluate() throws Throwable {
     List<Thread> threads = newArrayList();
-    StatisticsEvaluator evaluator = new DescriptiveStatisticsEvaluator();
+    Statistics statistics = new DescriptiveStatistics();
     try {
       for (int i = 0; i < threadCount; i++) {
-        EvaluationTask task = new EvaluationTask(baseStatement, rateLimiter, evaluator, warmUpPeriodMs);
+        EvaluationTask task = new EvaluationTask(baseStatement, rateLimiter, statistics, warmUpPeriodMs);
         Thread t = threadFactory.newThread(task);
         threads.add(t);
         t.start();
@@ -71,6 +72,11 @@ public class PerformanceEvaluationStatement extends Statement {
     } finally {
       threads.forEach(Thread::interrupt);
     }
+    applyValidation();
+  }
+
+  private void applyValidation() {
+
   }
 
 }

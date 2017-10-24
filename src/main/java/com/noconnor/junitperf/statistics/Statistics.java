@@ -1,6 +1,6 @@
 package com.noconnor.junitperf.statistics;
 
-public interface StatisticsEvaluator {
+public interface Statistics {
 
   void addLatencyMeasurement(long executionTimeNs);
 

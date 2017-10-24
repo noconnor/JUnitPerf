@@ -3,7 +3,7 @@ package com.noconnor.junitperf.statements;
 import java.util.function.Supplier;
 import org.junit.runners.model.Statement;
 import com.google.common.util.concurrent.RateLimiter;
-import com.noconnor.junitperf.statistics.StatisticsEvaluator;
+import com.noconnor.junitperf.statistics.Statistics;
 
 import static java.lang.System.nanoTime;
 import static java.util.Objects.nonNull;
@@ -15,10 +15,10 @@ public class EvaluationTask implements Runnable {
   private final Statement statement;
   private final RateLimiter rateLimiter;
   private final Supplier<Boolean> terminator;
-  private final StatisticsEvaluator stats;
+  private final Statistics stats;
   private final long warmUpPeriodNs;
 
-  EvaluationTask(Statement statement, RateLimiter rateLimiter, StatisticsEvaluator stats, int warmUpPeriodMs) {
+  EvaluationTask(Statement statement, RateLimiter rateLimiter, Statistics stats, int warmUpPeriodMs) {
     this(statement, rateLimiter, () -> Thread.currentThread().isInterrupted(), stats, warmUpPeriodMs);
   }
 
@@ -26,7 +26,7 @@ public class EvaluationTask implements Runnable {
   EvaluationTask(Statement statement,
                  RateLimiter rateLimiter,
                  Supplier<Boolean> terminator,
-                 StatisticsEvaluator stats,
+                 Statistics stats,
                  int warmUpPeriodMs) {
     this.statement = statement;
     this.rateLimiter = rateLimiter;
