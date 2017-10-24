@@ -32,7 +32,7 @@ public class EvaluationTaskTest extends BaseTest {
   @Before
   public void setup() {
     initialiseRateLimiterMock();
-    task = new EvaluationTask(statementMock, rateLimiterMock, terminatorMock, statsMock);
+    task = new EvaluationTask(statementMock, rateLimiterMock, terminatorMock, statsMock, 0);
   }
 
   @Test
@@ -76,9 +76,26 @@ public class EvaluationTaskTest extends BaseTest {
   @Test
   public void whenRateLimiterIsNull_thenRateLimitingShouldBeSkipped() throws Throwable {
     setExecutionCount(10);
-    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock);
+    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 0);
     task.run();
     verify(statementMock, times(10)).evaluate();
+  }
+
+  @Test
+  public void whenWarmUpPeriodIsNonZero_thenNoMeasurementsShouldBeTaken() throws Throwable {
+    setExecutionCount(10);
+    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 100);
+    task.run();
+    verifyZeroInteractions(statsMock);
+  }
+
+  @Test
+  public void whenWarmUpPeriodIsNonZero_andWarmupPeriodExpired_thenMeasurementsShouldBeTaken() throws Throwable {
+    setExecutionCount(10000);
+    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 10);
+    task.run();
+    verify(statsMock, atLeastOnce()).incrementEvaluationCount();
+    verify(statsMock, atLeastOnce()).addLatencyMeasurement(anyLong());
   }
 
   private void mockEvaluationFailures(int desiredFailureCount) throws Throwable {
