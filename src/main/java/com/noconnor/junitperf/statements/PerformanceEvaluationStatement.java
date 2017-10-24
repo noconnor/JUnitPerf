@@ -7,8 +7,8 @@ import java.util.concurrent.ThreadFactory;
 import org.junit.runners.model.Statement;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.noconnor.junitperf.statistics.providers.DescriptiveStatisticsEvaluator;
 import com.noconnor.junitperf.statistics.StatisticsEvaluator;
+import com.noconnor.junitperf.statistics.providers.DescriptiveStatisticsEvaluator;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
@@ -62,7 +62,7 @@ public class PerformanceEvaluationStatement extends Statement {
     StatisticsEvaluator evaluator = new DescriptiveStatisticsEvaluator();
     try {
       for (int i = 0; i < threadCount; i++) {
-        EvaluationTask task = new EvaluationTask(baseStatement, rateLimiter, evaluator);
+        EvaluationTask task = new EvaluationTask(baseStatement, rateLimiter, evaluator, warmUpPeriodMs);
         Thread t = threadFactory.newThread(task);
         threads.add(t);
         t.start();
