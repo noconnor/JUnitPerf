@@ -9,10 +9,14 @@ import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.noconnor.junitperf.statistics.Statistics;
 import com.noconnor.junitperf.statistics.StatisticsValidator;
+import com.noconnor.junitperf.statistics.StatisticsValidator.ValidationResult;
 import com.noconnor.junitperf.statistics.providers.DescriptiveStatistics;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class PerformanceEvaluationStatement extends Statement {
 
@@ -72,16 +76,21 @@ public class PerformanceEvaluationStatement extends Statement {
     } finally {
       threads.forEach(Thread::interrupt);
     }
-    applyValidation();
-    generateReport();
+    ValidationResult result = validator.validate(statistics);
+    generateReport(result);
+    assertThatResultsAreCorrect(result);
   }
 
-  private void applyValidation() {
-
+  private void generateReport(ValidationResult result) {
+    // TODO
   }
 
-  private void generateReport() {
-
+  private void assertThatResultsAreCorrect(ValidationResult result) {
+    assertThat("Error threshold not achieved", result.isErrorThresholdAchieved(), is(true));
+    assertThat("Test throughput threshold not achieved", result.isThroughputAchieved(), is(true));
+    result.getPercentileResults().forEach((percentile, isAchieved) -> {
+      assertThat(format("%dth Percentile has not achieved required threshold", percentile), isAchieved, is(true));
+    });
   }
 
 }
