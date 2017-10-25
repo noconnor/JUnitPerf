@@ -9,7 +9,7 @@ import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.noconnor.junitperf.data.EvaluationContext;
 import com.noconnor.junitperf.statistics.Statistics;
-import com.noconnor.junitperf.statistics.providers.DescriptiveStatistics;
+import com.noconnor.junitperf.statistics.providers.ApacheDescriptiveStatistics;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.util.concurrent.RateLimiter.create;
@@ -45,7 +45,7 @@ public class PerformanceEvaluationStatement extends Statement {
   @Override
   public void evaluate() throws Throwable {
     List<Thread> threads = newArrayList();
-    Statistics statistics = new DescriptiveStatistics();
+    Statistics statistics = new ApacheDescriptiveStatistics();
     try {
       for (int i = 0; i < context.getConfiguredThreads(); i++) {
         EvaluationTask task = new EvaluationTask(baseStatement, rateLimiter, statistics, context.getConfiguredWarmUp());

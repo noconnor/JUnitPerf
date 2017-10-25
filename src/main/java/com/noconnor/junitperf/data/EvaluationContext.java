@@ -50,6 +50,7 @@ public class EvaluationContext {
   private final StatisticsValidator validator;
 
   public void loadConfiguration(JUnitPerfTest testSettings) {
+    // TODO: validate annotation attributes
     checkNotNull(testSettings, "Test settings must not be null");
     configuredThreads = testSettings.threads();
     configuredDuration = testSettings.duration();
@@ -60,6 +61,7 @@ public class EvaluationContext {
   public void loadRequirements(JUnitPerfTestRequirement requirements) {
     validationRequired = nonNull(requirements);
     if (validationRequired) {
+      // TODO: validate annotation attributes
       validationRequired = true;
       requiredThroughput = requirements.throughput();
       requiredAllowedErrorsRate = requirements.allowedErrorsRate();
