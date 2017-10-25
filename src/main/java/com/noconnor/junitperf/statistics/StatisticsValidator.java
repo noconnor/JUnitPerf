@@ -8,7 +8,6 @@ import java.util.Map;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.noconnor.junitperf.statistics.utils.StatisticsUtils.*;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class StatisticsValidator {
 
@@ -18,7 +17,7 @@ public class StatisticsValidator {
   private final int durationMs;
 
   @Builder
-  public StatisticsValidator(int expectedThroughput, float allowedErrorsRate, String percentiles, int durationMs) {
+  StatisticsValidator(int expectedThroughput, float allowedErrorsRate, String percentiles, int durationMs) {
     this.expectedThroughput = expectedThroughput;
     this.allowedErrorsRate = allowedErrorsRate;
     this.percentiles = percentiles;

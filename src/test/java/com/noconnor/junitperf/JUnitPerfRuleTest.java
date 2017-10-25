@@ -102,6 +102,7 @@ public class JUnitPerfRuleTest extends BaseTest {
     verify(validatorBuilderMock).allowedErrorsRate(ALLOWED_ERRORS);
     verify(validatorBuilderMock).expectedThroughput(THROUGHPUT);
     verify(validatorBuilderMock).percentiles(PERCENTILES);
+    verify(validatorBuilderMock).durationMs(DURATION);
     verify(validatorBuilderMock).build();
     verifyNoMoreInteractions(validatorBuilderMock);
   }

@@ -16,7 +16,7 @@ public @interface JUnitPerfTest {
   int duration() default 60_000;
 
   // During the warm up period (milliseconds) test execution results will be ignored and will not be considered in test result evaluations
-  int warmUp() default 10_000;
+  int warmUp() default 0;
 
   // Test will execute no more that specified "rateLimit" executions per second
   // Default value is no limit

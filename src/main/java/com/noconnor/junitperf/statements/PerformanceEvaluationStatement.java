@@ -1,6 +1,7 @@
 package com.noconnor.junitperf.statements;
 
 import lombok.Builder;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
@@ -30,6 +31,9 @@ public class PerformanceEvaluationStatement extends Statement {
   private final Statement baseStatement;
   private final RateLimiter rateLimiter;
   private final StatisticsValidator validator;
+
+  @Getter
+  private ValidationResult evaluationResult;
 
   @Builder(builderMethodName = "perfEvalBuilder")
   private PerformanceEvaluationStatement(int threadCount,
@@ -76,19 +80,14 @@ public class PerformanceEvaluationStatement extends Statement {
     } finally {
       threads.forEach(Thread::interrupt);
     }
-    ValidationResult result = validator.validate(statistics);
-    generateReport(result);
-    assertThatResultsAreCorrect(result);
+    evaluationResult = validator.validate(statistics);
+    assertThresholdsMet();
   }
 
-  private void generateReport(ValidationResult result) {
-    // TODO
-  }
-
-  private void assertThatResultsAreCorrect(ValidationResult result) {
-    assertThat("Error threshold not achieved", result.isErrorThresholdAchieved(), is(true));
-    assertThat("Test throughput threshold not achieved", result.isThroughputAchieved(), is(true));
-    result.getPercentileResults().forEach((percentile, isAchieved) -> {
+  private void assertThresholdsMet() {
+    assertThat("Error threshold not achieved", evaluationResult.isErrorThresholdAchieved(), is(true));
+    assertThat("Test throughput threshold not achieved", evaluationResult.isThroughputAchieved(), is(true));
+    evaluationResult.getPercentileResults().forEach((percentile, isAchieved) -> {
       assertThat(format("%dth Percentile has not achieved required threshold", percentile), isAchieved, is(true));
     });
   }

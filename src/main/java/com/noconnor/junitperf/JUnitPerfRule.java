@@ -38,18 +38,19 @@ public class JUnitPerfRule implements TestRule {
         .warmUpPeriodMs(perfTestAnnotation.warmUp())
         .threadCount(perfTestAnnotation.threads())
         .testDurationMs(perfTestAnnotation.duration())
-        .validator(buildValidator(requirementsAnnotation))
+        .validator(buildValidator(requirementsAnnotation, perfTestAnnotation.duration()))
         .build();
     }
     return activeStatement;
   }
 
-  private StatisticsValidator buildValidator(JUnitPerfTestRequirement annotation) {
+  private StatisticsValidator buildValidator(JUnitPerfTestRequirement annotation, int testDurationMs) {
     StatisticsValidator validator = null;
     if (nonNull(annotation)) {
       validator = validatorBuilder.percentiles(annotation.percentiles())
         .expectedThroughput(annotation.throughput())
         .allowedErrorsRate(annotation.allowedErrorsRate())
+        .durationMs(testDurationMs)
         .build();
     }
     return validator;
