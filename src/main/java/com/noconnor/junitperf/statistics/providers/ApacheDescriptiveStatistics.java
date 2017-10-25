@@ -1,21 +1,22 @@
 package com.noconnor.junitperf.statistics.providers;
 
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math.stat.descriptive.SynchronizedDescriptiveStatistics;
 import com.noconnor.junitperf.statistics.Statistics;
 
-public class DescriptiveStatistics implements Statistics {
+public class ApacheDescriptiveStatistics implements Statistics {
 
-  private final org.apache.commons.math.stat.descriptive.DescriptiveStatistics statistics;
+  private final DescriptiveStatistics statistics;
   private final AtomicLong errorCount = new AtomicLong();
   private final AtomicLong evaluationCount = new AtomicLong();
 
   // http://commons.apache.org/proper/commons-math/userguide/stat.html#a1.2_Descriptive_statistics
-  public DescriptiveStatistics() {
+  public ApacheDescriptiveStatistics() {
     this(new SynchronizedDescriptiveStatistics());
   }
 
-  DescriptiveStatistics(org.apache.commons.math.stat.descriptive.DescriptiveStatistics statistics) {
+  ApacheDescriptiveStatistics(DescriptiveStatistics statistics) {
     this.statistics = statistics;
   }
 
