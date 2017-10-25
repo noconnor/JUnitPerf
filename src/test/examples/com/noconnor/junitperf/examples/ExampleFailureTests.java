@@ -11,7 +11,7 @@ public class ExampleFailureTests {
   @Rule
   public JUnitPerfRule perfRule = new JUnitPerfRule();
 
-  @Test(expected = AssertionError.class)
+  @Test
   @JUnitPerfTest(threads = 1, duration = 10_000, rateLimit = 1_000)
   @JUnitPerfTestRequirement(throughput = 10_000)
   public void whenThroughputRequirementIsNotMet_thenTestShouldFailOnThroughputRequirementNotMet() throws InterruptedException {

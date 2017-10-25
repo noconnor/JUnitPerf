@@ -5,10 +5,10 @@ import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
+import com.noconnor.junitperf.data.EvaluationContext;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
 import com.noconnor.junitperf.statistics.StatisticsValidator;
-import com.noconnor.junitperf.statistics.StatisticsValidator.StatisticsValidatorBuilder;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -49,18 +49,14 @@ public class JUnitPerfRuleTest extends BaseTest {
   @Mock(answer = RETURNS_SELF)
   private PerformanceEvaluationStatementBuilder perfEvalBuilderMock;
 
-  @Mock(answer = RETURNS_SELF)
-  private StatisticsValidatorBuilder validatorBuilderMock;
-
   @Before
   public void setup() {
     initialisePerfEvalBuilderMock();
-    initialiseValidatorBuilderMock();
     initialisePerfTestAnnotationMock();
     initialisePerfTestRequirementAnnotationMock();
     mockJunitPerfTestAnnotationPresent();
     mockJunitPerfTestRequirementAnnotationPresent();
-    perfRule = new JUnitPerfRule(perfEvalBuilderMock, validatorBuilderMock);
+    perfRule = new JUnitPerfRule(perfEvalBuilderMock);
   }
 
   @Test
@@ -68,13 +64,6 @@ public class JUnitPerfRuleTest extends BaseTest {
     mockJunitPerfTestAnnotationNotPresent();
     Statement statement = perfRule.apply(statementMock, descriptionMock);
     assertThat(statement, is(statementMock));
-  }
-
-  @Test
-  public void whenExecutingApply_andNoJunitPerfTestRequirementsAnnotationIsPresent_thenNoValidatorShouldBeBuilt() {
-    mockJunitPerfTestRequirementAnnotationNotPresent();
-    perfRule.apply(statementMock, descriptionMock);
-    verifyZeroInteractions(validatorBuilderMock);
   }
 
   @Test
@@ -86,33 +75,14 @@ public class JUnitPerfRuleTest extends BaseTest {
   @Test
   public void whenExecutingApply_thenJunitPerfTestAnnotationAttributesShouldBeUsedWhenBuildingEvalStatement() {
     perfRule.apply(statementMock, descriptionMock);
-    verify(perfEvalBuilderMock).rateLimitExecutionsPerSecond(RATE_LIMIT);
-    verify(perfEvalBuilderMock).testDurationMs(DURATION);
-    verify(perfEvalBuilderMock).threadCount(THREADS);
-    verify(perfEvalBuilderMock).warmUpPeriodMs(WARM_UP);
     verify(perfEvalBuilderMock).baseStatement(statementMock);
-    verify(perfEvalBuilderMock).validator(validatorMock);
+    verify(perfEvalBuilderMock).context(any(EvaluationContext.class));
     verify(perfEvalBuilderMock).build();
     verifyNoMoreInteractions(perfEvalBuilderMock);
   }
 
-  @Test
-  public void whenExecutingApply_thenJunitPerfTestRequirementAnnotationAttributesShouldBeUsedWhenBuildingValidator() {
-    perfRule.apply(statementMock, descriptionMock);
-    verify(validatorBuilderMock).allowedErrorsRate(ALLOWED_ERRORS);
-    verify(validatorBuilderMock).expectedThroughput(THROUGHPUT);
-    verify(validatorBuilderMock).percentiles(PERCENTILES);
-    verify(validatorBuilderMock).durationMs(DURATION);
-    verify(validatorBuilderMock).build();
-    verifyNoMoreInteractions(validatorBuilderMock);
-  }
-
   private void initialisePerfEvalBuilderMock() {
     when(perfEvalBuilderMock.build()).thenReturn(perfEvalStatement);
-  }
-
-  private void initialiseValidatorBuilderMock() {
-    when(validatorBuilderMock.build()).thenReturn(validatorMock);
   }
 
   private void mockJunitPerfTestAnnotationPresent() {
