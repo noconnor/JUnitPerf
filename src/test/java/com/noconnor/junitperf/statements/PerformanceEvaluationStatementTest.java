@@ -8,10 +8,10 @@ import org.junit.rules.ExpectedException;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import com.noconnor.junitperf.BaseTest;
-import com.noconnor.junitperf.statements.PerformanceEvaluationStatement.BuildTest;
+import com.noconnor.junitperf.data.EvaluationContext;
 
-import static com.noconnor.junitperf.statements.PerformanceEvaluationStatement.perfEvalBuilderTest;
 import static java.lang.System.currentTimeMillis;
+import static java.util.Collections.emptyMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,56 +29,52 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   private ThreadFactory threadFactoryMock;
 
   @Mock
+  private EvaluationContext contextMock;
+
+  @Mock
   private Thread threadMock;
+
+  private PerformanceEvaluationStatement statement;
 
   @Before
   public void setup() {
     initialiseThreadFactoryMock();
-  }
-
-  @Test
-  public void whenCreatingAnEvaluationStatement_andThreadCountIsLessThanZero_thenExceptionShouldBeThrown() {
-    exception.expectMessage("Thread count must be >= 1");
-    exception.expect(IllegalArgumentException.class);
-    perfEvalBuilderTest().baseStatement(baseStatementMock).threadFactory(threadFactoryMock).threadCount(-1).build();
-  }
-
-  @Test
-  public void whenCreatingAnEvaluationStatement_andTestDurationIsLessThanZero_thenExceptionShouldBeThrown() {
-    exception.expectMessage("Test duration count must be >= 1");
-    exception.expect(IllegalArgumentException.class);
-    perfEvalBuilderTest().baseStatement(baseStatementMock)
-      .threadCount(1)
-      .testDurationMs(-1)
+    initialiseContext();
+    statement = PerformanceEvaluationStatement.perfEvalBuilderTest()
+      .baseStatement(baseStatementMock)
       .threadFactory(threadFactoryMock)
+      .context(contextMock)
       .build();
   }
 
   @Test
   public void whenEvaluatingABaseStatement_thenTheCorrectNumberOfThreadsShouldBeStarted() throws Throwable {
-    basicPerformanceEvaluationBuilder().threadCount(10).build().evaluate();
+    when(contextMock.getConfiguredThreads()).thenReturn(10);
+    statement.evaluate();
     verify(threadFactoryMock, times(10)).newThread(any(EvaluationTask.class));
     verify(threadMock, times(10)).start();
   }
 
   @Test
   public void whenEvaluatingABaseStatement_thenTheTestShouldEndWhenTheTestDurationExpires() throws Throwable {
+    when(contextMock.getConfiguredDuration()).thenReturn(100);
     long starTimeNs = currentTimeMillis();
-    basicPerformanceEvaluationBuilder().threadCount(10).testDurationMs(100).build().evaluate();
+    statement.evaluate();
     assertThat((currentTimeMillis() - starTimeNs), is(greaterThan(95L)));
     assertThat((currentTimeMillis() - starTimeNs), is(lessThan(3 * 100L)));
-    verify(threadMock, times(10)).interrupt();
-  }
-
-  private BuildTest basicPerformanceEvaluationBuilder() {
-    return perfEvalBuilderTest().baseStatement(baseStatementMock)
-      .threadFactory(threadFactoryMock)
-      .threadCount(1)
-      .testDurationMs(1);
+    verify(threadMock, times(1)).interrupt();
   }
 
   private void initialiseThreadFactoryMock() {
     when(threadFactoryMock.newThread(any(EvaluationTask.class))).thenReturn(threadMock);
+  }
+
+  private void initialiseContext() {
+    when(contextMock.getConfiguredThreads()).thenReturn(1);
+    when(contextMock.getConfiguredDuration()).thenReturn(1000);
+    when(contextMock.isErrorThresholdAchieved()).thenReturn(true);
+    when(contextMock.isThroughputAchieved()).thenReturn(true);
+    when(contextMock.getPercentileResults()).thenReturn(emptyMap());
   }
 
 }

@@ -33,6 +33,7 @@ public class StatisticsUtils {
     return evaluationCount <= 0 ? 0 : errorCount / evaluationCount;
   }
 
+  // TODO: Move this, doesn't belong here
   public static Map<Integer, Float> parsePercentileLimits(String percentileLimits) {
     Map<Integer, Float> limits = newHashMap();
     if (isNotBlank(percentileLimits)) {
