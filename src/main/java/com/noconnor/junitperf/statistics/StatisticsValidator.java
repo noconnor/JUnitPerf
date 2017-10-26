@@ -6,6 +6,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import static com.noconnor.junitperf.statistics.utils.StatisticsUtils.calculatePercentageError;
 import static com.noconnor.junitperf.statistics.utils.StatisticsUtils.calculateThroughputPerSecond;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class StatisticsValidator {
 
@@ -21,7 +22,7 @@ public class StatisticsValidator {
     Map<Integer, Boolean> results = newHashMap();
     percentiles.forEach((percentile, thresholdMs) -> {
       long thresholdNs = (long)(thresholdMs * MILLISECONDS.toNanos(1));
-      boolean result = statistics.getLatencyPercentile(percentile) <= thresholdNs;
+      boolean result = statistics.getLatencyPercentile(percentile, NANOSECONDS) <= thresholdNs;
       results.put(percentile, result);
     });
     return results;

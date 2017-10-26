@@ -12,6 +12,7 @@ import com.noconnor.junitperf.statistics.StatisticsValidator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.noconnor.junitperf.statistics.utils.StatisticsUtils.calculateThroughputPerSecond;
 import static com.noconnor.junitperf.statistics.utils.StatisticsUtils.parsePercentileLimits;
 import static java.util.Objects.nonNull;
 
@@ -79,8 +80,14 @@ public class EvaluationContext {
       isThroughputAchieved = validator.isThroughputTargetAchieved(statistics, configuredDuration, requiredThroughput);
       isErrorThresholdAchieved = validator.isErrorThresholdTargetAchieved(statistics, requiredAllowedErrorsRate);
       percentileResults = validator.evaluateLatencyPercentiles(statistics, requiredPercentiles);
-      isSuccessful = isThroughputAchieved && isErrorThresholdAchieved && percentileResults.values().stream().allMatch( e -> e);
+      isSuccessful = isThroughputAchieved && isErrorThresholdAchieved && percentileResults.values()
+        .stream()
+        .allMatch(e -> e);
     }
+  }
+
+  public long getThroughputQps() {
+    return (long)calculateThroughputPerSecond(statistics, configuredDuration);
   }
 
 }

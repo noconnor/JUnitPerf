@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 import com.noconnor.junitperf.data.EvaluationContext;
@@ -22,7 +23,7 @@ public class HtmlReportGenerator implements ReportGenerator {
 
     Path outputPath = Paths.get(System.getProperty("user.dir") + "/build/reports/junit_report.html");
     JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/report.twig");
-    JtwigModel model = JtwigModel.newModel().with("contextData", testContexts);
+    JtwigModel model = JtwigModel.newModel().with("contextData", testContexts).with("milliseconds", TimeUnit.MILLISECONDS);
 
     try {
       Files.createDirectories(outputPath.getParent());

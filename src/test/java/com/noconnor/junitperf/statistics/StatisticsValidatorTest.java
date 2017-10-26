@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableMap;
 import com.noconnor.junitperf.BaseTest;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
@@ -58,8 +57,8 @@ public class StatisticsValidatorTest extends BaseTest {
 
   @Test
   public void whenValidatingStatistics_andPercentileLimitsHavenBeenMet_thenValidationShouldPass() {
-    when(statisticsMock.getLatencyPercentile(90)).thenReturn(NANOSECONDS.convert(5, MILLISECONDS));
-    when(statisticsMock.getLatencyPercentile(99)).thenReturn(NANOSECONDS.convert(10, MILLISECONDS));
+    when(statisticsMock.getLatencyPercentile(90, MILLISECONDS)).thenReturn(5F);
+    when(statisticsMock.getLatencyPercentile(99, MILLISECONDS)).thenReturn(10F);
     Map<Integer, Boolean> results = validator.evaluateLatencyPercentiles(statisticsMock, PERCENTILE_REQUIREMENTS);
     assertThat(results.get(90), is(true));
     assertThat(results.get(99), is(true));
@@ -67,8 +66,8 @@ public class StatisticsValidatorTest extends BaseTest {
 
   @Test
   public void whenValidatingStatistics_andSomePercentileLimitsHavenBeenMet_thenValidationShouldPassAndFail() {
-    when(statisticsMock.getLatencyPercentile(90)).thenReturn(NANOSECONDS.convert(5, MILLISECONDS));
-    when(statisticsMock.getLatencyPercentile(99)).thenReturn(NANOSECONDS.convert(20, MILLISECONDS));
+    when(statisticsMock.getLatencyPercentile(90, MILLISECONDS)).thenReturn(5F);
+    when(statisticsMock.getLatencyPercentile(99, MILLISECONDS)).thenReturn(20F);
     Map<Integer, Boolean> results = validator.evaluateLatencyPercentiles(statisticsMock, PERCENTILE_REQUIREMENTS);
     assertThat(results.get(90), is(true));
     assertThat(results.get(99), is(false));
