@@ -4,6 +4,7 @@ import lombok.Builder;
 
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
+import java.util.function.Consumer;
 import org.junit.runners.model.Statement;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -26,20 +27,23 @@ public class PerformanceEvaluationStatement extends Statement {
   private final ThreadFactory threadFactory;
   private final Statement baseStatement;
   private final RateLimiter rateLimiter;
+  private Consumer<Boolean> listener;
 
   @Builder(builderMethodName = "perfEvalBuilder")
-  private PerformanceEvaluationStatement(Statement baseStatement, EvaluationContext context) {
-    this(baseStatement, context, FACTORY);
+  private PerformanceEvaluationStatement(Statement baseStatement, EvaluationContext context, Consumer<Boolean> listener) {
+    this(baseStatement, context, FACTORY, listener);
   }
 
   @Builder(builderMethodName = "perfEvalBuilderTest", builderClassName = "BuildTest")
   private PerformanceEvaluationStatement(Statement baseStatement,
                                          EvaluationContext context,
-                                         ThreadFactory threadFactory) {
+                                         ThreadFactory threadFactory,
+                                         Consumer<Boolean> listener) {
     this.context = context;
     this.baseStatement = baseStatement;
     this.threadFactory = threadFactory;
     this.rateLimiter = context.getConfiguredRateLimit() > 0 ? create(context.getConfiguredRateLimit()) : null;
+    this.listener = listener;
   }
 
   @Override
@@ -59,6 +63,7 @@ public class PerformanceEvaluationStatement extends Statement {
     }
     context.setStatistics(statistics);
     context.runValidation();
+    listener.accept(true);
     assertThresholdsMet();
   }
 

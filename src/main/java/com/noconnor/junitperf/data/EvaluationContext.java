@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -57,7 +56,7 @@ public class EvaluationContext {
   private boolean isSuccessful;
 
   public long getThroughputQps() {
-    return statistics.getEvaluationCount() / configuredDuration;
+    return (long)(((float)statistics.getEvaluationCount() / (float)configuredDuration) * 1000);
   }
 
   @Getter

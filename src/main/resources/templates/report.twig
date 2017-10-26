@@ -54,12 +54,12 @@
                                 legend: 'none'
                             };
 
-                            var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
+                            var chart = new google.visualization.ScatterChart(document.getElementById('{{ context.testName }}'));
 
                             chart.draw(data, options);
                         }
                     </script>
-                    <div id="chart_div" style="width: 600px; height: 400px;"></div>
+                    <div id="{{ context.testName }}" style="width: 600px; height: 400px;"></div>
                 </td>
                 <td>
                     <table style='font-family:sans-serif;'>
@@ -103,7 +103,7 @@
                         </tr>
                         <tr>
                             <th align='right' valign='top'><b style='color:#2b67a4'>Throughput:</b></th>
-                            <td align='right'><b style='color:#2b67a4'>{{ number_format(context.getThroughputQps(), 0, ".", ",") }} / s</b></td>
+                            <td align='right'><b style='color:#2b67a4'>{{ number_format(context.getThroughputQps, 0, ".", ",") }} / s</b></td>
                             <td align='right'><b style='color:#2b67a4'>{{ number_format(context.requiredThroughput, 0, ".", ",") }} / s</b></td>
                         </tr>
                         <tr>

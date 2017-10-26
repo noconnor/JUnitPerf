@@ -1,14 +1,17 @@
 package com.noconnor.junitperf;
 
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import com.noconnor.junitperf.data.EvaluationContext;
+import com.noconnor.junitperf.reporting.ReportGenerator;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
 
+import static com.google.common.collect.Maps.newHashMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Answers.RETURNS_SELF;
@@ -45,6 +48,9 @@ public class JUnitPerfRuleTest extends BaseTest {
   @Mock(answer = RETURNS_SELF)
   private PerformanceEvaluationStatementBuilder perfEvalBuilderMock;
 
+  @Mock
+  private ReportGenerator reporterMock;
+
   @Before
   public void setup() {
     initialisePerfEvalBuilderMock();
@@ -52,7 +58,7 @@ public class JUnitPerfRuleTest extends BaseTest {
     initialisePerfTestRequirementAnnotationMock();
     mockJunitPerfTestAnnotationPresent();
     mockJunitPerfTestRequirementAnnotationPresent();
-    perfRule = new JUnitPerfRule(perfEvalBuilderMock);
+    perfRule = new JUnitPerfRule(perfEvalBuilderMock, reporterMock);
   }
 
   @Test
