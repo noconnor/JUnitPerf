@@ -27,10 +27,10 @@ public class PerformanceEvaluationStatement extends Statement {
   private final ThreadFactory threadFactory;
   private final Statement baseStatement;
   private final RateLimiter rateLimiter;
-  private Consumer<Boolean> listener;
+  private Consumer<Void> listener;
 
   @Builder(builderMethodName = "perfEvalBuilder")
-  private PerformanceEvaluationStatement(Statement baseStatement, EvaluationContext context, Consumer<Boolean> listener) {
+  private PerformanceEvaluationStatement(Statement baseStatement, EvaluationContext context, Consumer<Void> listener) {
     this(baseStatement, context, FACTORY, listener);
   }
 
@@ -38,7 +38,7 @@ public class PerformanceEvaluationStatement extends Statement {
   private PerformanceEvaluationStatement(Statement baseStatement,
                                          EvaluationContext context,
                                          ThreadFactory threadFactory,
-                                         Consumer<Boolean> listener) {
+                                         Consumer<Void> listener) {
     this.context = context;
     this.baseStatement = baseStatement;
     this.threadFactory = threadFactory;
@@ -63,7 +63,7 @@ public class PerformanceEvaluationStatement extends Statement {
     }
     context.setStatistics(statistics);
     context.runValidation();
-    listener.accept(true);
+    listener.accept(null);
     assertThresholdsMet();
   }
 

@@ -56,10 +56,13 @@ public class EvaluationTask implements Runnable {
       long startTimeNs = nanoTime();
       try {
         statement.evaluate();
-      } catch (Throwable throwable) {
-        stats.incrementErrorCount();
-      } finally {
+        stats.addLatencyMeasurement(nanoTime() - startTimeNs);
         stats.incrementEvaluationCount();
+      } catch (InterruptedException e) { // NOSONAR
+        // IGNORE - no metrics
+      } catch (Throwable throwable) {
+        stats.incrementEvaluationCount();
+        stats.incrementErrorCount();
         stats.addLatencyMeasurement(nanoTime() - startTimeNs);
       }
     }

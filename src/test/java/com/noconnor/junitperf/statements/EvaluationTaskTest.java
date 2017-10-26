@@ -98,11 +98,33 @@ public class EvaluationTaskTest extends BaseTest {
     verify(statsMock, atLeastOnce()).addLatencyMeasurement(anyLong());
   }
 
+  @Test
+  public void whenAnInterruptExceptionIsThrown_thenNoErrorsMetricsShouldBeCaptured() throws Throwable {
+    setExecutionCount(10000);
+    mockInterruptEvaluationFailures(5);
+    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 0);
+    task.run();
+    verify(statsMock, times(9995)).incrementEvaluationCount();
+    verify(statsMock, times(9995)).addLatencyMeasurement(anyLong());
+    verify(statsMock, never()).incrementErrorCount();
+  }
+
   private void mockEvaluationFailures(int desiredFailureCount) throws Throwable {
     AtomicInteger executions = new AtomicInteger();
     doAnswer(invocation -> {
       if (executions.getAndIncrement() < desiredFailureCount) {
         throw new RuntimeException("mock exception");
+      }
+      return null;
+    }).when(statementMock).evaluate();
+
+  }
+
+  private void mockInterruptEvaluationFailures(int desiredFailureCount) throws Throwable {
+    AtomicInteger executions = new AtomicInteger();
+    doAnswer(invocation -> {
+      if (executions.getAndIncrement() < desiredFailureCount) {
+        throw new InterruptedException("mock exception");
       }
       return null;
     }).when(statementMock).evaluate();
