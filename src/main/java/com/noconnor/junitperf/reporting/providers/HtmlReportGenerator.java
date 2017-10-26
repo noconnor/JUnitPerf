@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
@@ -17,7 +17,7 @@ import com.noconnor.junitperf.reporting.ReportGenerator;
 public class HtmlReportGenerator implements ReportGenerator {
 
   @Override
-  public void generateReport(List<EvaluationContext> testContexts) {
+  public void generateReport(Set<EvaluationContext> testContexts) {
 
     Path outputPath = Paths.get(System.getProperty("user.dir") + "/build/reports/junit_report.html");
     JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/report.twig");

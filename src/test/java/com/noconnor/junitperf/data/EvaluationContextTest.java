@@ -83,11 +83,20 @@ public class EvaluationContextTest extends BaseTest {
 
   @Test
   public void whenRunningEvaluation_andThroughputIsBelowThreshold_thenThroughputAchievedFlagShouldBeFalse() {
-    when(statisticsMock.getEvaluationCount()).thenReturn(100L);
+    when(statisticsMock.getEvaluationCount()).thenReturn(10L);
     initialiseContext();
     context.runValidation();
     assertThat(context.isThroughputAchieved(), is(false));
     assertThat(context.isSuccessful(), is(false));
+  }
+
+  @Test
+  public void whenRunningEvaluation_andEvaluationCountIsGreaterThanDuration_thenThroughputShouldBeCalculatedCorrectly() {
+    when(statisticsMock.getEvaluationCount()).thenReturn(1000L);
+    when(perfTestAnnotation.duration()).thenReturn(100);
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.getThroughputQps(), is(10_000L));
   }
 
   @Test
@@ -170,7 +179,7 @@ public class EvaluationContextTest extends BaseTest {
   @Test
   public void whenCalculatingThroughputQps_thenCorrectValueShouldBeCalculated() {
     initialiseContext();
-    long expected = statisticsMock.getEvaluationCount() / perfTestAnnotation.duration();
+    long expected = (statisticsMock.getEvaluationCount() / perfTestAnnotation.duration()) * 1000;
     assertThat(context.getThroughputQps(), is(expected));
   }
 
@@ -181,7 +190,7 @@ public class EvaluationContextTest extends BaseTest {
   }
 
   private void initialisePerfTestAnnotation() {
-    when(perfTestAnnotation.duration()).thenReturn(1);
+    when(perfTestAnnotation.duration()).thenReturn(10);
     when(perfTestAnnotation.rateLimit()).thenReturn(1_000);
     when(perfTestAnnotation.threads()).thenReturn(50);
     when(perfTestAnnotation.warmUp()).thenReturn(500);

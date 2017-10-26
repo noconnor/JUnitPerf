@@ -12,11 +12,19 @@ public class ExampleFailureTests {
   public JUnitPerfRule perfRule = new JUnitPerfRule();
 
   @Test
-  @JUnitPerfTest(threads = 10, duration = 1_000, rateLimit = 1_000)
-  @JUnitPerfTestRequirement(throughput = 10_000, percentiles = "99:110")
-  public void whenThroughputRequirementIsNotMet_thenTestShouldFailOnThroughputRequirementNotMet() throws InterruptedException {
+  @JUnitPerfTest(threads = 1, duration = 1_000, rateLimit = 1_000)
+  @JUnitPerfTestRequirement(throughput = 10_000)
+  public void whenThroughputRequirementIsNotMet_thenTestShouldFail() throws InterruptedException {
     // Mock some processing logic
     Thread.sleep(1);
+  }
+
+  @Test
+  @JUnitPerfTest(threads = 1, duration = 1_000, rateLimit = 1_000)
+  @JUnitPerfTestRequirement(throughput = 10_000, percentiles = "99:1")
+  public void whenLatencyRequirementIsNotMet_thenTestShouldFail() throws InterruptedException {
+    // Mock some processing logic
+    Thread.sleep(2);
   }
 
 }
