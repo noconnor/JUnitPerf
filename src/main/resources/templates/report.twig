@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+<head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <meta charset="utf-8">
+    <title>JUnit Performance Report</title>
+</head>
+<body style='font-family:Verdana;'>
+<center>
+    <h1 style='color:#044e9b'>JUnit Performance Report</h1>
+        <hr/>
+        <br/>
+        <table border='1' cellspacing='0' cellpadding='3px' style='border-color:#eee'>
+            <tr>
+                <th style='background-color:#ffffdd; color:#044e9b'>&nbsp;&nbsp;&nbsp;</th>
+                <th style='background-color:#ffffdd; color:#044e9b'>Tests</th>
+            <tr>
+
+             {% for context in contextData %}
+                <tr>
+                    <!-- Success: #2b67a4 failure: #d9534f -->
+                    <td style='background-color:{{ (context.isSuccessful) ? "#2b67a4" : "#d9534f" }};'>&nbsp;</td>
+                    <td><a href='#'>{{ context.testName }}</td>
+                <tr>
+             {% endfor %}
+        </table>
+        <br/>
+        <hr/>
+
+
+        {% for context in contextData %}
+        <a name=''><h2 style='color:#2b67a4'>{{ context.testName }}</h2></a>
+        <table width='900'>
+            <tr>
+                <td>
+                    <!-- ADD scatter Chart here!! -->
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages':['corechart']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+
+                            var data = google.visualization.arrayToDataTable([
+                                ['Percentile', 'Latency'],
+                                {% for i in [1..100] %}
+                                [ {{ i }},      {{ context.statistics.getLatencyPercentile(i)/1000000 }}],
+                                {% endfor %}
+                            ]);
+
+                            var options = {
+                                title: 'Latency percentile Distribution',
+                                hAxis: {title: 'Percentile', minValue: 0, maxValue: 100},
+                                vAxis: {title: 'Latency', minValue: 0, maxValue: 15},
+                                legend: 'none'
+                            };
+
+                            var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
+
+                            chart.draw(data, options);
+                        }
+                    </script>
+                    <div id="chart_div" style="width: 600px; height: 400px;"></div>
+                </td>
+                <td>
+                    <table style='font-family:sans-serif;'>
+                        <tr><th>Started at:</th><td colspan='2'><b>TODO</b></td></tr>
+                        <tr>
+                            <th align='right' valign='top'>Invocations:</th>
+                            <td align='right'>{{ number_format(context.statistics.evaluationCount, 0, ".", ",") }}</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>- Success:</th>
+                            <td align='right'>{{ number_format(context.statistics.evaluationCount - context.statistics.errorCount, 0, ".", ",") }}</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'><b style='color:#2b67a4'>- Errors:</b></th>
+                            <td align='right'><b style='color:#2b67a4'>{{ number_format(context.statistics.errorCount, 0, ".", ",") }}</b></td>
+                            <td align='right'><b style='color:#2b67a4'>{{ number_format(((context.statistics.errorCount / context.statistics.evaluationCount) * 100), 2, ".", ",") }}%</b></td>
+                        </tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr>
+                            <th align='right' valign='top'>Thread Count:</th>
+                            <td align='right'>{{ context.configuredThreads }}</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>Warm up:</th>
+                            <td align='right'>{{ number_format(context.configuredWarmUp, 0, ".", ",") }} ms</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr valign='top'>
+                            <th>&nbsp;</th>
+                            <th>Measured<br/>(system)</th>
+                            <th>Required</th>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>Execution time:</th>
+                            <td align='right'>{{ number_format(context.configuredDuration, 0, ".", ",") }} ms</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'><b style='color:#2b67a4'>Throughput:</b></th>
+                            <td align='right'><b style='color:#2b67a4'>{{ number_format(((context.statistics.evaluationCount / context.configuredDuration) * 1000), 0, ".", ",") }} / s</b></td>
+                            <td align='right'><b style='color:#2b67a4'>{{ number_format(context.requiredThroughput, 0, ".", ",") }} / s</b></td>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>Min. latency:</th>
+                            <td align='right'>{{ number_format((context.statistics.minLatency / 1000000), 2, ".", " ") }} ms</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>Average latency:</th>
+                            <td align='right'>{{ number_format((context.statistics.meanLatency / 1000000), 2, ".", " ") }} ms</td>
+                            <td align='right'></td>
+                        </tr>
+
+                        {% for percentile, target in context.requiredPercentiles %}
+                        <tr>
+                            <th align='right' valign='top'><b style='color:#2b67a4'>{{ percentile }}:</b></th>
+                            {% for i in [percentile .. percentile] %} <!-- HACK to get parameter passed to function -->
+                            <td align='right'><b style='color:#2b67a4;'>{{ number_format((context.statistics.getLatencyPercentile(i) / 1000000), 2, ".", ",") }} ms</b></td>
+                            {% endfor %}
+                            <td align='right'><b style='color:#2b67a4'>{{ target }} ms</b></td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <th align='right' valign='top'>Max latency:</th>
+                            <td align='right'>{{ number_format((context.statistics.maxLatency / 1000000), 2, ".", ",") }} ms</td>
+                            <td align='right'></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <br/><br/><br/>
+        {% endfor %}
+        <hr/>
+        <div style='color:#044e9b;'>Report created by <a href='https://github.com/noconnor/JUnitPerf'>JunitPerf</a> </div>
+</center>
+</body>
+</html>

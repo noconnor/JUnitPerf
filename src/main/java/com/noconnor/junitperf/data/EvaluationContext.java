@@ -46,8 +46,12 @@ public class EvaluationContext {
   private boolean isErrorThresholdAchieved;
   @Getter
   private Map<Integer, Boolean> percentileResults;
+  @Getter
+  private boolean isSuccessful;
 
   private final StatisticsValidator validator;
+  @Getter
+  private final String testName;
 
   public void loadConfiguration(JUnitPerfTest testSettings) {
     // TODO: validate annotation attributes
@@ -75,6 +79,7 @@ public class EvaluationContext {
       isThroughputAchieved = validator.isThroughputTargetAchieved(statistics, configuredDuration, requiredThroughput);
       isErrorThresholdAchieved = validator.isErrorThresholdTargetAchieved(statistics, requiredAllowedErrorsRate);
       percentileResults = validator.evaluateLatencyPercentiles(statistics, requiredPercentiles);
+      isSuccessful = isThroughputAchieved && isErrorThresholdAchieved && percentileResults.values().stream().allMatch( e -> e);
     }
   }
 

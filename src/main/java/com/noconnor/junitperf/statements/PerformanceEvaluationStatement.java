@@ -8,6 +8,7 @@ import org.junit.runners.model.Statement;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.noconnor.junitperf.data.EvaluationContext;
+import com.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
 import com.noconnor.junitperf.statistics.Statistics;
 import com.noconnor.junitperf.statistics.providers.ApacheDescriptiveStatistics;
 
@@ -59,6 +60,10 @@ public class PerformanceEvaluationStatement extends Statement {
     }
     context.setStatistics(statistics);
     context.runValidation();
+    // TEMP
+    HtmlReportGenerator reportGenerator = new HtmlReportGenerator();
+    reportGenerator.generateReport(newArrayList(context));
+    // END TEMP
     assertThresholdsMet();
   }
 
