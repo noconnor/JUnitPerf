@@ -31,7 +31,7 @@ public class JUnitPerfRule implements TestRule {
     JUnitPerfTestRequirement requirementsAnnotation = description.getAnnotation(JUnitPerfTestRequirement.class);
 
     if (nonNull(perfTestAnnotation)) {
-      EvaluationContext context = new EvaluationContext(new StatisticsValidator());
+      EvaluationContext context = new EvaluationContext(new StatisticsValidator(), description.getMethodName());
       context.loadConfiguration(perfTestAnnotation);
       context.loadRequirements(requirementsAnnotation);
       activeStatement = perEvalBuilder.baseStatement(base).context(context).build();

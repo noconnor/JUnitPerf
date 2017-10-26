@@ -6,6 +6,7 @@ version = '1.0.0'
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -18,4 +19,6 @@ dependencies {
     compile 'commons-math:commons-math:1.2'
     compile 'org.mockito:mockito-core:2.11.0'
     compile "org.hamcrest:hamcrest-junit:2.0.0.0"
+    // Reporting
+    compile "org.jtwig:jtwig-core:5.86.1.RELEASE"
 }

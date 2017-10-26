@@ -11,6 +11,7 @@ import com.noconnor.junitperf.JUnitPerfTestRequirement;
 import com.noconnor.junitperf.statistics.Statistics;
 import com.noconnor.junitperf.statistics.StatisticsValidator;
 
+import static java.util.Collections.emptyMap;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -18,6 +19,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class EvaluationContextTest extends BaseTest {
+
+  private static final String TEST_NAME = "UNITTEST";
 
   private EvaluationContext context;
 
@@ -37,7 +40,8 @@ public class EvaluationContextTest extends BaseTest {
   public void setup() {
     initialisePerfTestAnnotation();
     initialisePerfTestRequirementAnnotation();
-    context = new EvaluationContext(validatorMock);
+    initialiseValidatorMock();
+    context = new EvaluationContext(validatorMock, TEST_NAME);
   }
 
   @Test
@@ -83,11 +87,28 @@ public class EvaluationContextTest extends BaseTest {
   }
 
   @Test
+  public void whenRunningEvaluation_andThroughputThresholdIsNotMe_thenIsSuccessfulShouldBeFalse() {
+    when(validatorMock.isThroughputTargetAchieved(eq(statisticsMock), anyInt(), anyInt())).thenReturn(false);
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.isSuccessful(), is(false));
+  }
+
+  @Test
   public void whenRunningEvaluation_thenAllowedErrorsRequirementsShouldBeChecked() {
     when(validatorMock.isErrorThresholdTargetAchieved(eq(statisticsMock), anyFloat())).thenReturn(true);
     initialiseContext();
     context.runValidation();
     assertThat(context.isErrorThresholdAchieved(), is(true));
+  }
+
+  @Test
+  public void whenRunningEvaluation_andAllowedErrorRateFails_thenIsSuccessfulShouldBeFalse() {
+    when(validatorMock.isErrorThresholdTargetAchieved(eq(statisticsMock), anyFloat())).thenReturn(false);
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.isErrorThresholdAchieved(), is(false));
+    assertThat(context.isSuccessful(), is(false));
   }
 
   @Test
@@ -97,6 +118,26 @@ public class EvaluationContextTest extends BaseTest {
     initialiseContext();
     context.runValidation();
     assertThat(context.getPercentileResults(), is(validationResults));
+  }
+
+  @Test
+  public void whenRunningEvaluation_andAPercentileThresholdIsNotMet_thenIsSuccessfulShouldReturnFalse() {
+    Map<Integer, Boolean> validationResults = ImmutableMap.of(90, true, 95, false);
+    when(validatorMock.evaluateLatencyPercentiles(eq(statisticsMock), anyMap())).thenReturn(validationResults);
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.isSuccessful(), is(false));
+  }
+
+  @Test
+  public void whenRunningEvaluation_andAllThresholdsAreMet_thenIsSuccessfulShouldBeTrue() {
+    Map<Integer, Boolean> validationResults = ImmutableMap.of(90, true);
+    when(validatorMock.isErrorThresholdTargetAchieved(eq(statisticsMock), anyFloat())).thenReturn(true);
+    when(validatorMock.isThroughputTargetAchieved(eq(statisticsMock), anyInt(), anyInt())).thenReturn(true);
+    when(validatorMock.evaluateLatencyPercentiles(eq(statisticsMock), anyMap())).thenReturn(validationResults);
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.isSuccessful(), is(true));
   }
 
   @Test
@@ -126,4 +167,10 @@ public class EvaluationContextTest extends BaseTest {
     when(perfTestRequirement.percentiles()).thenReturn("90:0.5,95:9");
   }
 
+  private void initialiseValidatorMock() {
+    when(validatorMock.isErrorThresholdTargetAchieved(eq(statisticsMock), anyFloat())).thenReturn(true);
+    when(validatorMock.isThroughputTargetAchieved(eq(statisticsMock), anyInt(), anyInt())).thenReturn(true);
+    when(validatorMock.evaluateLatencyPercentiles(eq(statisticsMock), anyMap())).thenReturn(emptyMap());
+  }
+  
 }
