@@ -1,12 +1,12 @@
 package com.noconnor.junitperf.statistics.providers;
 
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Spy;
 import com.noconnor.junitperf.BaseTest;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -48,27 +48,65 @@ public class ApacheDescriptiveStatisticsTest extends BaseTest {
   public void whenCallingGetMaxLatency_thenMaxLatencyShouldBeReturned() {
     evaluator.addLatencyMeasurement(10);
     evaluator.addLatencyMeasurement(1000);
-    assertThat(evaluator.getMaxLatency(NANOSECONDS), is(1000L));
+    assertThat(evaluator.getMaxLatency(NANOSECONDS), is(1000F));
+  }
+
+  @Test
+  public void whenCallingGetMaxLatency_thenMaxLatencyShouldBeAdjustedToMatchSpecifiedUnits() {
+    evaluator.addLatencyMeasurement(10);
+    evaluator.addLatencyMeasurement(1000);
+    assertThat(evaluator.getMaxLatency(NANOSECONDS), is(1000F));
+    assertThat(evaluator.getMaxLatency(MILLISECONDS), is(0.001000F));
   }
 
   @Test
   public void whenCallingGetMinLatency_thenMinLatencyShouldBeReturned() {
     evaluator.addLatencyMeasurement(10);
     evaluator.addLatencyMeasurement(1000);
-    assertThat(evaluator.getMinLatency(NANOSECONDS), is(10L));
+    assertThat(evaluator.getMinLatency(NANOSECONDS), is(10F));
+  }
+
+  @Test
+  public void whenCallingGetMinLatency_thenMinLatencyShouldBeAdjustedToMatchSpecifiedUnits() {
+    evaluator.addLatencyMeasurement(10);
+    evaluator.addLatencyMeasurement(1000);
+    assertThat(evaluator.getMinLatency(NANOSECONDS), is(10F));
+    assertThat(evaluator.getMinLatency(MILLISECONDS), is(0.00001F));
   }
 
   @Test
   public void whenCallingGetMeanLatency_thenMeanLatencyShouldBeReturned() {
     evaluator.addLatencyMeasurement(10);
     evaluator.addLatencyMeasurement(1000);
-    assertThat(evaluator.getMeanLatency(NANOSECONDS), is(505L));
+    assertThat(evaluator.getMeanLatency(NANOSECONDS), is(505F));
+  }
+
+  @Test
+  public void whenCallingGetMeanLatency_thenMeanLatencyShouldBeAdjustedToMatchSpecifiedUnits() {
+    evaluator.addLatencyMeasurement(10);
+    evaluator.addLatencyMeasurement(1000);
+    assertThat(evaluator.getMeanLatency(NANOSECONDS), is(505F));
+    assertThat(evaluator.getMeanLatency(MILLISECONDS), is(0.000505F));
   }
 
   @Test
   public void whenCallingGetPercentile_thenValidPercentileShouldBeReturned() {
     evaluator.addLatencyMeasurement(20345L);
-    assertThat(evaluator.getLatencyPercentile(99, NANOSECONDS), is(20345L));
+    assertThat(evaluator.getLatencyPercentile(99, NANOSECONDS), is(20345F));
   }
 
+  @Test
+  public void whenCallingGetPercentile_thenValidPercentileShouldBeAdjustedToMatchSpecifiedUnits() {
+    evaluator.addLatencyMeasurement(20345L);
+    assertThat(evaluator.getLatencyPercentile(99, NANOSECONDS), is(20345F));
+    assertThat(evaluator.getLatencyPercentile(99, MILLISECONDS), is(0.020345F));
+  }
+
+  @Test
+  public void whenCallingGetPercentageError_thenPercentageErrorShouldBeCalculated() {
+    evaluator.incrementErrorCount();
+    evaluator.incrementEvaluationCount();
+    evaluator.incrementEvaluationCount();
+    assertThat(evaluator.getErrorPercentage(), is(50F));
+  }
 }
