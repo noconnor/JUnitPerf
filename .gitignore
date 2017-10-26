@@ -11,4 +11,6 @@
 **/build/**
 **/classes/**
 
+**/out/
+
 .gradle

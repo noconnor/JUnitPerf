@@ -1,5 +1,7 @@
 package com.noconnor.junitperf.statistics;
 
+import java.util.concurrent.TimeUnit;
+
 public interface Statistics {
 
   void addLatencyMeasurement(long executionTimeNs);
@@ -12,12 +14,14 @@ public interface Statistics {
 
   long getEvaluationCount();
 
-  long getLatencyPercentile(int percentile);
+  float getLatencyPercentile(int percentile, TimeUnit unit);
 
-  long getMaxLatency();
+  float getMaxLatency(TimeUnit unit);
 
-  long getMinLatency();
+  float getMinLatency(TimeUnit unit);
 
-  long getMeanLatency();
+  float getMeanLatency(TimeUnit unit);
+
+  float getErrorPercentage();
 
 }

@@ -1,5 +1,6 @@
 package com.noconnor.junitperf.statistics.providers;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math.stat.descriptive.SynchronizedDescriptiveStatistics;
@@ -46,23 +47,28 @@ public class ApacheDescriptiveStatistics implements Statistics {
   }
 
   @Override
-  public long getLatencyPercentile(int percentile) {
-    return (long)statistics.getPercentile((double)(percentile));
+  public float getLatencyPercentile(int percentile, TimeUnit unit) {
+    return (float)statistics.getPercentile((double)(percentile)) / unit.toNanos(1);
   }
 
   @Override
-  public long getMaxLatency() {
-    return (long)statistics.getMax();
+  public float getMaxLatency(TimeUnit unit) {
+    return (float)statistics.getMax() / unit.toNanos(1);
   }
 
   @Override
-  public long getMinLatency() {
-    return (long)statistics.getMin();
+  public float getMinLatency(TimeUnit unit) {
+    return (float)statistics.getMin() / unit.toNanos(1);
   }
 
   @Override
-  public long getMeanLatency() {
-    return (long)statistics.getMean();
+  public float getMeanLatency(TimeUnit unit) {
+    return (float)statistics.getMean() / unit.toNanos(1);
+  }
+
+  @Override
+  public float getErrorPercentage() {
+    return ((float)errorCount.get() / (float)evaluationCount.get()) * 100;
   }
 
 }
