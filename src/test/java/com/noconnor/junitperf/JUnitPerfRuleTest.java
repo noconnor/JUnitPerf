@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import com.noconnor.junitperf.data.EvaluationContext;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
-import com.noconnor.junitperf.statistics.StatisticsValidator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -33,9 +32,6 @@ public class JUnitPerfRuleTest extends BaseTest {
 
   @Mock
   private PerformanceEvaluationStatement perfEvalStatement;
-
-  @Mock
-  private StatisticsValidator validatorMock;
 
   @Mock
   private Description descriptionMock;
@@ -64,6 +60,13 @@ public class JUnitPerfRuleTest extends BaseTest {
     mockJunitPerfTestAnnotationNotPresent();
     Statement statement = perfRule.apply(statementMock, descriptionMock);
     assertThat(statement, is(statementMock));
+  }
+
+  @Test
+  public void whenExecutingApply_andNoJunitPerfTestRequirementAnnotationIsPresent_thenThePerformanceEvaluationStatementShouldBeReturned() {
+    mockJunitPerfTestRequirementAnnotationNotPresent();
+    Statement statement = perfRule.apply(statementMock, descriptionMock);
+    assertThat(statement, is(perfEvalStatement));
   }
 
   @Test

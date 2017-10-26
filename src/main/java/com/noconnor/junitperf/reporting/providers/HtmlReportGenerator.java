@@ -13,8 +13,6 @@ import org.jtwig.JtwigTemplate;
 import com.noconnor.junitperf.data.EvaluationContext;
 import com.noconnor.junitperf.reporting.ReportGenerator;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 @Slf4j
 public class HtmlReportGenerator implements ReportGenerator {
 
@@ -23,7 +21,9 @@ public class HtmlReportGenerator implements ReportGenerator {
 
     Path outputPath = Paths.get(System.getProperty("user.dir") + "/build/reports/junit_report.html");
     JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/report.twig");
-    JtwigModel model = JtwigModel.newModel().with("contextData", testContexts).with("milliseconds", TimeUnit.MILLISECONDS);
+    JtwigModel model = JtwigModel.newModel()
+      .with("contextData", testContexts)
+      .with("milliseconds", TimeUnit.MILLISECONDS);
 
     try {
       Files.createDirectories(outputPath.getParent());
@@ -32,11 +32,6 @@ public class HtmlReportGenerator implements ReportGenerator {
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
-  }
-
-  public static void main(String[] args) {
-    EvaluationContext context = new EvaluationContext(null, "unittest_with_long_name");
-    new HtmlReportGenerator().generateReport(newArrayList(context));
   }
 
 }

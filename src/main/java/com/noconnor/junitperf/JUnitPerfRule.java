@@ -1,12 +1,13 @@
 package com.noconnor.junitperf;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import com.noconnor.junitperf.data.EvaluationContext;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
-import com.noconnor.junitperf.statistics.StatisticsValidator;
 
 import static java.util.Objects.nonNull;
 
@@ -31,7 +32,8 @@ public class JUnitPerfRule implements TestRule {
     JUnitPerfTestRequirement requirementsAnnotation = description.getAnnotation(JUnitPerfTestRequirement.class);
 
     if (nonNull(perfTestAnnotation)) {
-      EvaluationContext context = new EvaluationContext(new StatisticsValidator(), description.getMethodName());
+      String startTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+      EvaluationContext context = new EvaluationContext(description.getMethodName(), startTime);
       context.loadConfiguration(perfTestAnnotation);
       context.loadRequirements(requirementsAnnotation);
       activeStatement = perEvalBuilder.baseStatement(base).context(context).build();

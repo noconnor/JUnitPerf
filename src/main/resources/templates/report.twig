@@ -20,7 +20,7 @@
                 <tr>
                     <!-- Success: #2b67a4 failure: #d9534f -->
                     <td style='background-color:{{ (context.isSuccessful) ? "#2b67a4" : "#d9534f" }};'>&nbsp;</td>
-                    <td><a href='#'>{{ context.testName }}</td>
+                    <td><a href='#{{ context.testName }}'>{{ context.testName }}</td>
                 <tr>
              {% endfor %}
         </table>
@@ -29,7 +29,7 @@
 
 
         {% for context in contextData %}
-        <a name=''><h2 style='color:#2b67a4'>{{ context.testName }}</h2></a>
+        <a name='{{ context.testName }}'><h2 style='color:#2b67a4'>{{ context.testName }}</h2></a>
         <table width='900'>
             <tr>
                 <td>
@@ -63,7 +63,7 @@
                 </td>
                 <td>
                     <table style='font-family:sans-serif;'>
-                        <tr><th>Started at:</th><td colspan='2'><b>TODO</b></td></tr>
+                        <tr><th>Started at:</th><td colspan='2'><b>{{ context.startTime }}</b></td></tr>
                         <tr>
                             <th align='right' valign='top'>Invocations:</th>
                             <td align='right'>{{ number_format(context.statistics.evaluationCount, 0, ".", ",") }}</td>
