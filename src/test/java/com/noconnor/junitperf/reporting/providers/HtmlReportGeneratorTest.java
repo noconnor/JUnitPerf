@@ -8,7 +8,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,10 +20,7 @@ import com.noconnor.junitperf.data.EvaluationContext;
 import com.noconnor.junitperf.statistics.Statistics;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newLinkedHashSet;
-import static com.google.common.collect.Sets.newTreeSet;
-import static java.lang.System.nanoTime;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.is;
