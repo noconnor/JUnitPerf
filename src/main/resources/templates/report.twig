@@ -125,7 +125,7 @@
                             {% set colour = (context.getPercentileResults().get(i)) ? "#2b67a4" : "#d9534f" %}
                             <th align='right' valign='top'><b style='color:{{ colour }}'>{{ percentile }}:</b></th>
                             <td align='right'><b style='color:{{ colour }};'>{{ number_format(context.statistics.getLatencyPercentile(i, milliseconds), 2, ".", ",") }} ms</b></td>
-                            <td align='right'><b style='color:{{ colour }}'>{{ target }} ms</b></td>
+                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(target, 2, ".", ",") }} ms</b></td>
                             {% endfor %}
                         </tr>
                         {% endfor %}

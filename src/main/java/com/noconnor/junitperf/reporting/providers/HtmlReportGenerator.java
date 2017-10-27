@@ -13,18 +13,27 @@ import org.jtwig.JtwigTemplate;
 import com.noconnor.junitperf.data.EvaluationContext;
 import com.noconnor.junitperf.reporting.ReportGenerator;
 
+import static java.lang.System.getProperty;
+
 @Slf4j
 public class HtmlReportGenerator implements ReportGenerator {
 
+  private static final String DEFAULT_REPORT_PATH = getProperty("user.dir") + "/build/reports/junit_report.html";
+  private static final String REPORT_TEMPLATE = "templates/report.twig";
+
+  private final String reportPath;
+
+  public HtmlReportGenerator() {this(DEFAULT_REPORT_PATH);}
+
+  public HtmlReportGenerator(String reportPath) {this.reportPath = reportPath;}
+
   @Override
   public void generateReport(Set<EvaluationContext> testContexts) {
-
-    Path outputPath = Paths.get(System.getProperty("user.dir") + "/build/reports/junit_report.html");
-    JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/report.twig");
+    Path outputPath = Paths.get(reportPath);
+    JtwigTemplate template = JtwigTemplate.classpathTemplate(REPORT_TEMPLATE);
     JtwigModel model = JtwigModel.newModel()
       .with("contextData", testContexts)
       .with("milliseconds", TimeUnit.MILLISECONDS);
-
     try {
       Files.createDirectories(outputPath.getParent());
       log.info("Rendering report to: " + outputPath);

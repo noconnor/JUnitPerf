@@ -48,7 +48,6 @@ public class JUnitPerfRule implements TestRule {
       // Group test contexts by test class
       ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), newHashSet());
 
-
       EvaluationContext context = new EvaluationContext(description.getMethodName(), generateTestStartTime());
       context.loadConfiguration(perfTestAnnotation);
       context.loadRequirements(requirementsAnnotation);
