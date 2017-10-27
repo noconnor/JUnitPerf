@@ -12,12 +12,15 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 @Slf4j
 public class ConsoleReportGenerator implements ReportGenerator {
 
+  private static final String PASSED = "PASSED";
+  private static final String FAILED = "FAILED!!";
+
   @Override
   public void generateReport(Set<EvaluationContext> testContexts) {
     testContexts.forEach(context -> {
       StatisticsCalculator statistics = context.getStatistics();
-      String throughputStatus = context.isThroughputAchieved() ? "PASSED" : "FAILED!!";
-      String errorRateStatus = context.isErrorThresholdAchieved() ? "PASSED" : "FAILED!!";
+      String throughputStatus = context.isThroughputAchieved() ? PASSED : FAILED;
+      String errorRateStatus = context.isErrorThresholdAchieved() ? PASSED : FAILED;
 
       log.info("Started at:   {}", context.getStartTime());
       log.info("Invocations:  {}", statistics.getEvaluationCount());
@@ -28,7 +31,7 @@ public class ConsoleReportGenerator implements ReportGenerator {
       log.info("Thread Count: {}", context.getConfiguredThreads());
       log.info("Warm up:      {}ms", context.getConfiguredWarmUp());
       log.info("");
-      log.info("Execution time: {}ms");
+      log.info("Execution time: {}ms", context.getConfiguredDuration());
       log.info("Throughput:     {}/s (Required: {}/s) - {}",
         context.getThroughputQps(),
         context.getRequiredThroughput(),
@@ -37,13 +40,15 @@ public class ConsoleReportGenerator implements ReportGenerator {
       log.info("Max latency:    {}ms", statistics.getMaxLatency(MILLISECONDS));
       log.info("Ave latency:    {}ms", statistics.getMeanLatency(MILLISECONDS));
       context.getRequiredPercentiles().forEach((percentile, threshold) -> {
-        String percentileStatus = context.getPercentileResults().get(percentile) ? "PASSED" : "FAILED!!";
+        String percentileStatus = context.getPercentileResults().get(percentile) ? PASSED : FAILED;
         log.info("{}:    {}ms (Required: {}ms) - {}",
           percentile,
           statistics.getLatencyPercentile(percentile, MILLISECONDS),
           threshold,
           percentileStatus);
       });
+      log.info("");
+      log.info("");
     });
   }
 
