@@ -11,7 +11,7 @@ import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 import com.noconnor.junitperf.JUnitPerfTest;
 import com.noconnor.junitperf.JUnitPerfTestRequirement;
-import com.noconnor.junitperf.statistics.Statistics;
+import com.noconnor.junitperf.statistics.StatisticsCalculator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -44,7 +44,7 @@ public class EvaluationContext {
 
   @Getter
   @Setter
-  private Statistics statistics;
+  private StatisticsCalculator statistics;
 
   @Getter
   private boolean isThroughputAchieved;
@@ -55,6 +55,7 @@ public class EvaluationContext {
   @Getter
   private boolean isSuccessful;
 
+  @SuppressWarnings("WeakerAccess")
   public long getThroughputQps() {
     return (long)(((float)statistics.getEvaluationCount() / (float)configuredDuration) * 1000);
   }

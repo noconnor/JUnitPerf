@@ -9,8 +9,7 @@ import org.junit.runners.model.Statement;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.noconnor.junitperf.data.EvaluationContext;
-import com.noconnor.junitperf.statistics.Statistics;
-import com.noconnor.junitperf.statistics.providers.ApacheDescriptiveStatistics;
+import com.noconnor.junitperf.statistics.StatisticsCalculator;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.util.concurrent.RateLimiter.create;
@@ -26,21 +25,27 @@ public class PerformanceEvaluationStatement extends Statement {
   private final EvaluationContext context;
   private final ThreadFactory threadFactory;
   private final Statement baseStatement;
+  private final StatisticsCalculator statistics;
   private final RateLimiter rateLimiter;
   private Consumer<Void> listener;
 
   @Builder(builderMethodName = "perfEvalBuilder")
-  private PerformanceEvaluationStatement(Statement baseStatement, EvaluationContext context, Consumer<Void> listener) {
-    this(baseStatement, context, FACTORY, listener);
+  private PerformanceEvaluationStatement(Statement baseStatement,
+                                         StatisticsCalculator statistics,
+                                         EvaluationContext context,
+                                         Consumer<Void> listener) {
+    this(baseStatement, statistics, context, FACTORY, listener);
   }
 
   @Builder(builderMethodName = "perfEvalBuilderTest", builderClassName = "BuildTest")
   private PerformanceEvaluationStatement(Statement baseStatement,
+                                         StatisticsCalculator statistics,
                                          EvaluationContext context,
                                          ThreadFactory threadFactory,
                                          Consumer<Void> listener) {
     this.context = context;
     this.baseStatement = baseStatement;
+    this.statistics = statistics;
     this.threadFactory = threadFactory;
     this.rateLimiter = context.getConfiguredRateLimit() > 0 ? create(context.getConfiguredRateLimit()) : null;
     this.listener = listener;
@@ -49,7 +54,6 @@ public class PerformanceEvaluationStatement extends Statement {
   @Override
   public void evaluate() throws Throwable {
     List<Thread> threads = newArrayList();
-    Statistics statistics = new ApacheDescriptiveStatistics();
     try {
       for (int i = 0; i < context.getConfiguredThreads(); i++) {
         EvaluationTask task = new EvaluationTask(baseStatement, rateLimiter, statistics, context.getConfiguredWarmUp());

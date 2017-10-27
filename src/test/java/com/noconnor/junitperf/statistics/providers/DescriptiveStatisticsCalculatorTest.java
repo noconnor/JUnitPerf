@@ -12,16 +12,16 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 
-public class ApacheDescriptiveStatisticsTest extends BaseTest {
+public class DescriptiveStatisticsCalculatorTest extends BaseTest {
 
-  private ApacheDescriptiveStatistics evaluator;
+  private DescriptiveStatisticsCalculator evaluator;
 
   @Spy
   private DescriptiveStatistics statsMock;
 
   @Before
   public void setup() {
-    evaluator = new ApacheDescriptiveStatistics(statsMock);
+    evaluator = new DescriptiveStatisticsCalculator(statsMock);
   }
 
   @Test

@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.stubbing.OngoingStubbing;
 import com.google.common.util.concurrent.RateLimiter;
 import com.noconnor.junitperf.BaseTest;
-import com.noconnor.junitperf.statistics.Statistics;
+import com.noconnor.junitperf.statistics.StatisticsCalculator;
 
 import static org.mockito.Mockito.*;
 
@@ -27,7 +27,7 @@ public class EvaluationTaskTest extends BaseTest {
   private Supplier<Boolean> terminatorMock;
 
   @Mock
-  private Statistics statsMock;
+  private StatisticsCalculator statsMock;
 
   @Before
   public void setup() {

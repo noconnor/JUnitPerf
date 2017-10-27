@@ -2,7 +2,7 @@ package com.noconnor.junitperf.statistics;
 
 import java.util.concurrent.TimeUnit;
 
-public interface Statistics {
+public interface StatisticsCalculator {
 
   void addLatencyMeasurement(long executionTimeNs);
 

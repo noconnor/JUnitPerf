@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import com.google.common.collect.ImmutableMap;
 import com.noconnor.junitperf.BaseTest;
 import com.noconnor.junitperf.data.EvaluationContext;
-import com.noconnor.junitperf.statistics.Statistics;
+import com.noconnor.junitperf.statistics.StatisticsCalculator;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.emptyMap;
@@ -48,12 +48,16 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
 
   private PerformanceEvaluationStatement statement;
 
+  @Mock
+  private StatisticsCalculator statisticsCalculatorMock;
+
   @Before
   public void setup() {
     initialiseThreadFactoryMock();
     initialiseContext();
     statement = PerformanceEvaluationStatement.perfEvalBuilderTest()
       .baseStatement(baseStatementMock)
+      .statistics(statisticsCalculatorMock)
       .threadFactory(threadFactoryMock)
       .context(contextMock)
       .listener(listenerMock)
@@ -81,7 +85,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   @Test
   public void whenEvaluationCompletes_thenTheContextShouldBeUpdatedWithStatistics() throws Throwable {
     statement.evaluate();
-    verify(contextMock).setStatistics(any(Statistics.class));
+    verify(contextMock).setStatistics(any(StatisticsCalculator.class));
   }
 
   @Test

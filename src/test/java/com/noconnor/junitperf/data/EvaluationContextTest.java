@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.noconnor.junitperf.BaseTest;
 import com.noconnor.junitperf.JUnitPerfTest;
 import com.noconnor.junitperf.JUnitPerfTestRequirement;
-import com.noconnor.junitperf.statistics.Statistics;
+import com.noconnor.junitperf.statistics.StatisticsCalculator;
 
 import static java.util.Collections.emptyMap;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -23,7 +23,7 @@ public class EvaluationContextTest extends BaseTest {
   private EvaluationContext context;
 
   @Mock
-  private Statistics statisticsMock;
+  private StatisticsCalculator statisticsMock;
 
   @Mock
   private JUnitPerfTest perfTestAnnotation;

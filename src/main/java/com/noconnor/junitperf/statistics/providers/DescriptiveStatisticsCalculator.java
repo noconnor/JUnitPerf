@@ -4,20 +4,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math.stat.descriptive.SynchronizedDescriptiveStatistics;
-import com.noconnor.junitperf.statistics.Statistics;
+import com.noconnor.junitperf.statistics.StatisticsCalculator;
 
-public class ApacheDescriptiveStatistics implements Statistics {
+public class DescriptiveStatisticsCalculator implements StatisticsCalculator {
 
   private final DescriptiveStatistics statistics;
   private final AtomicLong errorCount = new AtomicLong();
   private final AtomicLong evaluationCount = new AtomicLong();
 
   // http://commons.apache.org/proper/commons-math/userguide/stat.html#a1.2_Descriptive_statistics
-  public ApacheDescriptiveStatistics() {
+  public DescriptiveStatisticsCalculator() {
     this(new SynchronizedDescriptiveStatistics());
   }
 
-  ApacheDescriptiveStatistics(DescriptiveStatistics statistics) {
+  DescriptiveStatisticsCalculator(DescriptiveStatistics statistics) {
     this.statistics = statistics;
   }
 
