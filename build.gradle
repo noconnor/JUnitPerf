@@ -1,6 +1,7 @@
 apply plugin: 'java'
+apply plugin: 'maven-publish'
 
-group = 'com.noconnor'
+group = 'com.github.noconnor'
 sourceCompatibility = 1.8
 version = '1.0.0'
 
@@ -21,4 +22,20 @@ dependencies {
     compile "org.hamcrest:hamcrest-junit:2.0.0.0"
     // Reporting
     compile "org.jtwig:jtwig-core:5.86.1.RELEASE"
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact sourceJar {
+                classifier "sources"
+            }
+        }
+    }
 }
