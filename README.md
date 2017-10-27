@@ -1,4 +1,4 @@
-# JUnitPerf
+# JUnitPerf [![Build Status](https://travis-ci.org/noconnor/JUnitPerf.svg?branch=master)](https://travis-ci.org/noconnor/JUnitPerf)
 
 API performance testing framework built using JUnit
 
