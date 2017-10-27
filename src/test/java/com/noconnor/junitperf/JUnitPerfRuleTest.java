@@ -1,21 +1,29 @@
 package com.noconnor.junitperf;
 
-import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import com.noconnor.junitperf.data.EvaluationContext;
 import com.noconnor.junitperf.reporting.ReportGenerator;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Answers.RETURNS_SELF;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 
 public class JUnitPerfRuleTest extends BaseTest {
@@ -52,13 +60,20 @@ public class JUnitPerfRuleTest extends BaseTest {
   private ReportGenerator reporterMock;
 
   @Before
-  public void setup() {
+  @SuppressWarnings("ResultOfMethodCallIgnored")
+  public void setup() throws Exception {
     initialisePerfEvalBuilderMock();
     initialisePerfTestAnnotationMock();
     initialisePerfTestRequirementAnnotationMock();
     mockJunitPerfTestAnnotationPresent();
     mockJunitPerfTestRequirementAnnotationPresent();
+    initialiseDescriptionMock();
     perfRule = new JUnitPerfRule(perfEvalBuilderMock, reporterMock);
+  }
+
+  @After
+  public void teardown() {
+    JUnitPerfRule.ACTIVE_CONTEXTS.clear();
   }
 
   @Test
@@ -82,12 +97,48 @@ public class JUnitPerfRuleTest extends BaseTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void whenExecutingApply_thenJunitPerfTestAnnotationAttributesShouldBeUsedWhenBuildingEvalStatement() {
     perfRule.apply(statementMock, descriptionMock);
     verify(perfEvalBuilderMock).baseStatement(statementMock);
     verify(perfEvalBuilderMock).context(any(EvaluationContext.class));
+    verify(perfEvalBuilderMock).listener(any(Consumer.class));
     verify(perfEvalBuilderMock).build();
     verifyNoMoreInteractions(perfEvalBuilderMock);
+  }
+
+  @Test
+  public void whenExecutingApply_thenTestsShouldBeGroupedByTestClass() {
+    mockDescriptionTestClass(String.class);
+    perfRule.apply(statementMock, descriptionMock);
+    perfRule.apply(statementMock, descriptionMock);
+    perfRule.apply(statementMock, descriptionMock);
+    triggerReportGeneration();
+    assertThat(captureReportContexts(), hasSize(3));
+
+    mockDescriptionTestClass(Integer.class);
+    perfRule.apply(statementMock, descriptionMock);
+    triggerReportGeneration();
+    assertThat(captureReportContexts(), hasSize(1));
+  }
+
+  private void triggerReportGeneration() {
+    Consumer<Void> listener = captureListener();
+    listener.accept(null);
+  }
+
+  @SuppressWarnings("unchecked")
+  private Set<EvaluationContext> captureReportContexts() {
+    ArgumentCaptor<Set<EvaluationContext>> captor = ArgumentCaptor.forClass(Set.class);
+    verify(reporterMock, atLeastOnce()).generateReport(captor.capture());
+    return captor.getValue();
+  }
+
+  @SuppressWarnings("unchecked")
+  private Consumer<Void> captureListener() {
+    ArgumentCaptor<Consumer<Void>> captor = ArgumentCaptor.forClass(Consumer.class);
+    verify(perfEvalBuilderMock, atLeastOnce()).listener(captor.capture());
+    return captor.getValue();
   }
 
   private void initialisePerfEvalBuilderMock() {
@@ -121,6 +172,13 @@ public class JUnitPerfRuleTest extends BaseTest {
     when(requirementAnnotationMock.allowedErrorsRate()).thenReturn(ALLOWED_ERRORS);
     when(requirementAnnotationMock.percentiles()).thenReturn(PERCENTILES);
     when(requirementAnnotationMock.throughput()).thenReturn(THROUGHPUT);
+  }
+
+  private void initialiseDescriptionMock() {
+    mockDescriptionTestClass(JUnitPerfRuleTest.class);
+  }
+  private void mockDescriptionTestClass(Class<?> clazz) {
+    Mockito.<Class<?>>when(descriptionMock.getTestClass()).thenReturn(clazz);
   }
 
 }

@@ -22,7 +22,7 @@ import static java.util.Objects.nonNull;
 @Slf4j
 public class JUnitPerfRule implements TestRule {
 
-  private static final Map<Class, Set<EvaluationContext>> ACTIVE_CONTEXTS = newHashMap();
+  static final Map<Class, Set<EvaluationContext>> ACTIVE_CONTEXTS = newHashMap();
 
   private final PerformanceEvaluationStatementBuilder perEvalBuilder;
   private final ReportGenerator reporter;
@@ -44,12 +44,12 @@ public class JUnitPerfRule implements TestRule {
     JUnitPerfTest perfTestAnnotation = description.getAnnotation(JUnitPerfTest.class);
     JUnitPerfTestRequirement requirementsAnnotation = description.getAnnotation(JUnitPerfTestRequirement.class);
 
-    // Group test contexts by test class
-    ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), newHashSet());
-
     if (nonNull(perfTestAnnotation)) {
-      String startTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-      EvaluationContext context = new EvaluationContext(description.getMethodName(), startTime);
+      // Group test contexts by test class
+      ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), newHashSet());
+
+
+      EvaluationContext context = new EvaluationContext(description.getMethodName(), generateTestStartTime());
       context.loadConfiguration(perfTestAnnotation);
       context.loadRequirements(requirementsAnnotation);
       ACTIVE_CONTEXTS.get(description.getTestClass()).add(context);
@@ -57,12 +57,15 @@ public class JUnitPerfRule implements TestRule {
         .context(context)
         .listener(complete -> updateReport(description.getTestClass()))
         .build();
-    }
-    return activeStatement;
+    } return activeStatement;
   }
 
   private void updateReport(Class<?> testClass) {
     reporter.generateReport(ACTIVE_CONTEXTS.get(testClass));
+  }
+
+  private String generateTestStartTime() {
+    return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
   }
 
 }
