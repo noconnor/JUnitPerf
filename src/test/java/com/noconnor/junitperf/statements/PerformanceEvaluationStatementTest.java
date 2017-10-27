@@ -1,21 +1,30 @@
 package com.noconnor.junitperf.statements;
 
 import java.util.concurrent.ThreadFactory;
+import java.util.function.Consumer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
+import com.google.common.collect.ImmutableMap;
 import com.noconnor.junitperf.BaseTest;
 import com.noconnor.junitperf.data.EvaluationContext;
+import com.noconnor.junitperf.statistics.Statistics;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.emptyMap;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PerformanceEvaluationStatementTest extends BaseTest {
 
@@ -34,6 +43,9 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   @Mock
   private Thread threadMock;
 
+  @Mock
+  private Consumer<Void> listenerMock;
+
   private PerformanceEvaluationStatement statement;
 
   @Before
@@ -44,6 +56,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
       .baseStatement(baseStatementMock)
       .threadFactory(threadFactoryMock)
       .context(contextMock)
+      .listener(listenerMock)
       .build();
   }
 
@@ -65,13 +78,76 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
     verify(threadMock, times(1)).interrupt();
   }
 
+  @Test
+  public void whenEvaluationCompletes_thenTheContextShouldBeUpdatedWithStatistics() throws Throwable {
+    statement.evaluate();
+    verify(contextMock).setStatistics(any(Statistics.class));
+  }
+
+  @Test
+  public void whenEvaluationCompletes_thenTheContextValidationShouldBeTriggered() throws Throwable {
+    statement.evaluate();
+    verify(contextMock).runValidation();
+  }
+
+  @Test
+  public void whenEvaluationCompletes_thenTheListenerShouldBeNotified() throws Throwable {
+    statement.evaluate();
+    verify(listenerMock).accept(null);
+  }
+
+  @Test
+  public void whenEvaluationCompletes_andValidationFails_thenTheListenerShouldStillBeNotified() throws Throwable {
+    when(contextMock.isThroughputAchieved()).thenReturn(false);
+    try {
+      statement.evaluate();
+      fail("Assertion expected during validation");
+    } catch (Error e) {
+      assertThat(e.getMessage(), startsWith("Test throughput threshold not achieved"));
+    }
+    verify(listenerMock).accept(null);
+  }
+
+  @Test
+  public void whenEvaluationCompletes_andThroughputValidationFails_thenAssertionShouldBeGenerated() throws Throwable {
+    when(contextMock.isThroughputAchieved()).thenReturn(false);
+    try {
+      statement.evaluate();
+      fail("Assertion expected during validation");
+    } catch (Error e) {
+      assertThat(e.getMessage(), startsWith("Test throughput threshold not achieved"));
+    }
+  }
+
+  @Test
+  public void whenEvaluationCompletes_andErrorValidationFails_thenAssertionShouldBeGenerated() throws Throwable {
+    when(contextMock.isErrorThresholdAchieved()).thenReturn(false);
+    try {
+      statement.evaluate();
+      fail("Assertion expected during validation");
+    } catch (Error e) {
+      assertThat(e.getMessage(), startsWith("Error threshold not achieved"));
+    }
+  }
+
+  @Test
+  public void whenEvaluationCompletes_andPercentileLatencyValidationFails_thenAssertionShouldBeGenerated() throws Throwable {
+    when(contextMock.getPercentileResults()).thenReturn(ImmutableMap.of(90, true, 95, false));
+    try {
+      statement.evaluate();
+      fail("Assertion expected during validation");
+    } catch (Error e) {
+      assertThat(e.getMessage(), startsWith("95th Percentile has not achieved required threshold"));
+    }
+  }
+
   private void initialiseThreadFactoryMock() {
     when(threadFactoryMock.newThread(any(EvaluationTask.class))).thenReturn(threadMock);
   }
 
   private void initialiseContext() {
     when(contextMock.getConfiguredThreads()).thenReturn(1);
-    when(contextMock.getConfiguredDuration()).thenReturn(1000);
+    when(contextMock.getConfiguredDuration()).thenReturn(100);
     when(contextMock.isErrorThresholdAchieved()).thenReturn(true);
     when(contextMock.isThroughputAchieved()).thenReturn(true);
     when(contextMock.getPercentileResults()).thenReturn(emptyMap());

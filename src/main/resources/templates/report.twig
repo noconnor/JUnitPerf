@@ -75,9 +75,10 @@
                             <td align='right'></td>
                         </tr>
                         <tr>
-                            <th align='right' valign='top'><b style='color:#2b67a4'>- Errors:</b></th>
-                            <td align='right'><b style='color:#2b67a4'>{{ number_format(context.statistics.errorCount, 0, ".", ",") }}</b></td>
-                            <td align='right'><b style='color:#2b67a4'>{{ number_format(context.statistics.errorPercentage, 2, ".", ",") }}%</b></td>
+                            {% set colour = (context.isErrorThresholdAchieved) ? "#2b67a4" : "#d9534f" %}
+                            <th align='right' valign='top'><b style='color:{{ colour }}'>- Errors:</b></th>
+                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.statistics.errorCount, 0, ".", ",") }}</b></td>
+                            <td align='right'><b style='color:{{ colour }};'>{{ number_format(context.statistics.errorPercentage, 2, ".", ",") }}%</b></td>
                         </tr>
                         <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
                         <tr>
@@ -102,9 +103,10 @@
                             <td align='right'></td>
                         </tr>
                         <tr>
-                            <th align='right' valign='top'><b style='color:#2b67a4'>Throughput:</b></th>
-                            <td align='right'><b style='color:#2b67a4'>{{ number_format(context.getThroughputQps, 0, ".", ",") }} / s</b></td>
-                            <td align='right'><b style='color:#2b67a4'>{{ number_format(context.requiredThroughput, 0, ".", ",") }} / s</b></td>
+                            {% set colour = (context.isThroughputAchieved) ? "#2b67a4" : "#d9534f" %}
+                            <th align='right' valign='top'><b style='color:{{ colour }}'>Throughput:</b></th>
+                            <td align='right'><b style='color:{{ colour }};'>{{ number_format(context.getThroughputQps, 0, ".", ",") }} / s</b></td>
+                            <td align='right'><b style='color:{{ colour }};'>{{ number_format(context.requiredThroughput, 0, ".", ",") }} / s</b></td>
                         </tr>
                         <tr>
                             <th align='right' valign='top'>Min. latency:</th>
@@ -119,11 +121,12 @@
 
                         {% for percentile, target in context.requiredPercentiles %}
                         <tr>
-                            <th align='right' valign='top'><b style='color:#2b67a4'>{{ percentile }}:</b></th>
                             {% for i in [percentile .. percentile] %} <!-- HACK to get parameter passed to function -->
-                            <td align='right'><b style='color:#2b67a4;'>{{ number_format(context.statistics.getLatencyPercentile(i, milliseconds), 2, ".", ",") }} ms</b></td>
+                            {% set colour = (context.getPercentileResults().get(i)) ? "#2b67a4" : "#d9534f" %}
+                            <th align='right' valign='top'><b style='color:{{ colour }}'>{{ percentile }}:</b></th>
+                            <td align='right'><b style='color:{{ colour }};'>{{ number_format(context.statistics.getLatencyPercentile(i, milliseconds), 2, ".", ",") }} ms</b></td>
+                            <td align='right'><b style='color:{{ colour }}'>{{ target }} ms</b></td>
                             {% endfor %}
-                            <td align='right'><b style='color:#2b67a4'>{{ target }} ms</b></td>
                         </tr>
                         {% endfor %}
                         <tr>
