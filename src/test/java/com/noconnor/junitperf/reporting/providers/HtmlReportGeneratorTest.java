@@ -17,7 +17,7 @@ import com.noconnor.junitperf.BaseTest;
 import com.noconnor.junitperf.JUnitPerfTest;
 import com.noconnor.junitperf.JUnitPerfTestRequirement;
 import com.noconnor.junitperf.data.EvaluationContext;
-import com.noconnor.junitperf.statistics.Statistics;
+import com.noconnor.junitperf.statistics.StatisticsCalculator;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
@@ -148,8 +148,8 @@ public class HtmlReportGeneratorTest extends BaseTest {
     return context;
   }
 
-  private Statistics createAllSuccessMock() {
-    Statistics statisticsMock = mock(Statistics.class);
+  private StatisticsCalculator createAllSuccessMock() {
+    StatisticsCalculator statisticsMock = mock(StatisticsCalculator.class);
     when(statisticsMock.getErrorPercentage()).thenReturn(20.0F);
     when(statisticsMock.getLatencyPercentile(98, NANOSECONDS)).thenReturn(1636367F);
     when(statisticsMock.getLatencyPercentile(99, NANOSECONDS)).thenReturn(28343467F);
@@ -168,8 +168,8 @@ public class HtmlReportGeneratorTest extends BaseTest {
     return statisticsMock;
   }
 
-  private Statistics createSomeFailuresMock() {
-    Statistics statisticsMock = mock(Statistics.class);
+  private StatisticsCalculator createSomeFailuresMock() {
+    StatisticsCalculator statisticsMock = mock(StatisticsCalculator.class);
     when(statisticsMock.getErrorPercentage()).thenReturn(60.0F);
     when(statisticsMock.getLatencyPercentile(98, NANOSECONDS)).thenReturn(1636367F);
     when(statisticsMock.getLatencyPercentile(99, NANOSECONDS)).thenReturn(28343467F);
@@ -188,8 +188,8 @@ public class HtmlReportGeneratorTest extends BaseTest {
     return statisticsMock;
   }
 
-  private Statistics createAllFailureMock() {
-    Statistics statisticsMock = mock(Statistics.class);
+  private StatisticsCalculator createAllFailureMock() {
+    StatisticsCalculator statisticsMock = mock(StatisticsCalculator.class);
     when(statisticsMock.getErrorPercentage()).thenReturn(40.0F);
     when(statisticsMock.getLatencyPercentile(98, NANOSECONDS)).thenReturn(4636367F);
     when(statisticsMock.getLatencyPercentile(99, NANOSECONDS)).thenReturn(48343467F);

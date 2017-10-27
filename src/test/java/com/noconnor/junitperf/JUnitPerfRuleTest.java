@@ -14,6 +14,7 @@ import com.noconnor.junitperf.data.EvaluationContext;
 import com.noconnor.junitperf.reporting.ReportGenerator;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
+import com.noconnor.junitperf.statistics.StatisticsCalculator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -59,6 +60,9 @@ public class JUnitPerfRuleTest extends BaseTest {
   @Mock
   private ReportGenerator reporterMock;
 
+  @Mock
+  private StatisticsCalculator statisticsCalculatorMock;
+
   @Before
   @SuppressWarnings("ResultOfMethodCallIgnored")
   public void setup() throws Exception {
@@ -68,7 +72,7 @@ public class JUnitPerfRuleTest extends BaseTest {
     mockJunitPerfTestAnnotationPresent();
     mockJunitPerfTestRequirementAnnotationPresent();
     initialiseDescriptionMock();
-    perfRule = new JUnitPerfRule(perfEvalBuilderMock, reporterMock);
+    perfRule = new JUnitPerfRule(perfEvalBuilderMock, reporterMock, statisticsCalculatorMock);
   }
 
   @After
@@ -101,6 +105,7 @@ public class JUnitPerfRuleTest extends BaseTest {
   public void whenExecutingApply_thenJunitPerfTestAnnotationAttributesShouldBeUsedWhenBuildingEvalStatement() {
     perfRule.apply(statementMock, descriptionMock);
     verify(perfEvalBuilderMock).baseStatement(statementMock);
+    verify(perfEvalBuilderMock).statistics(statisticsCalculatorMock);
     verify(perfEvalBuilderMock).context(any(EvaluationContext.class));
     verify(perfEvalBuilderMock).listener(any(Consumer.class));
     verify(perfEvalBuilderMock).build();
