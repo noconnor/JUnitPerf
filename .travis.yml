@@ -6,6 +6,10 @@ jdk:
 before_install:
   - pip install --user codecov
 
+# https://stackoverflow.com/questions/38595216/travis-ci-build-failure
+install:
+  gradle assemble -x signArchives
+
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
