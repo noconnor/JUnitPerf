@@ -47,7 +47,7 @@ Add the JUnitPerf Rule to your test class
 public JUnitPerfRule perfTestRule = new JUnitPerfRule();
 ```
 
-Next add the `JUnitPerfTest` annotation to the unit test you would like to translate into performance test  
+Next add the `JUnitPerfTest` annotation to the unit test you would like to convert into a performance test  
 
 ```
 @Test
@@ -60,12 +60,12 @@ public void whenExecuting11Kqps_thenApiShouldNotCrash(){
 In the example above, the unittest `whenExecuting11Kqps_thenApiShouldNotCrash` will be executed in a loop for 
 125 secs (125,000ms) using 50 threads. 
 
-The executions will be rate limited to 11K loops executions per second. 
+The executions will be rate limited to 11K loop executions per second. 
 
 No statistical data will be captured during the warm up period (10 seconds - 10,000ms) 
 
-Optionally add the performance test requirements annotation (`JUnitPerfTestRequirement`) to your performance test. 
-These requirements will be applied to the statistics gathered during the performance test execution. 
+Optionally add the performance test requirement annotation (`JUnitPerfTestRequirement`). 
+The specified requirements will be applied to the statistics gathered during the performance test execution. 
 If thresholds are not met, test will fail.
 
 
@@ -78,30 +78,31 @@ public void whenExecuting11Kqps_thenApiShouldNotCrash(){
 }
 ``` 
 
-In the example above, the `JUnitPerfTestRequirement` annotation applied a number of threshold constraints to the performance test
+In the example above, the `JUnitPerfTestRequirement` annotation will apply a number of threshold constraints to the performance test.
+
 The tests calculated throughput (executions per second) will be compared to the `throughput` requirement. 
 If the test throughput is *less* than the target throughput then the test will fail.
 
-This test also contained a requirement that the execution error rate be no more than 10% (`allowedErrorsRate = 0.10`). 
+This example test also contains a requirement that the execution error rate be no more than 10% (`allowedErrorsRate = 0.10`). 
 An error is an uncaught exception thrown during unittest execution. 
 If the specified `allowedErrorsRate` is not met then the test will fail.
 
-Finally the example set a number of latency thresholds on the 90th, 95th, 98th and 99th percentiles (i.e. if the 
-99th percentile latency is greater than 8ms then the test will fail). 
+Finally the example sets a number of latency thresholds on the 90th, 95th, 98th and 99th percentiles (i.e. if the 
+99th percentile latency is *greater* than 8ms then the test will fail). 
 The latency is a measurement of the time taken to execute one loop (not including statistics measurement calculations) 
 
 More information on statistic calculations can be found [here](Statistics)
 
 `@JUnitPerfTest` has the following configuration parameters:
 
-| Property      | Definition                                                                                                                  | Default value  |
-| ------------: |:---------------------------------------------------------------------------------------------------------------------------:| --------------:|
-| threads       | The total number of threads to use during test execution                                                                    |        1       |
-| duration      | Total time to run test in millisecs (ms) (incl warmup period)                                                               |      60,000    |
-| warmUp        | Warm up period in ms, test will be executed during warm up, but results will not be considered during statistics evaluation |        0       |
-| rateLimit     | Sets the maximum number of iteration per second (disabled by default)                                                       |       -1       |
+| Property      | Definition                                                                                                                        | Default value  |
+| ------------: |:---------------------------------------------------------------------------------------------------------------------------------:| --------------:|
+| threads       | The total number of threads to use during test execution                                                                          |        1       |
+| duration      | Total time to run the test in millisecs (ms) (includes warmup period)                                                             |      60,000    |
+| warmUp        | Warm up period in ms, test logic will be executed during warm up, but results will not be considered during statistics evaluation |        0       |
+| rateLimit     | Sets the maximum number of iteration per second (disabled by default)                                                             |       -1       |
 
-
+<br />
 
 `@JUnitPerfTestRequirement` has the following configuration parameters:
 
@@ -135,9 +136,10 @@ It is possible to override this template by placing a customised `templates/repo
 
 **Console Reporting**
 
-It is also possible to use use a build in console reporter. To change from the default HTML reporter to the console report
-just create an instance of the `ConsoleReportGenerator` class and pass a reference to this class to the `JUnitPerfRule` constructor, 
+It is also possible to use one of the other built-in reporters, the console reporter. To change from the default HTML reporter to the console reporter
+just create an instance of the `ConsoleReportGenerator` class and pass a reference to this instance to the `JUnitPerfRule` constructor, 
 for example: 
+
 ```
 @Rule
 public JUnitPerfRule perfTestRule = new JUnitPerfRule(new ConsoleReportGenerator());
@@ -165,7 +167,12 @@ Example output:
 
 **Custom Reporting**
 
-If further customisation is required, a custom implementation of the `ReportGenerator` interface can be passed to the the `JunitPerRule` constructor
+If further customisation is required, a custom implementation of the `ReportGenerator` interface can be passed to the the `JunitPerRule` constructor:
+
+```
+@Rule
+public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CustomReportGeneratorImpl());
+```
 
 
 
@@ -174,8 +181,8 @@ If further customisation is required, a custom implementation of the `ReportGene
 By default, statistics are captured and calculated using the apache [Descriptive Statistics library](http://commons.apache.org/proper/commons-math/userguide/stat.html#a1.2_Descriptive_statistics).
 See [DescriptiveStatisticsCalculator](src/main/com/github/noconnor/junitperf/statistics/providers/DescriptiveStatisticsCalculator) for more details.
 
-To override the default statistics calculation class a custom implementation of the `StatisticsCalculator` interface can 
-be passed to the `JUnitPerfRule` constructor
+To override the default statistics calculation class, a custom implementation of the `StatisticsCalculator` interface can 
+be passed to the `JUnitPerfRule` constructor:
 
 ```
 @Rule
@@ -187,7 +194,7 @@ public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CustomStatisticsCalcul
 
 To compile this project and run tests execute the following command from the root project directory: `gradle clean test`
 
-To generate an library jar execute: `gradle clean assemble`
+To generate a library jar execute: `gradle clean assemble`
 
 **Intellij 14 Setup**
 
