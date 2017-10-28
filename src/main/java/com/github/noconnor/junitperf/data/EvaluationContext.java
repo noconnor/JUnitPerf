@@ -57,7 +57,7 @@ public class EvaluationContext {
 
   @SuppressWarnings("WeakerAccess")
   public long getThroughputQps() {
-    return (long)(((float)statistics.getEvaluationCount() / (float)configuredDuration) * 1000);
+    return (long)(((float)statistics.getEvaluationCount() / ((float)configuredDuration - configuredWarmUp)) * 1000);
   }
 
   @Getter

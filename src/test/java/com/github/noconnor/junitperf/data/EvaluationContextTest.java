@@ -94,9 +94,10 @@ public class EvaluationContextTest extends BaseTest {
   public void whenRunningEvaluation_andEvaluationCountIsGreaterThanDuration_thenThroughputShouldBeCalculatedCorrectly() {
     when(statisticsMock.getEvaluationCount()).thenReturn(1000L);
     when(perfTestAnnotation.duration()).thenReturn(100);
+    when(perfTestAnnotation.warmUp()).thenReturn(5);
     initialiseContext();
     context.runValidation();
-    assertThat(context.getThroughputQps(), is(10_000L));
+    assertThat(context.getThroughputQps(), is(10526L));
   }
 
   @Test
@@ -179,7 +180,7 @@ public class EvaluationContextTest extends BaseTest {
   @Test
   public void whenCalculatingThroughputQps_thenCorrectValueShouldBeCalculated() {
     initialiseContext();
-    long expected = (statisticsMock.getEvaluationCount() / perfTestAnnotation.duration()) * 1000;
+    long expected = (long)(statisticsMock.getEvaluationCount() / (float)(perfTestAnnotation.duration() - perfTestAnnotation.warmUp())) * 1000;
     assertThat(context.getThroughputQps(), is(expected));
   }
 
@@ -193,7 +194,7 @@ public class EvaluationContextTest extends BaseTest {
     when(perfTestAnnotation.duration()).thenReturn(10);
     when(perfTestAnnotation.rateLimit()).thenReturn(1_000);
     when(perfTestAnnotation.threads()).thenReturn(50);
-    when(perfTestAnnotation.warmUp()).thenReturn(500);
+    when(perfTestAnnotation.warmUp()).thenReturn(5);
   }
 
   private void initialisePerfTestRequirementAnnotation() {

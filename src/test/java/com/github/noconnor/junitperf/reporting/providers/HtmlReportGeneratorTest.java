@@ -13,10 +13,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
-import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.BaseTest;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
+import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 
 import static com.google.common.collect.Lists.newArrayList;
