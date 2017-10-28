@@ -26,6 +26,16 @@ This library interface was heavily influenced by the interface in the deprecated
 [Build Instructions](#Build-Instructions)
 
 ## Install Instructions 
+
+`JUnitPerf` is available in [maven central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.noconnor%22)
+
+To add `JunitPerf` to your gradle project add the following line to your build.gradle files dependencies:
+
+`compile 'com.github.noconnor:junitperf:VERSION'`
+
+Replacing `VERSION` with the latest release available in maven
+ 
+
 ## Usage Instructions
 
 Add the JUnitPerf Rule to your test class
