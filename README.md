@@ -107,7 +107,7 @@ More information on statistic calculations can be found [here](Statistics)
 
 | Property          | Definition                                                                                                                  | Default value  |
 | -----------------:|:---------------------------------------------------------------------------------------------------------------------------:| --------------:|
-| percentiles       | Comma separated list of percentile targets, format: <percentile1>:<limit>,<percentile2>:<limit> (ie. 90:3,99:6)             |        ""      |
+| percentiles       | Comma separated list of percentile targets, format: percentile1:limit,percentile2:limit (ie. 90:3.3,99:6.8)                 |        ""      |
 | throughput        | Target executions per second                                                                                                |        1       |
 | allowedErrorsRate | Allowed % of errors (uncaught exceptions) during test execution (value between 0 and 1, where 1 = 100% errors allowed)      |        1       |
 
