@@ -7,15 +7,15 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import com.google.common.primitives.Floats;
-import com.google.common.primitives.Ints;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+import com.google.common.primitives.Floats;
+import com.google.common.primitives.Ints;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Maps.newTreeMap;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -102,7 +102,7 @@ public class EvaluationContext {
   }
 
   private Map<Integer, Boolean> evaluateLatencyPercentiles() {
-    Map<Integer, Boolean> results = newHashMap();
+    Map<Integer, Boolean> results = newTreeMap();
     requiredPercentiles.forEach((percentile, thresholdMs) -> {
       long thresholdNs = (long)(thresholdMs * MILLISECONDS.toNanos(1));
       boolean result = statistics.getLatencyPercentile(percentile, NANOSECONDS) <= thresholdNs;
@@ -112,7 +112,7 @@ public class EvaluationContext {
   }
 
   private static Map<Integer, Float> parsePercentileLimits(String percentileLimits) {
-    Map<Integer, Float> limits = newHashMap();
+    Map<Integer, Float> limits = newTreeMap();
     if (isNotBlank(percentileLimits)) {
       // go from 90:2,95:5 -> map of integer to float
       Stream.of(percentileLimits.split(","))
