@@ -26,6 +26,12 @@ dependencies {
     compile "org.projectlombok:lombok:1.16.18"
 }
 
+
+task javadocJar(type: Jar) {
+    from javadoc.destinationDir
+    classifier = 'javadoc'
+}
+
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
@@ -33,6 +39,7 @@ task sourcesJar(type: Jar) {
 
 artifacts {
     archives sourcesJar
+    archives javadocJar
 }
 
 // http://blog.sonatype.com/2010/01/how-to-generate-pgp-signatures-with-maven/
@@ -56,6 +63,7 @@ uploadArchives {
 
             pom.project {
                 name 'junitperf'
+                artifactId 'junitperf'
                 packaging 'jar'
                 // optionally artifactId can be defined here
                 description 'API performance testing framework built using JUnit'
