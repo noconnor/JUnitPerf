@@ -55,7 +55,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   public void setup() {
     initialiseThreadFactoryMock();
     initialiseContext();
-    statement = PerformanceEvaluationStatement.perfEvalBuilderTest()
+    statement = PerformanceEvaluationStatement.builder()
       .baseStatement(baseStatementMock)
       .statistics(statisticsCalculatorMock)
       .threadFactory(threadFactoryMock)

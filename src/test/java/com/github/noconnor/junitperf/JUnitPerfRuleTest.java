@@ -72,7 +72,8 @@ public class JUnitPerfRuleTest extends BaseTest {
     mockJunitPerfTestAnnotationPresent();
     mockJunitPerfTestRequirementAnnotationPresent();
     initialiseDescriptionMock();
-    perfRule = new JUnitPerfRule(perfEvalBuilderMock, reporterMock, statisticsCalculatorMock);
+    perfRule = new JUnitPerfRule(reporterMock, statisticsCalculatorMock);
+    perfRule.perEvalBuilder = perfEvalBuilderMock;
   }
 
   @After

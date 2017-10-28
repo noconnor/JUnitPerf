@@ -18,7 +18,7 @@ import static java.lang.System.getProperty;
 @Slf4j
 public class HtmlReportGenerator implements ReportGenerator {
 
-  private static final String DEFAULT_REPORT_PATH = getProperty("user.dir") + "/build/reports/junit_report.html";
+  private static final String DEFAULT_REPORT_PATH = getProperty("user.dir") + "/build/reports/junitperf_report.html";
   private static final String REPORT_TEMPLATE = "templates/report.twig";
 
   private final String reportPath;
