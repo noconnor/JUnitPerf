@@ -38,6 +38,8 @@ Replacing `VERSION` with the latest release available in maven
 
 ## Usage Instructions
 
+This section contains usage details for the `JUnitPerf` library. To see example test cases browse to the [src/test/examples/](src/test/examples/) folder. 
+
 Add the JUnitPerf Rule to your test class
 
 ```
@@ -111,14 +113,61 @@ More information on statistic calculations can be found [here](Statistics)
 
 
 ## Reports
+
+**HTML Reports**
+
+By default, the JUnitPerf library will generate a HTML performance report under `${BUILD_DIR}/reports/junitperf_report.html`
+
+An example report can be seen below
+
+![HTML Report](https://raw.githubusercontent.com/noconnor/JUnitPerf/master/src/common/images/example_report.png "Example JUnitPerf html report")
+
+Hovering over the datapoints on the percentile latency graph will provide latency/percentile information. 
+It is possible to override the default output path by constructing the `JUnitPerfRule` in the following way:
+```
+@Rule
+public JUnitPerfRule perfTestRule = new JUnitPerfRule(new HtmlReportGenerator("/some/custom/path/report.html"));
+```
+
+HTML reports are generated using the [jtwig library](http://jtwig.org/). The jtwig report template can be found under `src/main/resources/templates/report.twig`.
+It is possible to override this template by placing a customised `templates/report.twig` file on the classpath ahead of the default template.
+
+
+**Console Reporting**
+
+It is also possible to use use a build in console reporter. To change from the default HTML reporter to the console report
+just create an instance of the `ConsoleReportGenerator` class and pass a reference to this class to the `JUnitPerfRule` constructor, 
+for example: 
+```
+@Rule
+public JUnitPerfRule perfTestRule = new JUnitPerfRule(new ConsoleReportGenerator());
+```
+
+**Custom Reporting**
+
+If further customisation is required, a custom implementation of the `ReportGenerator` interface can be passed to the the `JunitPerRule` constructor
+
+
+
 ## Statistics
 
-Statistical information includes:
-* execution latency distributions, 
-* test throughput (executions per second)
-* error percentage (exceptional test executions as a percentage of successful test executions)
+By default, statistics are captured and calculated using the apache [Descriptive Statistics library](http://commons.apache.org/proper/commons-math/userguide/stat.html#a1.2_Descriptive_statistics).
+See [DescriptiveStatisticsCalculator](src/main/com/github/noconnor/junitperf/statistics/providers/DescriptiveStatisticsCalculator) for more details.
+
+To override the default statistics calculation class a custom implementation of the `StatisticsCalculator` interface can 
+be passed to the `JUnitPerfRule` constructor
+
+```
+@Rule
+public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CustomStatisticsCalculatorImpl());
+``` 
+
 
 ## Build Instructions
+
+To compile this project and run tests execute the following command from the root project directory: `gradle clean test`
+
+To generate an library jar execute: `gradle clean assemble`
 
 **Intellij 14 Setup**
 
