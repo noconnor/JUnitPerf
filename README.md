@@ -179,7 +179,7 @@ public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CustomReportGeneratorI
 ## Statistics
 
 By default, statistics are captured and calculated using the apache [Descriptive Statistics library](http://commons.apache.org/proper/commons-math/userguide/stat.html#a1.2_Descriptive_statistics).
-See [DescriptiveStatisticsCalculator](src/main/com/github/noconnor/junitperf/statistics/providers/DescriptiveStatisticsCalculator) for more details.
+See [DescriptiveStatisticsCalculator](src/main/java/com/github/noconnor/junitperf/statistics/providers/DescriptiveStatisticsCalculator.java) for more details.
 
 To override the default statistics calculation class, a custom implementation of the `StatisticsCalculator` interface can 
 be passed to the `JUnitPerfRule` constructor:
