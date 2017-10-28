@@ -26,39 +26,32 @@ public class JUnitPerfRule implements TestRule {
 
   static final Map<Class, Set<EvaluationContext>> ACTIVE_CONTEXTS = newHashMap();
 
-  private final PerformanceEvaluationStatementBuilder perEvalBuilder;
+
   private final StatisticsCalculator statisticsCalculator;
   private final ReportGenerator reporter;
+  PerformanceEvaluationStatementBuilder perEvalBuilder;
 
   @SuppressWarnings("WeakerAccess")
   public JUnitPerfRule() {
-    this(PerformanceEvaluationStatement.perfEvalBuilder(),
-      new HtmlReportGenerator(),
+    this(new HtmlReportGenerator(),
       new DescriptiveStatisticsCalculator());
   }
 
   @SuppressWarnings("WeakerAccess")
   public JUnitPerfRule(ReportGenerator reportGenerator) {
-    this(PerformanceEvaluationStatement.perfEvalBuilder(), reportGenerator, new DescriptiveStatisticsCalculator());
+    this(reportGenerator, new DescriptiveStatisticsCalculator());
   }
 
   @SuppressWarnings("WeakerAccess")
   public JUnitPerfRule(StatisticsCalculator statisticsCalculator) {
-    this(PerformanceEvaluationStatement.perfEvalBuilder(), new HtmlReportGenerator(), statisticsCalculator);
+    this(new HtmlReportGenerator(), statisticsCalculator);
   }
 
   @SuppressWarnings("WeakerAccess")
   public JUnitPerfRule(ReportGenerator reportGenerator, StatisticsCalculator statisticsCalculator) {
-    this(PerformanceEvaluationStatement.perfEvalBuilder(), reportGenerator, statisticsCalculator);
-  }
-
-  // Test only
-  JUnitPerfRule(PerformanceEvaluationStatementBuilder perEvalBuilder,
-                ReportGenerator reporter,
-                StatisticsCalculator statisticsCalculator) {
-    this.perEvalBuilder = perEvalBuilder;
+    this.perEvalBuilder = PerformanceEvaluationStatement.builder();
     this.statisticsCalculator = statisticsCalculator;
-    this.reporter = reporter;
+    this.reporter = reportGenerator;
   }
 
   @Override
