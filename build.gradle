@@ -1,11 +1,12 @@
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'jacoco'
 
 group = 'com.github.noconnor'
 sourceCompatibility = 1.8
-version = '1.1.1'
+version = '1.1.2'
 
 repositories {
     mavenCentral()
@@ -20,13 +21,27 @@ dependencies {
     compile 'junit:junit:4.12'
     compile 'commons-math:commons-math:1.2'
 
-
     // Reporting
     compile "org.jtwig:jtwig-core:5.86.1.RELEASE"
     compileOnly "org.projectlombok:lombok:1.16.18"
 
     testCompile 'org.mockito:mockito-core:2.11.0'
     testCompile "org.hamcrest:hamcrest-junit:2.0.0.0"
+}
+
+jar {
+    baseName "junitperf"
+    duplicatesStrategy "exclude"
+
+    from {
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
 }
 
 
