@@ -8,7 +8,7 @@ before_install:
 
 # https://stackoverflow.com/questions/38595216/travis-ci-build-failure
 install:
-  gradle assemble -x signArchives
+  ./gradlew assemble -x signArchives
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
