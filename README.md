@@ -27,7 +27,7 @@ This library interface was heavily influenced by the interface in the deprecated
 
 ## Install Instructions 
 
-`JUnitPerf` is available in [maven central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.noconnor%22)
+`JUnitPerf` is available in [maven central](http://bit.ly/2idQDvA)
 
 To add `JunitPerf` to your gradle project add the following line to your build.gradle files dependencies:
 
@@ -141,6 +141,26 @@ for example:
 ```
 @Rule
 public JUnitPerfRule perfTestRule = new JUnitPerfRule(new ConsoleReportGenerator());
+```
+
+Example output:
+
+```
+15:55:06.575 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - Started at:   2017-10-28 15:55:05
+15:55:06.580 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - Invocations:  765
+15:55:06.580 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator -   - Success:  765
+15:55:06.580 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator -   - Errors:   0
+15:55:06.580 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator -   - Errors:   0.0% - PASSED
+15:55:06.581 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - 
+15:55:06.581 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - Thread Count: 1
+15:55:06.581 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - Warm up:      0ms
+15:55:06.581 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - 
+15:55:06.581 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - Execution time: 1000ms
+15:55:06.581 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - Throughput:     766/s (Required: 10000/s) - FAILED!!
+15:55:06.581 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - Min. latency:   1.012392ms
+15:55:06.582 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - Max latency:    3.74209ms
+15:55:06.582 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - Ave latency:    1.2975845ms
+15:55:06.583 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - 
 ```
 
 **Custom Reporting**
