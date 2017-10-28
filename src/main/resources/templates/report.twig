@@ -42,7 +42,7 @@
 
                             var data = google.visualization.arrayToDataTable([
                                 ['Percentile', 'Latency'],
-                                {% for i in [1..100] %}
+                                {% for i in [1..99] %}
                                 [ {{ i }},      {{ context.statistics.getLatencyPercentile(i, milliseconds) }}],
                                 {% endfor %}
                             ]);
