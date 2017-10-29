@@ -51,7 +51,7 @@ Next add the `JUnitPerfTest` annotation to the unit test you would like to conve
 
 ```
 @Test
-@JUnitPerfTest(threads = 50, duration = 125_000, warmUp = 10_000, rateLimit = 11_000)
+@JUnitPerfTest(threads = 50, durationMs = 125_000, warmUpMs = 10_000, maxExecutionsPerSecond = 11_000)
 public void whenExecuting11Kqps_thenApiShouldNotCrash(){
   ... EXECUTE TIME SENSITIVE TASK ...
 }
@@ -71,8 +71,8 @@ If thresholds are not met, test will fail.
 
 ```
 @Test
-@JUnitPerfTest(threads = 50, duration = 125_000, warmUp = 10_000, rateLimit = 11_000)
-@JUnitPerfTestRequirement(percentiles = "90:7,95:7,98:7,99:8", throughput = 10_000, allowedErrorsRate = 0.10)
+@JUnitPerfTest(threads = 50, durationMs = 125_000, warmUpMs = 10_000, maxExecutionsPerSecond = 11_000)
+@JUnitPerfTestRequirement(percentiles = "90:7,95:7,98:7,99:8", executionsPerSec = 10_000, allowedErrorPercentage = 0.10)
 public void whenExecuting11Kqps_thenApiShouldNotCrash(){
   ... EXECUTE TIME SENSITIVE TASK ...
 }
@@ -80,12 +80,12 @@ public void whenExecuting11Kqps_thenApiShouldNotCrash(){
 
 In the example above, the `JUnitPerfTestRequirement` annotation will apply a number of threshold constraints to the performance test.
 
-The tests calculated throughput (executions per second) will be compared to the `throughput` requirement. 
+The tests calculated throughput (executions per second) will be compared to the `executionsPerSec` requirement. 
 If the test throughput is *less* than the target throughput then the test will fail.
 
-This example test also contains a requirement that the execution error rate be no more than 10% (`allowedErrorsRate = 0.10`). 
+This example test also contains a requirement that the execution error rate be no more than 10% (`allowedErrorPercentage = 0.10`). 
 An error is an uncaught exception thrown during unittest execution. 
-If the specified `allowedErrorsRate` is not met then the test will fail.
+If the specified `allowedErrorPercentage` is not met then the test will fail.
 
 Finally the example sets a number of latency thresholds on the 90th, 95th, 98th and 99th percentiles (i.e. if the 
 99th percentile latency is *greater* than 8ms then the test will fail). 
