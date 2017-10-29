@@ -24,28 +24,28 @@ public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
   @Test
   public void whenGeneratingAReport_andAllTestsFailed_thenAppropriateReportShouldBeGenerated() throws IOException {
     reportGenerator.generateReport(generateAllFailureOrderedContexts());
-    File expectedContents = getResourceFile("example_all_failed_report.html");
+    File expectedContents = getResourceFile("html/example_all_failed_report.html");
     assertThat(readFileContents(reportFile), is(readFileContents(expectedContents)));
   }
 
   @Test
   public void whenGeneratingAReport_andAllTestsPass_thenAppropriateReportShouldBeGenerated() throws IOException {
     reportGenerator.generateReport(generateAllPassedOrderedContexts());
-    File expectedContents = getResourceFile("example_all_passed_report.html");
+    File expectedContents = getResourceFile("html/example_all_passed_report.html");
     assertThat(readFileContents(reportFile), is(readFileContents(expectedContents)));
   }
 
   @Test
   public void whenGeneratingAReport_andTestsContainsAMixOfPassAndFailures_thenAppropriateReportShouldBeGenerated() throws IOException {
     reportGenerator.generateReport(generateMixedOrderedContexts());
-    File expectedContents = getResourceFile("example_mixed_report.html");
+    File expectedContents = getResourceFile("html/example_mixed_report.html");
     assertThat(readFileContents(reportFile), is(readFileContents(expectedContents)));
   }
 
   @Test
   public void whenGeneratingAReport_andTestsContainsSomeFailures_thenAppropriateReportShouldBeGenerated() throws IOException {
     reportGenerator.generateReport(generateSomeFailuresContext());
-    File expectedContents = getResourceFile("example_some_failures_report.html");
+    File expectedContents = getResourceFile("html/example_some_failures_report.html");
     assertThat(readFileContents(reportFile), is(readFileContents(expectedContents)));
   }
 
