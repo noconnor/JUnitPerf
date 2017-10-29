@@ -25,6 +25,7 @@ public class HtmlReportGenerator implements ReportGenerator {
 
   public HtmlReportGenerator() {this(DEFAULT_REPORT_PATH);}
 
+  @SuppressWarnings("WeakerAccess")
   public HtmlReportGenerator(String reportPath) {this.reportPath = reportPath;}
 
   @Override
