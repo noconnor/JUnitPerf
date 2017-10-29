@@ -15,15 +15,15 @@ This library interface was heavily influenced by the interface in the deprecated
 
 ## Contents
 
-[Install Instructions](#Install-Instructions)
+[Install Instructions](#install-instructions)
 
-[Usage Instructions](#Usage-Instructions)
+[Usage Instructions](#usage-instructions)
 
-[Reports](#Reports)
+[Reports](#reports)
 
-[Statistics](#Statistics)
+[Statistics](#statistics)
 
-[Build Instructions](#Build-Instructions)
+[Build Instructions](#build-instructions)
 
 ## Install Instructions 
 
@@ -91,7 +91,7 @@ Finally the example sets a number of latency thresholds on the 90th, 95th, 98th 
 99th percentile latency is *greater* than 8ms then the test will fail). 
 The latency is a measurement of the time taken to execute one loop (not including statistics measurement calculations) 
 
-More information on statistic calculations can be found [here](Statistics)
+More information on statistic calculations can be found [here](#statistics)
 
 `@JUnitPerfTest` has the following configuration parameters:
 
@@ -115,15 +115,15 @@ More information on statistic calculations can be found [here](Statistics)
 
 ## Reports
 
-[HTML Reports](#HTML-Reports)
+[HTML Reports](#html-reports)
 
-[Console Reporting](#Console-Reporting)
+[Console Reporting](#console-reporting)
 
-[CSV Reporting](#CSV-Reporting)
+[CSV Reporting](#csv-reporting)
 
-[Custom Reporting](#Custom-Reporting)
+[Custom Reporting](#custom-reporting)
 
-[Multiple Reports](#Multiple-Reports)
+[Multiple Reports](#multiple-reports)
 
 
 #### HTML Reports
