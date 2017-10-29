@@ -115,7 +115,18 @@ More information on statistic calculations can be found [here](Statistics)
 
 ## Reports
 
-**HTML Reports**
+[HTML Reports](#HTML-Reports)
+
+[Console Reporting](#Console-Reporting)
+
+[CSV Reporting](#CSV-Reporting)
+
+[Custom Reporting](#Custom-Reporting)
+
+[Multiple Reports](#Multiple-Reports)
+
+
+#### HTML Reports
 
 By default, the JUnitPerf library will generate a HTML performance report under `${BUILD_DIR}/reports/junitperf_report.html`
 
@@ -134,7 +145,7 @@ HTML reports are generated using the [jtwig library](http://jtwig.org/). The jtw
 It is possible to override this template by placing a customised `templates/report.twig` file on the classpath ahead of the default template.
 
 
-**Console Reporting**
+#### Console Reporting
 
 It is also possible to use one of the other built-in reporters, the console reporter. To change from the default HTML reporter to the console reporter
 just create an instance of the `ConsoleReportGenerator` class and pass a reference to this instance to the `JUnitPerfRule` constructor, 
@@ -165,7 +176,7 @@ Example output:
 15:55:06.583 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - 
 ```
 
-**CSV Reporting**
+#### CSV Reporting
 
 It is also possible to the built-in CSV reporter. 
 
@@ -197,7 +208,7 @@ NOTE: the percentileData is formatted as ```percentile1:latency;percentile2:late
 
 
 
-**Custom Reporting**
+#### Custom Reporting
 
 If further customisation is required, a custom implementation of the `ReportGenerator` interface can be passed to the the `JunitPerRule` constructor:
 
@@ -205,6 +216,18 @@ If further customisation is required, a custom implementation of the `ReportGene
 @Rule
 public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CustomReportGeneratorImpl());
 ```
+
+#### Multiple Reports
+
+It is possible to set *more* than one reporter. This can be done at rule construction time:
+
+```
+@Rule
+public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CsvReportGenerator(), new HtmlReportGenerator());
+```
+
+With this configuration a HTML report **AND** a CSV report will be generated
+
 
 
 

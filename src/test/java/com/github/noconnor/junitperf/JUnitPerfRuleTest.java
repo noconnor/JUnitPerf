@@ -58,7 +58,10 @@ public class JUnitPerfRuleTest extends BaseTest {
   private PerformanceEvaluationStatementBuilder perfEvalBuilderMock;
 
   @Mock
-  private ReportGenerator reporterMock;
+  private ReportGenerator csvReporterMock;
+
+  @Mock
+  private ReportGenerator htmlReporterMock;
 
   @Mock
   private StatisticsCalculator statisticsCalculatorMock;
@@ -72,7 +75,7 @@ public class JUnitPerfRuleTest extends BaseTest {
     mockJunitPerfTestAnnotationPresent();
     mockJunitPerfTestRequirementAnnotationPresent();
     initialiseDescriptionMock();
-    perfRule = new JUnitPerfRule(reporterMock, statisticsCalculatorMock);
+    perfRule = new JUnitPerfRule(statisticsCalculatorMock, csvReporterMock, htmlReporterMock);
     perfRule.perEvalBuilder = perfEvalBuilderMock;
   }
 
@@ -128,6 +131,14 @@ public class JUnitPerfRuleTest extends BaseTest {
     assertThat(captureReportContexts(), hasSize(1));
   }
 
+  @Test
+  public void whenCallingInterfaceConstructors_thenNoExceptionsShouldBeThrown() {
+    perfRule = new JUnitPerfRule();
+    perfRule = new JUnitPerfRule(htmlReporterMock, csvReporterMock);
+    perfRule = new JUnitPerfRule(statisticsCalculatorMock);
+    perfRule = new JUnitPerfRule(statisticsCalculatorMock, htmlReporterMock, csvReporterMock);
+  }
+
   private void triggerReportGeneration() {
     Consumer<Void> listener = captureListener();
     listener.accept(null);
@@ -136,7 +147,8 @@ public class JUnitPerfRuleTest extends BaseTest {
   @SuppressWarnings("unchecked")
   private Set<EvaluationContext> captureReportContexts() {
     ArgumentCaptor<Set<EvaluationContext>> captor = ArgumentCaptor.forClass(Set.class);
-    verify(reporterMock, atLeastOnce()).generateReport(captor.capture());
+    verify(csvReporterMock, atLeastOnce()).generateReport(captor.capture());
+    verify(htmlReporterMock, atLeastOnce()).generateReport(captor.capture());
     return captor.getValue();
   }
 
