@@ -9,14 +9,16 @@ import com.github.noconnor.junitperf.reporting.BaseReportGeneratorTest;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
+public class CsvReportGeneratorTest extends BaseReportGeneratorTest {
 
-  private HtmlReportGenerator reportGenerator;
+  private CsvReportGenerator reportGenerator;
+
+  private File reportFile;
 
   @Before
   public void setup() throws IOException {
-    reportFile = folder.newFile("report.html");
-    reportGenerator = new HtmlReportGenerator(reportFile.getPath());
+    reportFile = folder.newFile("report.csv");
+    reportGenerator = new CsvReportGenerator(reportFile.getPath());
     initialisePerfTestAnnotationMock();
     initialisePerfTestRequirementAnnotationMock();
   }
@@ -24,29 +26,30 @@ public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
   @Test
   public void whenGeneratingAReport_andAllTestsFailed_thenAppropriateReportShouldBeGenerated() throws IOException {
     reportGenerator.generateReport(generateAllFailureOrderedContexts());
-    File expectedContents = getResourceFile("html/example_all_failed_report.html");
+    File expectedContents = getResourceFile("csv/failed.csv");
     assertThat(readFileContents(reportFile), is(readFileContents(expectedContents)));
   }
 
   @Test
   public void whenGeneratingAReport_andAllTestsPass_thenAppropriateReportShouldBeGenerated() throws IOException {
     reportGenerator.generateReport(generateAllPassedOrderedContexts());
-    File expectedContents = getResourceFile("html/example_all_passed_report.html");
+    File expectedContents = getResourceFile("csv/passed.csv");
     assertThat(readFileContents(reportFile), is(readFileContents(expectedContents)));
   }
 
   @Test
   public void whenGeneratingAReport_andTestsContainsAMixOfPassAndFailures_thenAppropriateReportShouldBeGenerated() throws IOException {
     reportGenerator.generateReport(generateMixedOrderedContexts());
-    File expectedContents = getResourceFile("html/example_mixed_report.html");
+    File expectedContents = getResourceFile("csv/mix.csv");
     assertThat(readFileContents(reportFile), is(readFileContents(expectedContents)));
   }
 
   @Test
   public void whenGeneratingAReport_andTestsContainsSomeFailures_thenAppropriateReportShouldBeGenerated() throws IOException {
     reportGenerator.generateReport(generateSomeFailuresContext());
-    File expectedContents = getResourceFile("html/example_some_failures_report.html");
+    File expectedContents = getResourceFile("csv/some_failures.csv");
     assertThat(readFileContents(reportFile), is(readFileContents(expectedContents)));
   }
+
 
 }
