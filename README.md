@@ -165,6 +165,38 @@ Example output:
 15:55:06.583 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - 
 ```
 
+**CSV Reporting**
+
+It is also possible to the built-in CSV reporter. 
+
+To change from the default HTML reporter to the CSV reporter
+just create an instance of the `CsvReportGenerator` class and pass a reference to this instance to the `JUnitPerfRule` constructor, 
+for example: 
+
+```
+@Rule
+public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CsvReportGenerator());
+```
+
+The reporter will generate a CSV file at the default location `${BUILD_DIR}/reports/junitperf_report.html`.
+It is possible to change this default location by constructing the `CsvReportGenerator` as follows:
+
+```
+@Rule
+public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CsvReportGenerator("/some/custom/path/report.csv")));
+```
+
+The CSV output will have the following format:
+
+```
+testName,duration,threadCount,throughput,minLatencyNs,maxLatencyNs,meanLatencyNs,percentileData
+unittest1,10000,50,101,500000.0,100002.0,600000.0,1:0.0;2:0.0;3:0.0;4:0.0;5:0.0; ... ;98:4636367.0;99:48343468.0
+```
+
+NOTE: the percentileData is formatted as ```percentile1:latency;percentile2:latency; ...```
+
+
+
 **Custom Reporting**
 
 If further customisation is required, a custom implementation of the `ReportGenerator` interface can be passed to the the `JunitPerRule` constructor:
