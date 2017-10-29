@@ -42,10 +42,10 @@ public class EvaluationContextTest extends BaseTest {
   @Test
   public void whenLoadingJUnitPerfTestSettings_thenAppropriateContextSettingsShouldBeUpdated() {
     context.loadConfiguration(perfTestAnnotation);
-    assertThat(context.getConfiguredDuration(), is(perfTestAnnotation.duration()));
-    assertThat(context.getConfiguredRateLimit(), is(perfTestAnnotation.rateLimit()));
+    assertThat(context.getConfiguredDuration(), is(perfTestAnnotation.durationMs()));
+    assertThat(context.getConfiguredRateLimit(), is(perfTestAnnotation.maxExecutionsPerSecond()));
     assertThat(context.getConfiguredThreads(), is(perfTestAnnotation.threads()));
-    assertThat(context.getConfiguredWarmUp(), is(perfTestAnnotation.warmUp()));
+    assertThat(context.getConfiguredWarmUp(), is(perfTestAnnotation.warmUpMs()));
   }
 
   @Test(expected = NullPointerException.class)
@@ -57,8 +57,8 @@ public class EvaluationContextTest extends BaseTest {
   public void whenLoadingJUnitPerfTestRequirements_thenAppropriateContextSettingsShouldBeUpdated() {
     context.loadRequirements(perfTestRequirement);
     assertThat(context.isValidationRequired(), is(true));
-    assertThat(context.getRequiredAllowedErrorsRate(), is(perfTestRequirement.allowedErrorsRate()));
-    assertThat(context.getRequiredThroughput(), is(perfTestRequirement.throughput()));
+    assertThat(context.getRequiredAllowedErrorsRate(), is(perfTestRequirement.allowedErrorPercentage()));
+    assertThat(context.getRequiredThroughput(), is(perfTestRequirement.executionsPerSec()));
     assertThat(context.getRequiredPercentiles(), is(ImmutableMap.of(90, 0.5F, 95, 9F)));
   }
 
@@ -93,8 +93,8 @@ public class EvaluationContextTest extends BaseTest {
   @Test
   public void whenRunningEvaluation_andEvaluationCountIsGreaterThanDuration_thenThroughputShouldBeCalculatedCorrectly() {
     when(statisticsMock.getEvaluationCount()).thenReturn(1000L);
-    when(perfTestAnnotation.duration()).thenReturn(100);
-    when(perfTestAnnotation.warmUp()).thenReturn(5);
+    when(perfTestAnnotation.durationMs()).thenReturn(100);
+    when(perfTestAnnotation.warmUpMs()).thenReturn(5);
     initialiseContext();
     context.runValidation();
     assertThat(context.getThroughputQps(), is(10526L));
@@ -180,7 +180,7 @@ public class EvaluationContextTest extends BaseTest {
   @Test
   public void whenCalculatingThroughputQps_thenCorrectValueShouldBeCalculated() {
     initialiseContext();
-    long expected = (long)(statisticsMock.getEvaluationCount() / (float)(perfTestAnnotation.duration() - perfTestAnnotation.warmUp())) * 1000;
+    long expected = (long)(statisticsMock.getEvaluationCount() / (float)(perfTestAnnotation.durationMs() - perfTestAnnotation.warmUpMs())) * 1000;
     assertThat(context.getThroughputQps(), is(expected));
   }
 
@@ -191,15 +191,15 @@ public class EvaluationContextTest extends BaseTest {
   }
 
   private void initialisePerfTestAnnotation() {
-    when(perfTestAnnotation.duration()).thenReturn(10);
-    when(perfTestAnnotation.rateLimit()).thenReturn(1_000);
+    when(perfTestAnnotation.durationMs()).thenReturn(10);
+    when(perfTestAnnotation.maxExecutionsPerSecond()).thenReturn(1_000);
     when(perfTestAnnotation.threads()).thenReturn(50);
-    when(perfTestAnnotation.warmUp()).thenReturn(5);
+    when(perfTestAnnotation.warmUpMs()).thenReturn(5);
   }
 
   private void initialisePerfTestRequirementAnnotation() {
-    when(perfTestRequirement.throughput()).thenReturn(10_000);
-    when(perfTestRequirement.allowedErrorsRate()).thenReturn(0.5f);
+    when(perfTestRequirement.executionsPerSec()).thenReturn(10_000);
+    when(perfTestRequirement.allowedErrorPercentage()).thenReturn(0.5f);
     when(perfTestRequirement.percentiles()).thenReturn("90:0.5,95:9");
   }
 

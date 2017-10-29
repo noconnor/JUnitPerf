@@ -95,22 +95,22 @@ More information on statistic calculations can be found [here](#statistics)
 
 `@JUnitPerfTest` has the following configuration parameters:
 
-| Property      | Definition                                                                                                                        | Default value  |
-| ------------: |:---------------------------------------------------------------------------------------------------------------------------------:| --------------:|
-| threads       | The total number of threads to use during test execution                                                                          |        1       |
-| duration      | Total time to run the test in millisecs (ms) (includes warmup period)                                                             |      60,000    |
-| warmUp        | Warm up period in ms, test logic will be executed during warm up, but results will not be considered during statistics evaluation |        0       |
-| rateLimit     | Sets the maximum number of iteration per second (disabled by default)                                                             |       -1       |
+| Property               | Definition                                                                                                                        | Default value  |
+| ---------------------: |:---------------------------------------------------------------------------------------------------------------------------------:| --------------:|
+| threads                | The total number of threads to use during test execution                                                                          |        1       |
+| durationMs             | Total time to run the test in millisecs (ms) (includes warmup period)                                                             |      60,000    |
+| warmUpMs               | Warm up period in ms, test logic will be executed during warm up, but results will not be considered during statistics evaluation |        0       |
+| maxExecutionsPerSecond | Sets the maximum number of iteration per second (disabled by default)                                                             |       -1       |
 
 <br />
 
 `@JUnitPerfTestRequirement` has the following configuration parameters:
 
-| Property          | Definition                                                                                                                  | Default value  |
-| -----------------:|:---------------------------------------------------------------------------------------------------------------------------:| --------------:|
-| percentiles       | Comma separated list of percentile targets, format: percentile1:limit,percentile2:limit (ie. 90:3.3,99:6.8)                 |        ""      |
-| throughput        | Target executions per second                                                                                                |        1       |
-| allowedErrorsRate | Allowed % of errors (uncaught exceptions) during test execution (value between 0 and 1, where 1 = 100% errors allowed)      |        1       |
+| Property               | Definition                                                                                                                  | Default value  |
+| ----------------------:|:---------------------------------------------------------------------------------------------------------------------------:| --------------:|
+| percentiles            | Comma separated list of percentile targets, format: percentile1:limit,percentile2:limit (ie. 90:3.3,99:6.8)                 |        ""      |
+| executionsPerSec       | Target executions per second                                                                                                |        1       |
+| allowedErrorPercentage | Allowed % of errors (uncaught exceptions) during test execution (value between 0 and 1, where 1 = 100% errors allowed)      |        1       |
 
 
 ## Reports
