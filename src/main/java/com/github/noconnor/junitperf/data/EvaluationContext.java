@@ -69,9 +69,9 @@ public class EvaluationContext {
     // TODO: validate annotation attributes
     checkNotNull(testSettings, "Test settings must not be null");
     configuredThreads = testSettings.threads();
-    configuredDuration = testSettings.duration();
-    configuredWarmUp = testSettings.warmUp();
-    configuredRateLimit = testSettings.rateLimit();
+    configuredDuration = testSettings.durationMs();
+    configuredWarmUp = testSettings.warmUpMs();
+    configuredRateLimit = testSettings.maxExecutionsPerSecond();
   }
 
   public void loadRequirements(JUnitPerfTestRequirement requirements) {
@@ -79,8 +79,8 @@ public class EvaluationContext {
     if (validationRequired) {
       // TODO: validate annotation attributes
       validationRequired = true;
-      requiredThroughput = requirements.throughput();
-      requiredAllowedErrorsRate = requirements.allowedErrorsRate();
+      requiredThroughput = requirements.executionsPerSec();
+      requiredAllowedErrorsRate = requirements.allowedErrorPercentage();
       requiredPercentiles = parsePercentileLimits(requirements.percentiles());
     }
   }

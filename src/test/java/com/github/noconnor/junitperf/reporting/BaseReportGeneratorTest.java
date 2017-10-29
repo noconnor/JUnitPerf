@@ -152,16 +152,16 @@ public class BaseReportGeneratorTest extends BaseTest {
   }
 
   protected void initialisePerfTestAnnotationMock() {
-    when(perfTestAnnotationMock.duration()).thenReturn(10_000);
-    when(perfTestAnnotationMock.warmUp()).thenReturn(100);
+    when(perfTestAnnotationMock.durationMs()).thenReturn(10_000);
+    when(perfTestAnnotationMock.warmUpMs()).thenReturn(100);
     when(perfTestAnnotationMock.threads()).thenReturn(50);
-    when(perfTestAnnotationMock.rateLimit()).thenReturn(11_000);
+    when(perfTestAnnotationMock.maxExecutionsPerSecond()).thenReturn(11_000);
   }
 
   protected void initialisePerfTestRequirementAnnotationMock() {
     when(perfTestRequirementAnnotationMock.percentiles()).thenReturn("98:3.3,99:32.6,100:46.9999");
-    when(perfTestRequirementAnnotationMock.allowedErrorsRate()).thenReturn(0.3F);
-    when(perfTestRequirementAnnotationMock.throughput()).thenReturn(13_000);
+    when(perfTestRequirementAnnotationMock.allowedErrorPercentage()).thenReturn(0.3F);
+    when(perfTestRequirementAnnotationMock.executionsPerSec()).thenReturn(13_000);
   }
 
   @SuppressWarnings("unused")

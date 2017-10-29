@@ -180,16 +180,16 @@ public class JUnitPerfRuleTest extends BaseTest {
   }
 
   private void initialisePerfTestAnnotationMock() {
-    when(perfTestAnnotationMock.duration()).thenReturn(DURATION);
-    when(perfTestAnnotationMock.rateLimit()).thenReturn(RATE_LIMIT);
+    when(perfTestAnnotationMock.durationMs()).thenReturn(DURATION);
+    when(perfTestAnnotationMock.maxExecutionsPerSecond()).thenReturn(RATE_LIMIT);
     when(perfTestAnnotationMock.threads()).thenReturn(THREADS);
-    when(perfTestAnnotationMock.warmUp()).thenReturn(WARM_UP);
+    when(perfTestAnnotationMock.warmUpMs()).thenReturn(WARM_UP);
   }
 
   private void initialisePerfTestRequirementAnnotationMock() {
-    when(requirementAnnotationMock.allowedErrorsRate()).thenReturn(ALLOWED_ERRORS);
+    when(requirementAnnotationMock.allowedErrorPercentage()).thenReturn(ALLOWED_ERRORS);
     when(requirementAnnotationMock.percentiles()).thenReturn(PERCENTILES);
-    when(requirementAnnotationMock.throughput()).thenReturn(THROUGHPUT);
+    when(requirementAnnotationMock.executionsPerSec()).thenReturn(THROUGHPUT);
   }
 
   private void initialiseDescriptionMock() {
