@@ -178,7 +178,7 @@ Example output:
 
 #### CSV Reporting
 
-It is also possible to the built-in CSV reporter. 
+It is also possible to use the built-in CSV reporter. 
 
 To change from the default HTML reporter to the CSV reporter
 just create an instance of the `CsvReportGenerator` class and pass a reference to this instance to the `JUnitPerfRule` constructor, 
