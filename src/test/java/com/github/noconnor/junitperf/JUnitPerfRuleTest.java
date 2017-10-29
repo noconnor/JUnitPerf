@@ -131,6 +131,14 @@ public class JUnitPerfRuleTest extends BaseTest {
     assertThat(captureReportContexts(), hasSize(1));
   }
 
+  @Test
+  public void whenCallingInterfaceConstructors_thenNoExceptionsShouldBeThrown() {
+    perfRule = new JUnitPerfRule();
+    perfRule = new JUnitPerfRule(htmlReporterMock, csvReporterMock);
+    perfRule = new JUnitPerfRule(statisticsCalculatorMock);
+    perfRule = new JUnitPerfRule(statisticsCalculatorMock, htmlReporterMock, csvReporterMock);
+  }
+
   private void triggerReportGeneration() {
     Consumer<Void> listener = captureListener();
     listener.accept(null);
