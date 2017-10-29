@@ -28,30 +28,29 @@ public class JUnitPerfRule implements TestRule {
 
 
   private final StatisticsCalculator statisticsCalculator;
-  private final ReportGenerator reporter;
+  private final Set<ReportGenerator> reporters;
   PerformanceEvaluationStatementBuilder perEvalBuilder;
 
   @SuppressWarnings("WeakerAccess")
   public JUnitPerfRule() {
-    this(new HtmlReportGenerator(),
-      new DescriptiveStatisticsCalculator());
+    this(new DescriptiveStatisticsCalculator(), new HtmlReportGenerator());
   }
 
   @SuppressWarnings("WeakerAccess")
-  public JUnitPerfRule(ReportGenerator reportGenerator) {
-    this(reportGenerator, new DescriptiveStatisticsCalculator());
+  public JUnitPerfRule(ReportGenerator... reportGenerator) {
+    this(new DescriptiveStatisticsCalculator(), reportGenerator);
   }
 
   @SuppressWarnings("WeakerAccess")
   public JUnitPerfRule(StatisticsCalculator statisticsCalculator) {
-    this(new HtmlReportGenerator(), statisticsCalculator);
+    this(statisticsCalculator, new HtmlReportGenerator());
   }
 
   @SuppressWarnings("WeakerAccess")
-  public JUnitPerfRule(ReportGenerator reportGenerator, StatisticsCalculator statisticsCalculator) {
+  public JUnitPerfRule(StatisticsCalculator statisticsCalculator, ReportGenerator... reportGenerator) {
     this.perEvalBuilder = PerformanceEvaluationStatement.builder();
     this.statisticsCalculator = statisticsCalculator;
-    this.reporter = reportGenerator;
+    this.reporters = newHashSet(reportGenerator);
   }
 
   @Override
@@ -77,8 +76,11 @@ public class JUnitPerfRule implements TestRule {
     return activeStatement;
   }
 
-  private void updateReport(Class<?> testClass) {
-    reporter.generateReport(ACTIVE_CONTEXTS.get(testClass));
+  private synchronized void updateReport(Class<?> testClass) {
+    reporters.forEach(r -> {
+      r.generateReport(ACTIVE_CONTEXTS.get(testClass));
+    });
+
   }
 
   private String generateTestStartTime() {
