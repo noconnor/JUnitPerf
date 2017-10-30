@@ -66,8 +66,7 @@ public class EvaluationContext {
   private final String startTime;
 
   public void loadConfiguration(JUnitPerfTest testSettings) {
-    // TODO: validate annotation attributes
-    checkNotNull(testSettings, "Test settings must not be null");
+    validateTestSettings(testSettings);
     configuredThreads = testSettings.threads();
     configuredDuration = testSettings.durationMs();
     configuredWarmUp = testSettings.warmUpMs();
@@ -77,7 +76,7 @@ public class EvaluationContext {
   public void loadRequirements(JUnitPerfTestRequirement requirements) {
     validationRequired = nonNull(requirements);
     if (validationRequired) {
-      // TODO: validate annotation attributes
+      validateRequirements(requirements);
       validationRequired = true;
       requiredThroughput = requirements.executionsPerSec();
       requiredAllowedErrorsRate = requirements.allowedErrorPercentage();
@@ -123,6 +122,21 @@ public class EvaluationContext {
         .forEach(entry -> limits.put(entry.getLeft(), entry.getRight()));
     }
     return limits;
+  }
+
+  private void validateTestSettings(JUnitPerfTest testSettings) {
+    checkNotNull(testSettings, "Test settings must not be null");
+    checkState(testSettings.durationMs() > 0, "DurationMs must be greater than 0ms");
+    checkState(testSettings.warmUpMs() >= 0, "WarmUpMs must be >= 0ms");
+    checkState(testSettings.warmUpMs() < testSettings.durationMs(), "WarmUpMs must be < DurationMs");
+    checkState(testSettings.threads() > 0, "Threads must be > 0");
+    checkState(testSettings.maxExecutionsPerSecond() > 0 || testSettings.maxExecutionsPerSecond() == -1,
+      "MaxExecutionsPerSecond must be > 0 or -1 (to disable)");
+  }
+
+  private void validateRequirements(JUnitPerfTestRequirement requirements) {
+    checkState(requirements.allowedErrorPercentage() >= 0, "AllowedErrorPercentage must be >= 0");
+    checkState(requirements.executionsPerSec() > 0, "ExecutionsPerSec must be > 0");
   }
 
 }
