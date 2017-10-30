@@ -81,6 +81,9 @@ public class EvaluationContextTest extends BaseTest {
     expectValidationError("MaxExecutionsPerSecond must be > 0 or -1 (to disable)");
     when(perfTestAnnotation.maxExecutionsPerSecond()).thenReturn(0);
     expectValidationError("MaxExecutionsPerSecond must be > 0 or -1 (to disable)");
+    // ALLOWED value
+    when(perfTestAnnotation.maxExecutionsPerSecond()).thenReturn(-1);
+    context.loadConfiguration(perfTestAnnotation);
   }
 
   @Test(expected = NullPointerException.class)
