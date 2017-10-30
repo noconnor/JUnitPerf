@@ -4,16 +4,18 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import com.google.common.collect.ImmutableMap;
 import com.github.noconnor.junitperf.BaseTest;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+import com.google.common.collect.ImmutableMap;
 
 import static java.util.Collections.emptyMap;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 public class EvaluationContextTest extends BaseTest {
@@ -48,6 +50,39 @@ public class EvaluationContextTest extends BaseTest {
     assertThat(context.getConfiguredWarmUp(), is(perfTestAnnotation.warmUpMs()));
   }
 
+  @Test
+  public void whenLoadingJUnitPerfTestSettings_thenDurationMsShouldBeSensible() {
+    when(perfTestAnnotation.durationMs()).thenReturn(0);
+    expectValidationError("DurationMs must be greater than 0ms");
+    when(perfTestAnnotation.durationMs()).thenReturn(-50);
+    expectValidationError("DurationMs must be greater than 0ms");
+  }
+
+  @Test
+  public void whenLoadingJUnitPerfTestSettings_thenWarmUpMsShouldBeSensible() {
+    when(perfTestAnnotation.warmUpMs()).thenReturn(-9);
+    expectValidationError("WarmUpMs must be >= 0ms");
+    when(perfTestAnnotation.durationMs()).thenReturn(50);
+    when(perfTestAnnotation.warmUpMs()).thenReturn(55);
+    expectValidationError("WarmUpMs must be < DurationMs");
+  }
+
+  @Test
+  public void whenLoadingJUnitPerfTestSettings_thenThreadsShouldBeSensible() {
+    when(perfTestAnnotation.threads()).thenReturn(-9);
+    expectValidationError("Threads must be > 0");
+    when(perfTestAnnotation.threads()).thenReturn(0);
+    expectValidationError("Threads must be > 0");
+  }
+
+  @Test
+  public void whenLoadingJUnitPerfTestSettings_thenMaxExecutionsPerSecondShouldBeSensible() {
+    when(perfTestAnnotation.maxExecutionsPerSecond()).thenReturn(-9);
+    expectValidationError("MaxExecutionsPerSecond must be > 0 or -1 (to disable)");
+    when(perfTestAnnotation.maxExecutionsPerSecond()).thenReturn(0);
+    expectValidationError("MaxExecutionsPerSecond must be > 0 or -1 (to disable)");
+  }
+
   @Test(expected = NullPointerException.class)
   public void whenLoadingJUnitPerfTestSettings_andSettingsAreNull_thenExceptionShouldBeThrown() {
     context.loadConfiguration(null);
@@ -66,6 +101,20 @@ public class EvaluationContextTest extends BaseTest {
   public void whenLoadingJUnitPerfTestRequirements_andRequirementsAreNull_thenValidationShouldNotBeRequired() {
     context.loadRequirements(null);
     assertThat(context.isValidationRequired(), is(false));
+  }
+
+  @Test
+  public void whenLoadingJUnitPerfTestRequirements_thenAllowedErrorPercentageShouldBeSensible() {
+    when(perfTestRequirement.allowedErrorPercentage()).thenReturn(-1.6F);
+    expectRequirementsValidationError("AllowedErrorPercentage must be >= 0");
+  }
+
+  @Test
+  public void whenLoadingJUnitPerfTestRequirements_thenAExecutionsPerSecShouldBeSensible() {
+    when(perfTestRequirement.executionsPerSec()).thenReturn(-1);
+    expectRequirementsValidationError("ExecutionsPerSec must be > 0");
+    when(perfTestRequirement.executionsPerSec()).thenReturn(0);
+    expectRequirementsValidationError("ExecutionsPerSec must be > 0");
   }
 
   @Test(expected = IllegalStateException.class)
@@ -180,7 +229,8 @@ public class EvaluationContextTest extends BaseTest {
   @Test
   public void whenCalculatingThroughputQps_thenCorrectValueShouldBeCalculated() {
     initialiseContext();
-    long expected = (long)(statisticsMock.getEvaluationCount() / (float)(perfTestAnnotation.durationMs() - perfTestAnnotation.warmUpMs())) * 1000;
+    long expected = (long)(statisticsMock.getEvaluationCount() / (float)(perfTestAnnotation.durationMs() - perfTestAnnotation
+      .warmUpMs())) * 1000;
     assertThat(context.getThroughputQps(), is(expected));
   }
 
@@ -219,6 +269,24 @@ public class EvaluationContextTest extends BaseTest {
   private void loadPercentiles(String percentiles) {
     when(perfTestRequirement.percentiles()).thenReturn(percentiles);
     context.loadRequirements(perfTestRequirement);
+  }
+
+  private void expectValidationError(String expectedMessage) {
+    try {
+      context.loadConfiguration(perfTestAnnotation);
+      fail("Expected validation Exception");
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage(), startsWith(expectedMessage));
+    }
+  }
+
+  private void expectRequirementsValidationError(String expectedMessage) {
+    try {
+      context.loadRequirements(perfTestRequirement);
+      fail("Expected requirements validation Exception");
+    } catch (Exception e) {
+      assertThat(e.getMessage(), startsWith(expectedMessage));
+    }
   }
 
 }
