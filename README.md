@@ -6,6 +6,9 @@ API performance testing framework built using JUnit
 JUnitPerf provides an extension to the JUnit4 framework, allowing unittests to be extended to operate as 
 performance evaluation tests. 
 
+This library is best suited for testing remote API endpoints or component/integration testing. 
+If attempting to benchmark code blocks with nanosecond latency then you should consider using [JMH](http://openjdk.java.net/projects/code-tools/jmh/)   
+
 Using a custom [Junit Rule](https://github.com/junit-team/junit4/wiki/Rules) and by 
 applying custom java annotations to a basic unittests, it is possible to execute this annotated test multiple times 
 while gathering statistical information. 
@@ -189,7 +192,7 @@ for example:
 public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CsvReportGenerator());
 ```
 
-The reporter will generate a CSV file at the default location `${BUILD_DIR}/reports/junitperf_report.html`.
+The reporter will generate a CSV file at the default location `${BUILD_DIR}/reports/junitperf_report.csv`.
 It is possible to change this default location by constructing the `CsvReportGenerator` as follows:
 
 ```

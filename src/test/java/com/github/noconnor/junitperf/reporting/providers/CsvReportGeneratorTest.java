@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import com.github.noconnor.junitperf.reporting.BaseReportGeneratorTest;
 
+import static java.lang.System.getProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -21,6 +22,17 @@ public class CsvReportGeneratorTest extends BaseReportGeneratorTest {
     reportGenerator = new CsvReportGenerator(reportFile.getPath());
     initialisePerfTestAnnotationMock();
     initialisePerfTestRequirementAnnotationMock();
+  }
+
+  @Test
+  public void whenCallingDefaultConstructor_thenNoExceptionShouldBeThrown() throws IOException {
+    reportGenerator = new CsvReportGenerator();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void whenGeneratingAReport_andPathIsNotWritable_thenExceptionShouldBeThrown() throws IOException {
+    reportGenerator = new CsvReportGenerator("///foo");
+    reportGenerator.generateReport(generateAllFailureOrderedContexts());
   }
 
   @Test
@@ -51,5 +63,15 @@ public class CsvReportGeneratorTest extends BaseReportGeneratorTest {
     assertThat(readFileContents(reportFile), is(readFileContents(expectedContents)));
   }
 
+  @Test
+  public void whenCallingGetReportPath_andCustomPathHasBeenSpecified_thenCorrectPathShouldBeReturned() {
+    assertThat(reportGenerator.getReportPath(), is(reportFile.getPath()));
+  }
+
+  @Test
+  public void whenCallingGetReportPath_andDefaultPathHasBeenSpecified_thenCorrectPathShouldBeReturned() {
+    reportGenerator = new CsvReportGenerator();
+    assertThat(reportGenerator.getReportPath(), is(getProperty("user.dir") + "/build/reports/junitperf_report.csv"));
+  }
 
 }

@@ -6,5 +6,7 @@ import com.github.noconnor.junitperf.data.EvaluationContext;
 public interface ReportGenerator {
 
   void generateReport(Set<EvaluationContext> testContexts);
-  
+
+  String getReportPath();
+
 }

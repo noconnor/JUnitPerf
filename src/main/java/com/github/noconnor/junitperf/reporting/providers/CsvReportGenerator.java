@@ -64,4 +64,10 @@ public class CsvReportGenerator implements ReportGenerator {
     }
 
   }
+
+  @Override
+  public String getReportPath() {
+    return reportPath;
+  }
+
 }

@@ -44,4 +44,9 @@ public class HtmlReportGenerator implements ReportGenerator {
     }
   }
 
+  @Override
+  public String getReportPath() {
+    return reportPath;
+  }
+
 }
