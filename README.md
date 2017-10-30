@@ -1,4 +1,4 @@
-# JUnitPerf [![Build Status](https://travis-ci.org/noconnor/JUnitPerf.svg?branch=master)](https://travis-ci.org/noconnor/JUnitPerf) [![codecov](https://codecov.io/gh/noconnor/JUnitPerf/branch/master/graph/badge.svg)](https://codecov.io/gh/noconnor/JUnitPerf)
+# JUnitPerf [![Build Status](https://travis-ci.org/noconnor/JUnitPerf.svg?branch=master)](https://travis-ci.org/noconnor/JUnitPerf) [![codecov](https://codecov.io/gh/noconnor/JUnitPerf/branch/master/graph/badge.svg)](https://codecov.io/gh/noconnor/JUnitPerf) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.noconnor/junitperf/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.noconnor/junitperf)
 
 
 API performance testing framework built using JUnit
