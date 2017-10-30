@@ -52,4 +52,9 @@ public class ConsoleReportGenerator implements ReportGenerator {
     });
   }
 
+  @Override
+  public String getReportPath() {
+    return null;
+  }
+
 }

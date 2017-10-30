@@ -8,10 +8,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
+import com.github.noconnor.junitperf.BaseTest;
 import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.collect.ImmutableMap;
-import com.github.noconnor.junitperf.BaseTest;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.emptyMap;
