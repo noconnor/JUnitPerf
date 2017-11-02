@@ -32,12 +32,10 @@ This library interface was heavily influenced by the interface in the deprecated
 
 `JUnitPerf` is available in [maven central](http://bit.ly/2idQDvA)
 
-To add `JunitPerf` to your gradle project add the following line to your build.gradle files dependencies:
+To add the latest version of `JunitPerf` to your gradle project add the following line to your build.gradle files dependencies:
 
-`compile 'com.github.noconnor:junitperf:VERSION'`
+`compile 'com.github.noconnor:junitperf:+'`
 
-Replacing `VERSION` with the latest release available in maven
- 
 
 ## Usage Instructions
 
