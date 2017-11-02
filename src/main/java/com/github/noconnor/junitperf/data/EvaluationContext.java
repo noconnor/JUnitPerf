@@ -16,6 +16,7 @@ import com.google.common.primitives.Ints;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.newTreeMap;
+import static java.util.Collections.emptyMap;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -93,6 +94,9 @@ public class EvaluationContext {
       isSuccessful = isThroughputAchieved && isErrorThresholdAchieved && noLatencyPercentileFailures();
     } else {
       isSuccessful = true;
+      isThroughputAchieved = true;
+      isErrorThresholdAchieved = true;
+      percentileResults = emptyMap();
     }
   }
 
