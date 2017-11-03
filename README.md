@@ -248,9 +248,9 @@ public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CustomStatisticsCalcul
 
 ## Build Instructions
 
-To compile this project and run tests execute the following command from the root project directory: `gradle clean test`
+To compile this project and run tests execute the following command from the root project directory: `./gradlew clean test`
 
-To generate a library jar execute: `gradle clean assemble`
+To generate a library jar execute: `./gradlew clean assemble -x sign` or `./gradlew clean jar` 
 
 **Intellij 14 Setup**
 

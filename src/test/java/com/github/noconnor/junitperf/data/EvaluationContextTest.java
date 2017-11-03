@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableMap;
 
 import static java.util.Collections.emptyMap;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
@@ -200,6 +201,9 @@ public class EvaluationContextTest extends BaseTest {
     context.setStatistics(statisticsMock);
     context.runValidation();
     assertThat(context.isSuccessful(), is(true));
+    assertThat(context.isErrorThresholdAchieved(), is(true));
+    assertThat(context.isThroughputAchieved(), is(true));
+    assertThat(context.getPercentileResults(), is(anEmptyMap()));
   }
 
   @Test
