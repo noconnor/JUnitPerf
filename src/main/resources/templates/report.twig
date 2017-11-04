@@ -41,9 +41,9 @@
                         function drawChart() {
 
                             var data = google.visualization.arrayToDataTable([
-                                ['Percentile', 'Latency'],
+                                ['Percentile', 'Latency', { role: "tooltip"} ],
                                 {% for i in [1..99] %}
-                                [ {{ i }},      {{ context.statistics.getLatencyPercentile(i, milliseconds) }}],
+                                [ {{ i }}, {{ context.statistics.getLatencyPercentile(i, milliseconds) }}, "{{ number_format(context.statistics.getLatencyPercentile(i, milliseconds), 2, '.', ',') }} ms at {{ i }}%"],
                                 {% endfor %}
                             ]);
 
@@ -51,7 +51,10 @@
                                 title: 'Latency percentile Distribution',
                                 hAxis: {title: 'Percentile', minValue: 0, maxValue: 100},
                                 vAxis: {title: 'Latency', minValue: 0, maxValue: 15},
-                                legend: 'none'
+                                legend: 'none',
+                                lineWidth: 1,
+                                pointSize: 7,
+                                dataOpacity: 0.5
                             };
 
                             var chart = new google.visualization.ScatterChart(document.getElementById('{{ context.testName }}'));

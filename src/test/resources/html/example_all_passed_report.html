@@ -8,689 +8,693 @@
 <body style='font-family:Verdana;'>
 <center>
     <h1 style='color:#044e9b'>JUnit Performance Report</h1>
-    <hr/>
-    <br/>
-    <table border='1' cellspacing='0' cellpadding='3px' style='border-color:#eee'>
-        <tr>
-            <th style='background-color:#ffffdd; color:#044e9b'>&nbsp;&nbsp;&nbsp;</th>
-            <th style='background-color:#ffffdd; color:#044e9b'>Tests</th>
-        <tr>
-
-
-        <tr>
-            <!-- Success: #2b67a4 failure: #d9534f -->
-            <td style='background-color:#2b67a4;'>&nbsp;</td>
-            <td><a href='#unittest1'>unittest1</td>
-        <tr>
-
-        <tr>
-            <!-- Success: #2b67a4 failure: #d9534f -->
-            <td style='background-color:#2b67a4;'>&nbsp;</td>
-            <td><a href='#unittest2'>unittest2</td>
-        <tr>
-
-    </table>
-    <br/>
-    <hr/>
-
-
-
-    <a name='unittest1'><h2 style='color:#2b67a4'>unittest1</h2></a>
-    <table width='900'>
-        <tr>
-            <td>
-                <!-- ADD scatter Chart here!! -->
-                <script type="text/javascript">
-                    google.charts.load('current', {'packages':['corechart']});
-                    google.charts.setOnLoadCallback(drawChart);
-
-                    function drawChart() {
-
-                        var data = google.visualization.arrayToDataTable([
-                            ['Percentile', 'Latency'],
-
-                            [ 1,      0.0],
-
-                            [ 2,      0.0],
-
-                            [ 3,      0.0],
-
-                            [ 4,      0.0],
-
-                            [ 5,      0.0],
-
-                            [ 6,      0.0],
-
-                            [ 7,      0.0],
-
-                            [ 8,      0.0],
-
-                            [ 9,      0.0],
-
-                            [ 10,      0.0],
-
-                            [ 11,      0.0],
-
-                            [ 12,      0.0],
-
-                            [ 13,      0.0],
-
-                            [ 14,      0.0],
-
-                            [ 15,      0.0],
-
-                            [ 16,      0.0],
-
-                            [ 17,      0.0],
-
-                            [ 18,      0.0],
-
-                            [ 19,      0.0],
-
-                            [ 20,      0.0],
-
-                            [ 21,      0.0],
-
-                            [ 22,      0.0],
-
-                            [ 23,      0.0],
-
-                            [ 24,      0.0],
-
-                            [ 25,      0.0],
-
-                            [ 26,      0.0],
-
-                            [ 27,      0.0],
-
-                            [ 28,      0.0],
-
-                            [ 29,      0.0],
-
-                            [ 30,      0.0],
-
-                            [ 31,      0.0],
-
-                            [ 32,      0.0],
-
-                            [ 33,      0.0],
-
-                            [ 34,      0.0],
-
-                            [ 35,      0.0],
-
-                            [ 36,      0.0],
-
-                            [ 37,      0.0],
-
-                            [ 38,      0.0],
-
-                            [ 39,      0.0],
-
-                            [ 40,      0.0],
-
-                            [ 41,      0.0],
-
-                            [ 42,      0.0],
-
-                            [ 43,      0.0],
-
-                            [ 44,      0.0],
-
-                            [ 45,      0.0],
-
-                            [ 46,      0.0],
-
-                            [ 47,      0.0],
-
-                            [ 48,      0.0],
-
-                            [ 49,      0.0],
-
-                            [ 50,      0.0],
-
-                            [ 51,      0.0],
-
-                            [ 52,      0.0],
-
-                            [ 53,      0.0],
-
-                            [ 54,      0.0],
-
-                            [ 55,      0.0],
-
-                            [ 56,      0.0],
-
-                            [ 57,      0.0],
-
-                            [ 58,      0.0],
-
-                            [ 59,      0.0],
-
-                            [ 60,      0.0],
-
-                            [ 61,      0.0],
-
-                            [ 62,      0.0],
-
-                            [ 63,      0.0],
-
-                            [ 64,      0.0],
-
-                            [ 65,      0.0],
-
-                            [ 66,      0.0],
-
-                            [ 67,      0.0],
-
-                            [ 68,      0.0],
-
-                            [ 69,      0.0],
-
-                            [ 70,      0.0],
-
-                            [ 71,      0.0],
-
-                            [ 72,      0.0],
-
-                            [ 73,      0.0],
-
-                            [ 74,      0.0],
-
-                            [ 75,      0.0],
-
-                            [ 76,      0.0],
-
-                            [ 77,      0.0],
-
-                            [ 78,      0.0],
-
-                            [ 79,      0.0],
-
-                            [ 80,      0.0],
-
-                            [ 81,      0.0],
-
-                            [ 82,      0.0],
-
-                            [ 83,      0.0],
-
-                            [ 84,      0.0],
-
-                            [ 85,      0.0],
-
-                            [ 86,      0.0],
-
-                            [ 87,      0.0],
-
-                            [ 88,      0.0],
-
-                            [ 89,      0.0],
-
-                            [ 90,      0.0],
-
-                            [ 91,      0.0],
-
-                            [ 92,      0.0],
-
-                            [ 93,      0.0],
-
-                            [ 94,      0.0],
-
-                            [ 95,      0.0],
-
-                            [ 96,      0.0],
-
-                            [ 97,      0.0],
-
-                            [ 98,      1.636367],
-
-                            [ 99,      28.343468],
-
-
-                        ]);
-
-                        var options = {
-                            title: 'Latency percentile Distribution',
-                            hAxis: {title: 'Percentile', minValue: 0, maxValue: 100},
-                            vAxis: {title: 'Latency', minValue: 0, maxValue: 15},
-                            legend: 'none'
-                        };
-
-                        var chart = new google.visualization.ScatterChart(document.getElementById('unittest1'));
-
-                        chart.draw(data, options);
-                    }
-                </script>
-                <div id="unittest1" style="width: 600px; height: 400px;"></div>
-            </td>
-            <td>
-                <table style='font-family:sans-serif;'>
-                    <tr><th>Started at:</th><td colspan='2'><b>unittest o'clock</b></td></tr>
-                    <tr>
-                        <th align='right' valign='top'>Invocations:</th>
-                        <td align='right'>130,000</td>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <th align='right' valign='top'>- Success:</th>
-                        <td align='right'>104,000</td>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-
-                        <th align='right' valign='top'><b style='color:#2b67a4'>- Errors:</b></th>
-                        <td align='right'><b style='color:#2b67a4'>26,000</b></td>
-                        <td align='right'><b style='color:#2b67a4;'>20.00%</b></td>
-                    </tr>
-                    <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-                    <tr>
-                        <th align='right' valign='top'>Thread Count:</th>
-                        <td align='right'>50</td>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <th align='right' valign='top'>Warm up:</th>
-                        <td align='right'>100 ms</td>
-                        <td align='right'></td>
-                    </tr>
-                    <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-                    <tr valign='top'>
-                        <th>&nbsp;</th>
-                        <th>Measured<br/>(system)</th>
-                        <th>Required</th>
-                    </tr>
-                    <tr>
-                        <th align='right' valign='top'>Execution time:</th>
-                        <td align='right'>10,000 ms</td>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-
-                        <th align='right' valign='top'><b style='color:#2b67a4'>Throughput:</b></th>
-                        <td align='right'><b style='color:#2b67a4;'>13,131 / s</b></td>
-                        <td align='right'><b style='color:#2b67a4;'>13,000 / s</b></td>
-                    </tr>
-                    <tr>
-                        <th align='right' valign='top'>Min. latency:</th>
-                        <td align='right'>17.54 ms</td>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <th align='right' valign='top'>Average latency:</th>
-                        <td align='right'>28.34 ms</td>
-                        <td align='right'></td>
-                    </tr>
-
-
-                    <tr>
-                        <!-- HACK to get parameter passed to function -->
-
-                        <th align='right' valign='top'><b style='color:#2b67a4'>98:</b></th>
-                        <td align='right'><b style='color:#2b67a4;'>1.64 ms</b></td>
-                        <td align='right'><b style='color:#2b67a4'>3.30 ms</b></td>
-
-                    </tr>
-
-                    <tr>
-                        <!-- HACK to get parameter passed to function -->
-
-                        <th align='right' valign='top'><b style='color:#2b67a4'>99:</b></th>
-                        <td align='right'><b style='color:#2b67a4;'>28.34 ms</b></td>
-                        <td align='right'><b style='color:#2b67a4'>32.60 ms</b></td>
-
-                    </tr>
-
-                    <tr>
-                        <!-- HACK to get parameter passed to function -->
-
-                        <th align='right' valign='top'><b style='color:#2b67a4'>100:</b></th>
-                        <td align='right'><b style='color:#2b67a4;'>38.55 ms</b></td>
-                        <td align='right'><b style='color:#2b67a4'>47.00 ms</b></td>
-
-                    </tr>
-
-                    <tr>
-                        <th align='right' valign='top'>Max latency:</th>
-                        <td align='right'>38.55 ms</td>
-                        <td align='right'></td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-    <br/>
-    <br/><br/><br/>
-
-    <a name='unittest2'><h2 style='color:#2b67a4'>unittest2</h2></a>
-    <table width='900'>
-        <tr>
-            <td>
-                <!-- ADD scatter Chart here!! -->
-                <script type="text/javascript">
-                    google.charts.load('current', {'packages':['corechart']});
-                    google.charts.setOnLoadCallback(drawChart);
-
-                    function drawChart() {
-
-                        var data = google.visualization.arrayToDataTable([
-                            ['Percentile', 'Latency'],
-
-                            [ 1,      0.0],
-
-                            [ 2,      0.0],
-
-                            [ 3,      0.0],
-
-                            [ 4,      0.0],
-
-                            [ 5,      0.0],
-
-                            [ 6,      0.0],
-
-                            [ 7,      0.0],
-
-                            [ 8,      0.0],
-
-                            [ 9,      0.0],
-
-                            [ 10,      0.0],
-
-                            [ 11,      0.0],
-
-                            [ 12,      0.0],
-
-                            [ 13,      0.0],
-
-                            [ 14,      0.0],
-
-                            [ 15,      0.0],
-
-                            [ 16,      0.0],
-
-                            [ 17,      0.0],
-
-                            [ 18,      0.0],
-
-                            [ 19,      0.0],
-
-                            [ 20,      0.0],
-
-                            [ 21,      0.0],
-
-                            [ 22,      0.0],
-
-                            [ 23,      0.0],
-
-                            [ 24,      0.0],
-
-                            [ 25,      0.0],
-
-                            [ 26,      0.0],
-
-                            [ 27,      0.0],
-
-                            [ 28,      0.0],
-
-                            [ 29,      0.0],
-
-                            [ 30,      0.0],
-
-                            [ 31,      0.0],
-
-                            [ 32,      0.0],
-
-                            [ 33,      0.0],
-
-                            [ 34,      0.0],
-
-                            [ 35,      0.0],
-
-                            [ 36,      0.0],
-
-                            [ 37,      0.0],
-
-                            [ 38,      0.0],
-
-                            [ 39,      0.0],
-
-                            [ 40,      0.0],
-
-                            [ 41,      0.0],
-
-                            [ 42,      0.0],
-
-                            [ 43,      0.0],
-
-                            [ 44,      0.0],
-
-                            [ 45,      0.0],
-
-                            [ 46,      0.0],
-
-                            [ 47,      0.0],
-
-                            [ 48,      0.0],
-
-                            [ 49,      0.0],
-
-                            [ 50,      0.0],
-
-                            [ 51,      0.0],
-
-                            [ 52,      0.0],
-
-                            [ 53,      0.0],
-
-                            [ 54,      0.0],
-
-                            [ 55,      0.0],
-
-                            [ 56,      0.0],
-
-                            [ 57,      0.0],
-
-                            [ 58,      0.0],
-
-                            [ 59,      0.0],
-
-                            [ 60,      0.0],
-
-                            [ 61,      0.0],
-
-                            [ 62,      0.0],
-
-                            [ 63,      0.0],
-
-                            [ 64,      0.0],
-
-                            [ 65,      0.0],
-
-                            [ 66,      0.0],
-
-                            [ 67,      0.0],
-
-                            [ 68,      0.0],
-
-                            [ 69,      0.0],
-
-                            [ 70,      0.0],
-
-                            [ 71,      0.0],
-
-                            [ 72,      0.0],
-
-                            [ 73,      0.0],
-
-                            [ 74,      0.0],
-
-                            [ 75,      0.0],
-
-                            [ 76,      0.0],
-
-                            [ 77,      0.0],
-
-                            [ 78,      0.0],
-
-                            [ 79,      0.0],
-
-                            [ 80,      0.0],
-
-                            [ 81,      0.0],
-
-                            [ 82,      0.0],
-
-                            [ 83,      0.0],
-
-                            [ 84,      0.0],
-
-                            [ 85,      0.0],
-
-                            [ 86,      0.0],
-
-                            [ 87,      0.0],
-
-                            [ 88,      0.0],
-
-                            [ 89,      0.0],
-
-                            [ 90,      0.0],
-
-                            [ 91,      0.0],
-
-                            [ 92,      0.0],
-
-                            [ 93,      0.0],
-
-                            [ 94,      0.0],
-
-                            [ 95,      0.0],
-
-                            [ 96,      0.0],
-
-                            [ 97,      0.0],
-
-                            [ 98,      1.636367],
-
-                            [ 99,      28.343468],
-
-
-                        ]);
-
-                        var options = {
-                            title: 'Latency percentile Distribution',
-                            hAxis: {title: 'Percentile', minValue: 0, maxValue: 100},
-                            vAxis: {title: 'Latency', minValue: 0, maxValue: 15},
-                            legend: 'none'
-                        };
-
-                        var chart = new google.visualization.ScatterChart(document.getElementById('unittest2'));
-
-                        chart.draw(data, options);
-                    }
-                </script>
-                <div id="unittest2" style="width: 600px; height: 400px;"></div>
-            </td>
-            <td>
-                <table style='font-family:sans-serif;'>
-                    <tr><th>Started at:</th><td colspan='2'><b>unittest o'clock</b></td></tr>
-                    <tr>
-                        <th align='right' valign='top'>Invocations:</th>
-                        <td align='right'>130,000</td>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <th align='right' valign='top'>- Success:</th>
-                        <td align='right'>104,000</td>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-
-                        <th align='right' valign='top'><b style='color:#2b67a4'>- Errors:</b></th>
-                        <td align='right'><b style='color:#2b67a4'>26,000</b></td>
-                        <td align='right'><b style='color:#2b67a4;'>20.00%</b></td>
-                    </tr>
-                    <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-                    <tr>
-                        <th align='right' valign='top'>Thread Count:</th>
-                        <td align='right'>50</td>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <th align='right' valign='top'>Warm up:</th>
-                        <td align='right'>100 ms</td>
-                        <td align='right'></td>
-                    </tr>
-                    <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-                    <tr valign='top'>
-                        <th>&nbsp;</th>
-                        <th>Measured<br/>(system)</th>
-                        <th>Required</th>
-                    </tr>
-                    <tr>
-                        <th align='right' valign='top'>Execution time:</th>
-                        <td align='right'>10,000 ms</td>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-
-                        <th align='right' valign='top'><b style='color:#2b67a4'>Throughput:</b></th>
-                        <td align='right'><b style='color:#2b67a4;'>13,131 / s</b></td>
-                        <td align='right'><b style='color:#2b67a4;'>13,000 / s</b></td>
-                    </tr>
-                    <tr>
-                        <th align='right' valign='top'>Min. latency:</th>
-                        <td align='right'>17.54 ms</td>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <th align='right' valign='top'>Average latency:</th>
-                        <td align='right'>28.34 ms</td>
-                        <td align='right'></td>
-                    </tr>
-
-
-                    <tr>
-                        <!-- HACK to get parameter passed to function -->
-
-                        <th align='right' valign='top'><b style='color:#2b67a4'>98:</b></th>
-                        <td align='right'><b style='color:#2b67a4;'>1.64 ms</b></td>
-                        <td align='right'><b style='color:#2b67a4'>3.30 ms</b></td>
-
-                    </tr>
-
-                    <tr>
-                        <!-- HACK to get parameter passed to function -->
-
-                        <th align='right' valign='top'><b style='color:#2b67a4'>99:</b></th>
-                        <td align='right'><b style='color:#2b67a4;'>28.34 ms</b></td>
-                        <td align='right'><b style='color:#2b67a4'>32.60 ms</b></td>
-
-                    </tr>
-
-                    <tr>
-                        <!-- HACK to get parameter passed to function -->
-
-                        <th align='right' valign='top'><b style='color:#2b67a4'>100:</b></th>
-                        <td align='right'><b style='color:#2b67a4;'>38.55 ms</b></td>
-                        <td align='right'><b style='color:#2b67a4'>47.00 ms</b></td>
-
-                    </tr>
-
-                    <tr>
-                        <th align='right' valign='top'>Max latency:</th>
-                        <td align='right'>38.55 ms</td>
-                        <td align='right'></td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-    <br/>
-    <br/><br/><br/>
-
-    <hr/>
-    <div style='color:#044e9b;'>Report created by <a href='https://github.com/noconnor/JUnitPerf'>JunitPerf</a> </div>
+        <hr/>
+        <br/>
+        <table border='1' cellspacing='0' cellpadding='3px' style='border-color:#eee'>
+            <tr>
+                <th style='background-color:#ffffdd; color:#044e9b'>&nbsp;&nbsp;&nbsp;</th>
+                <th style='background-color:#ffffdd; color:#044e9b'>Tests</th>
+            <tr>
+
+             
+                <tr>
+                    <!-- Success: #2b67a4 failure: #d9534f -->
+                    <td style='background-color:#2b67a4;'>&nbsp;</td>
+                    <td><a href='#unittest1'>unittest1</td>
+                <tr>
+             
+                <tr>
+                    <!-- Success: #2b67a4 failure: #d9534f -->
+                    <td style='background-color:#2b67a4;'>&nbsp;</td>
+                    <td><a href='#unittest2'>unittest2</td>
+                <tr>
+             
+        </table>
+        <br/>
+        <hr/>
+
+
+        
+        <a name='unittest1'><h2 style='color:#2b67a4'>unittest1</h2></a>
+        <table width='900'>
+            <tr>
+                <td>
+                    <!-- ADD scatter Chart here!! -->
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages':['corechart']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+
+                            var data = google.visualization.arrayToDataTable([
+                                ['Percentile', 'Latency', { role: "tooltip"} ],
+                                
+                                [ 1, 0.0, "0.00 ms at 1%"],
+                                
+                                [ 2, 0.0, "0.00 ms at 2%"],
+                                
+                                [ 3, 0.0, "0.00 ms at 3%"],
+                                
+                                [ 4, 0.0, "0.00 ms at 4%"],
+                                
+                                [ 5, 0.0, "0.00 ms at 5%"],
+                                
+                                [ 6, 0.0, "0.00 ms at 6%"],
+                                
+                                [ 7, 0.0, "0.00 ms at 7%"],
+                                
+                                [ 8, 0.0, "0.00 ms at 8%"],
+                                
+                                [ 9, 0.0, "0.00 ms at 9%"],
+                                
+                                [ 10, 0.0, "0.00 ms at 10%"],
+                                
+                                [ 11, 0.0, "0.00 ms at 11%"],
+                                
+                                [ 12, 0.0, "0.00 ms at 12%"],
+                                
+                                [ 13, 0.0, "0.00 ms at 13%"],
+                                
+                                [ 14, 0.0, "0.00 ms at 14%"],
+                                
+                                [ 15, 0.0, "0.00 ms at 15%"],
+                                
+                                [ 16, 0.0, "0.00 ms at 16%"],
+                                
+                                [ 17, 0.0, "0.00 ms at 17%"],
+                                
+                                [ 18, 0.0, "0.00 ms at 18%"],
+                                
+                                [ 19, 0.0, "0.00 ms at 19%"],
+                                
+                                [ 20, 0.0, "0.00 ms at 20%"],
+                                
+                                [ 21, 0.0, "0.00 ms at 21%"],
+                                
+                                [ 22, 0.0, "0.00 ms at 22%"],
+                                
+                                [ 23, 0.0, "0.00 ms at 23%"],
+                                
+                                [ 24, 0.0, "0.00 ms at 24%"],
+                                
+                                [ 25, 0.0, "0.00 ms at 25%"],
+                                
+                                [ 26, 0.0, "0.00 ms at 26%"],
+                                
+                                [ 27, 0.0, "0.00 ms at 27%"],
+                                
+                                [ 28, 0.0, "0.00 ms at 28%"],
+                                
+                                [ 29, 0.0, "0.00 ms at 29%"],
+                                
+                                [ 30, 0.0, "0.00 ms at 30%"],
+                                
+                                [ 31, 0.0, "0.00 ms at 31%"],
+                                
+                                [ 32, 0.0, "0.00 ms at 32%"],
+                                
+                                [ 33, 0.0, "0.00 ms at 33%"],
+                                
+                                [ 34, 0.0, "0.00 ms at 34%"],
+                                
+                                [ 35, 0.0, "0.00 ms at 35%"],
+                                
+                                [ 36, 0.0, "0.00 ms at 36%"],
+                                
+                                [ 37, 0.0, "0.00 ms at 37%"],
+                                
+                                [ 38, 0.0, "0.00 ms at 38%"],
+                                
+                                [ 39, 0.0, "0.00 ms at 39%"],
+                                
+                                [ 40, 0.0, "0.00 ms at 40%"],
+                                
+                                [ 41, 0.0, "0.00 ms at 41%"],
+                                
+                                [ 42, 0.0, "0.00 ms at 42%"],
+                                
+                                [ 43, 0.0, "0.00 ms at 43%"],
+                                
+                                [ 44, 0.0, "0.00 ms at 44%"],
+                                
+                                [ 45, 0.0, "0.00 ms at 45%"],
+                                
+                                [ 46, 0.0, "0.00 ms at 46%"],
+                                
+                                [ 47, 0.0, "0.00 ms at 47%"],
+                                
+                                [ 48, 0.0, "0.00 ms at 48%"],
+                                
+                                [ 49, 0.0, "0.00 ms at 49%"],
+                                
+                                [ 50, 0.0, "0.00 ms at 50%"],
+                                
+                                [ 51, 0.0, "0.00 ms at 51%"],
+                                
+                                [ 52, 0.0, "0.00 ms at 52%"],
+                                
+                                [ 53, 0.0, "0.00 ms at 53%"],
+                                
+                                [ 54, 0.0, "0.00 ms at 54%"],
+                                
+                                [ 55, 0.0, "0.00 ms at 55%"],
+                                
+                                [ 56, 0.0, "0.00 ms at 56%"],
+                                
+                                [ 57, 0.0, "0.00 ms at 57%"],
+                                
+                                [ 58, 0.0, "0.00 ms at 58%"],
+                                
+                                [ 59, 0.0, "0.00 ms at 59%"],
+                                
+                                [ 60, 0.0, "0.00 ms at 60%"],
+                                
+                                [ 61, 0.0, "0.00 ms at 61%"],
+                                
+                                [ 62, 0.0, "0.00 ms at 62%"],
+                                
+                                [ 63, 0.0, "0.00 ms at 63%"],
+                                
+                                [ 64, 0.0, "0.00 ms at 64%"],
+                                
+                                [ 65, 0.0, "0.00 ms at 65%"],
+                                
+                                [ 66, 0.0, "0.00 ms at 66%"],
+                                
+                                [ 67, 0.0, "0.00 ms at 67%"],
+                                
+                                [ 68, 0.0, "0.00 ms at 68%"],
+                                
+                                [ 69, 0.0, "0.00 ms at 69%"],
+                                
+                                [ 70, 0.0, "0.00 ms at 70%"],
+                                
+                                [ 71, 0.0, "0.00 ms at 71%"],
+                                
+                                [ 72, 0.0, "0.00 ms at 72%"],
+                                
+                                [ 73, 0.0, "0.00 ms at 73%"],
+                                
+                                [ 74, 0.0, "0.00 ms at 74%"],
+                                
+                                [ 75, 0.0, "0.00 ms at 75%"],
+                                
+                                [ 76, 0.0, "0.00 ms at 76%"],
+                                
+                                [ 77, 0.0, "0.00 ms at 77%"],
+                                
+                                [ 78, 0.0, "0.00 ms at 78%"],
+                                
+                                [ 79, 0.0, "0.00 ms at 79%"],
+                                
+                                [ 80, 0.0, "0.00 ms at 80%"],
+                                
+                                [ 81, 0.0, "0.00 ms at 81%"],
+                                
+                                [ 82, 0.0, "0.00 ms at 82%"],
+                                
+                                [ 83, 0.0, "0.00 ms at 83%"],
+                                
+                                [ 84, 0.0, "0.00 ms at 84%"],
+                                
+                                [ 85, 0.0, "0.00 ms at 85%"],
+                                
+                                [ 86, 0.0, "0.00 ms at 86%"],
+                                
+                                [ 87, 0.0, "0.00 ms at 87%"],
+                                
+                                [ 88, 0.0, "0.00 ms at 88%"],
+                                
+                                [ 89, 0.0, "0.00 ms at 89%"],
+                                
+                                [ 90, 0.0, "0.00 ms at 90%"],
+                                
+                                [ 91, 0.0, "0.00 ms at 91%"],
+                                
+                                [ 92, 0.0, "0.00 ms at 92%"],
+                                
+                                [ 93, 0.0, "0.00 ms at 93%"],
+                                
+                                [ 94, 0.0, "0.00 ms at 94%"],
+                                
+                                [ 95, 0.0, "0.00 ms at 95%"],
+                                
+                                [ 96, 0.0, "0.00 ms at 96%"],
+                                
+                                [ 97, 0.0, "0.00 ms at 97%"],
+                                
+                                [ 98, 1.636367, "1.64 ms at 98%"],
+                                
+                                [ 99, 28.343468, "28.34 ms at 99%"],
+                                
+                            ]);
+
+                            var options = {
+                                title: 'Latency percentile Distribution',
+                                hAxis: {title: 'Percentile', minValue: 0, maxValue: 100},
+                                vAxis: {title: 'Latency', minValue: 0, maxValue: 15},
+                                legend: 'none',
+                                lineWidth: 1,
+                                pointSize: 7,
+                                dataOpacity: 0.5
+                            };
+
+                            var chart = new google.visualization.ScatterChart(document.getElementById('unittest1'));
+
+                            chart.draw(data, options);
+                        }
+                    </script>
+                    <div id="unittest1" style="width: 600px; height: 400px;"></div>
+                </td>
+                <td>
+                    <table style='font-family:sans-serif;'>
+                        <tr><th>Started at:</th><td colspan='2'><b>unittest o'clock</b></td></tr>
+                        <tr>
+                            <th align='right' valign='top'>Invocations:</th>
+                            <td align='right'>130,000</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>- Success:</th>
+                            <td align='right'>104,000</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            
+                            <th align='right' valign='top'><b style='color:#2b67a4'>- Errors:</b></th>
+                            <td align='right'><b style='color:#2b67a4'>26,000</b></td>
+                            <td align='right'><b style='color:#2b67a4;'>20.00%</b></td>
+                        </tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr>
+                            <th align='right' valign='top'>Thread Count:</th>
+                            <td align='right'>50</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>Warm up:</th>
+                            <td align='right'>100 ms</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr valign='top'>
+                            <th>&nbsp;</th>
+                            <th>Measured<br/>(system)</th>
+                            <th>Required</th>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>Execution time:</th>
+                            <td align='right'>10,000 ms</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            
+                            <th align='right' valign='top'><b style='color:#2b67a4'>Throughput:</b></th>
+                            <td align='right'><b style='color:#2b67a4;'>13,131 / s</b></td>
+                            <td align='right'><b style='color:#2b67a4;'>13,000 / s</b></td>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>Min. latency:</th>
+                            <td align='right'>17.54 ms</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>Average latency:</th>
+                            <td align='right'>28.34 ms</td>
+                            <td align='right'></td>
+                        </tr>
+
+                        
+                        <tr>
+                             <!-- HACK to get parameter passed to function -->
+                            
+                            <th align='right' valign='top'><b style='color:#2b67a4'>98:</b></th>
+                            <td align='right'><b style='color:#2b67a4;'>1.64 ms</b></td>
+                            <td align='right'><b style='color:#2b67a4'>3.30 ms</b></td>
+                            
+                        </tr>
+                        
+                        <tr>
+                             <!-- HACK to get parameter passed to function -->
+                            
+                            <th align='right' valign='top'><b style='color:#2b67a4'>99:</b></th>
+                            <td align='right'><b style='color:#2b67a4;'>28.34 ms</b></td>
+                            <td align='right'><b style='color:#2b67a4'>32.60 ms</b></td>
+                            
+                        </tr>
+                        
+                        <tr>
+                             <!-- HACK to get parameter passed to function -->
+                            
+                            <th align='right' valign='top'><b style='color:#2b67a4'>100:</b></th>
+                            <td align='right'><b style='color:#2b67a4;'>38.55 ms</b></td>
+                            <td align='right'><b style='color:#2b67a4'>47.00 ms</b></td>
+                            
+                        </tr>
+                        
+                        <tr>
+                            <th align='right' valign='top'>Max latency:</th>
+                            <td align='right'>38.55 ms</td>
+                            <td align='right'></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <br/><br/><br/>
+        
+        <a name='unittest2'><h2 style='color:#2b67a4'>unittest2</h2></a>
+        <table width='900'>
+            <tr>
+                <td>
+                    <!-- ADD scatter Chart here!! -->
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages':['corechart']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+
+                            var data = google.visualization.arrayToDataTable([
+                                ['Percentile', 'Latency', { role: "tooltip"} ],
+                                
+                                [ 1, 0.0, "0.00 ms at 1%"],
+                                
+                                [ 2, 0.0, "0.00 ms at 2%"],
+                                
+                                [ 3, 0.0, "0.00 ms at 3%"],
+                                
+                                [ 4, 0.0, "0.00 ms at 4%"],
+                                
+                                [ 5, 0.0, "0.00 ms at 5%"],
+                                
+                                [ 6, 0.0, "0.00 ms at 6%"],
+                                
+                                [ 7, 0.0, "0.00 ms at 7%"],
+                                
+                                [ 8, 0.0, "0.00 ms at 8%"],
+                                
+                                [ 9, 0.0, "0.00 ms at 9%"],
+                                
+                                [ 10, 0.0, "0.00 ms at 10%"],
+                                
+                                [ 11, 0.0, "0.00 ms at 11%"],
+                                
+                                [ 12, 0.0, "0.00 ms at 12%"],
+                                
+                                [ 13, 0.0, "0.00 ms at 13%"],
+                                
+                                [ 14, 0.0, "0.00 ms at 14%"],
+                                
+                                [ 15, 0.0, "0.00 ms at 15%"],
+                                
+                                [ 16, 0.0, "0.00 ms at 16%"],
+                                
+                                [ 17, 0.0, "0.00 ms at 17%"],
+                                
+                                [ 18, 0.0, "0.00 ms at 18%"],
+                                
+                                [ 19, 0.0, "0.00 ms at 19%"],
+                                
+                                [ 20, 0.0, "0.00 ms at 20%"],
+                                
+                                [ 21, 0.0, "0.00 ms at 21%"],
+                                
+                                [ 22, 0.0, "0.00 ms at 22%"],
+                                
+                                [ 23, 0.0, "0.00 ms at 23%"],
+                                
+                                [ 24, 0.0, "0.00 ms at 24%"],
+                                
+                                [ 25, 0.0, "0.00 ms at 25%"],
+                                
+                                [ 26, 0.0, "0.00 ms at 26%"],
+                                
+                                [ 27, 0.0, "0.00 ms at 27%"],
+                                
+                                [ 28, 0.0, "0.00 ms at 28%"],
+                                
+                                [ 29, 0.0, "0.00 ms at 29%"],
+                                
+                                [ 30, 0.0, "0.00 ms at 30%"],
+                                
+                                [ 31, 0.0, "0.00 ms at 31%"],
+                                
+                                [ 32, 0.0, "0.00 ms at 32%"],
+                                
+                                [ 33, 0.0, "0.00 ms at 33%"],
+                                
+                                [ 34, 0.0, "0.00 ms at 34%"],
+                                
+                                [ 35, 0.0, "0.00 ms at 35%"],
+                                
+                                [ 36, 0.0, "0.00 ms at 36%"],
+                                
+                                [ 37, 0.0, "0.00 ms at 37%"],
+                                
+                                [ 38, 0.0, "0.00 ms at 38%"],
+                                
+                                [ 39, 0.0, "0.00 ms at 39%"],
+                                
+                                [ 40, 0.0, "0.00 ms at 40%"],
+                                
+                                [ 41, 0.0, "0.00 ms at 41%"],
+                                
+                                [ 42, 0.0, "0.00 ms at 42%"],
+                                
+                                [ 43, 0.0, "0.00 ms at 43%"],
+                                
+                                [ 44, 0.0, "0.00 ms at 44%"],
+                                
+                                [ 45, 0.0, "0.00 ms at 45%"],
+                                
+                                [ 46, 0.0, "0.00 ms at 46%"],
+                                
+                                [ 47, 0.0, "0.00 ms at 47%"],
+                                
+                                [ 48, 0.0, "0.00 ms at 48%"],
+                                
+                                [ 49, 0.0, "0.00 ms at 49%"],
+                                
+                                [ 50, 0.0, "0.00 ms at 50%"],
+                                
+                                [ 51, 0.0, "0.00 ms at 51%"],
+                                
+                                [ 52, 0.0, "0.00 ms at 52%"],
+                                
+                                [ 53, 0.0, "0.00 ms at 53%"],
+                                
+                                [ 54, 0.0, "0.00 ms at 54%"],
+                                
+                                [ 55, 0.0, "0.00 ms at 55%"],
+                                
+                                [ 56, 0.0, "0.00 ms at 56%"],
+                                
+                                [ 57, 0.0, "0.00 ms at 57%"],
+                                
+                                [ 58, 0.0, "0.00 ms at 58%"],
+                                
+                                [ 59, 0.0, "0.00 ms at 59%"],
+                                
+                                [ 60, 0.0, "0.00 ms at 60%"],
+                                
+                                [ 61, 0.0, "0.00 ms at 61%"],
+                                
+                                [ 62, 0.0, "0.00 ms at 62%"],
+                                
+                                [ 63, 0.0, "0.00 ms at 63%"],
+                                
+                                [ 64, 0.0, "0.00 ms at 64%"],
+                                
+                                [ 65, 0.0, "0.00 ms at 65%"],
+                                
+                                [ 66, 0.0, "0.00 ms at 66%"],
+                                
+                                [ 67, 0.0, "0.00 ms at 67%"],
+                                
+                                [ 68, 0.0, "0.00 ms at 68%"],
+                                
+                                [ 69, 0.0, "0.00 ms at 69%"],
+                                
+                                [ 70, 0.0, "0.00 ms at 70%"],
+                                
+                                [ 71, 0.0, "0.00 ms at 71%"],
+                                
+                                [ 72, 0.0, "0.00 ms at 72%"],
+                                
+                                [ 73, 0.0, "0.00 ms at 73%"],
+                                
+                                [ 74, 0.0, "0.00 ms at 74%"],
+                                
+                                [ 75, 0.0, "0.00 ms at 75%"],
+                                
+                                [ 76, 0.0, "0.00 ms at 76%"],
+                                
+                                [ 77, 0.0, "0.00 ms at 77%"],
+                                
+                                [ 78, 0.0, "0.00 ms at 78%"],
+                                
+                                [ 79, 0.0, "0.00 ms at 79%"],
+                                
+                                [ 80, 0.0, "0.00 ms at 80%"],
+                                
+                                [ 81, 0.0, "0.00 ms at 81%"],
+                                
+                                [ 82, 0.0, "0.00 ms at 82%"],
+                                
+                                [ 83, 0.0, "0.00 ms at 83%"],
+                                
+                                [ 84, 0.0, "0.00 ms at 84%"],
+                                
+                                [ 85, 0.0, "0.00 ms at 85%"],
+                                
+                                [ 86, 0.0, "0.00 ms at 86%"],
+                                
+                                [ 87, 0.0, "0.00 ms at 87%"],
+                                
+                                [ 88, 0.0, "0.00 ms at 88%"],
+                                
+                                [ 89, 0.0, "0.00 ms at 89%"],
+                                
+                                [ 90, 0.0, "0.00 ms at 90%"],
+                                
+                                [ 91, 0.0, "0.00 ms at 91%"],
+                                
+                                [ 92, 0.0, "0.00 ms at 92%"],
+                                
+                                [ 93, 0.0, "0.00 ms at 93%"],
+                                
+                                [ 94, 0.0, "0.00 ms at 94%"],
+                                
+                                [ 95, 0.0, "0.00 ms at 95%"],
+                                
+                                [ 96, 0.0, "0.00 ms at 96%"],
+                                
+                                [ 97, 0.0, "0.00 ms at 97%"],
+                                
+                                [ 98, 1.636367, "1.64 ms at 98%"],
+                                
+                                [ 99, 28.343468, "28.34 ms at 99%"],
+                                
+                            ]);
+
+                            var options = {
+                                title: 'Latency percentile Distribution',
+                                hAxis: {title: 'Percentile', minValue: 0, maxValue: 100},
+                                vAxis: {title: 'Latency', minValue: 0, maxValue: 15},
+                                legend: 'none',
+                                lineWidth: 1,
+                                pointSize: 7,
+                                dataOpacity: 0.5
+                            };
+
+                            var chart = new google.visualization.ScatterChart(document.getElementById('unittest2'));
+
+                            chart.draw(data, options);
+                        }
+                    </script>
+                    <div id="unittest2" style="width: 600px; height: 400px;"></div>
+                </td>
+                <td>
+                    <table style='font-family:sans-serif;'>
+                        <tr><th>Started at:</th><td colspan='2'><b>unittest o'clock</b></td></tr>
+                        <tr>
+                            <th align='right' valign='top'>Invocations:</th>
+                            <td align='right'>130,000</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>- Success:</th>
+                            <td align='right'>104,000</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            
+                            <th align='right' valign='top'><b style='color:#2b67a4'>- Errors:</b></th>
+                            <td align='right'><b style='color:#2b67a4'>26,000</b></td>
+                            <td align='right'><b style='color:#2b67a4;'>20.00%</b></td>
+                        </tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr>
+                            <th align='right' valign='top'>Thread Count:</th>
+                            <td align='right'>50</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>Warm up:</th>
+                            <td align='right'>100 ms</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr valign='top'>
+                            <th>&nbsp;</th>
+                            <th>Measured<br/>(system)</th>
+                            <th>Required</th>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>Execution time:</th>
+                            <td align='right'>10,000 ms</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            
+                            <th align='right' valign='top'><b style='color:#2b67a4'>Throughput:</b></th>
+                            <td align='right'><b style='color:#2b67a4;'>13,131 / s</b></td>
+                            <td align='right'><b style='color:#2b67a4;'>13,000 / s</b></td>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>Min. latency:</th>
+                            <td align='right'>17.54 ms</td>
+                            <td align='right'></td>
+                        </tr>
+                        <tr>
+                            <th align='right' valign='top'>Average latency:</th>
+                            <td align='right'>28.34 ms</td>
+                            <td align='right'></td>
+                        </tr>
+
+                        
+                        <tr>
+                             <!-- HACK to get parameter passed to function -->
+                            
+                            <th align='right' valign='top'><b style='color:#2b67a4'>98:</b></th>
+                            <td align='right'><b style='color:#2b67a4;'>1.64 ms</b></td>
+                            <td align='right'><b style='color:#2b67a4'>3.30 ms</b></td>
+                            
+                        </tr>
+                        
+                        <tr>
+                             <!-- HACK to get parameter passed to function -->
+                            
+                            <th align='right' valign='top'><b style='color:#2b67a4'>99:</b></th>
+                            <td align='right'><b style='color:#2b67a4;'>28.34 ms</b></td>
+                            <td align='right'><b style='color:#2b67a4'>32.60 ms</b></td>
+                            
+                        </tr>
+                        
+                        <tr>
+                             <!-- HACK to get parameter passed to function -->
+                            
+                            <th align='right' valign='top'><b style='color:#2b67a4'>100:</b></th>
+                            <td align='right'><b style='color:#2b67a4;'>38.55 ms</b></td>
+                            <td align='right'><b style='color:#2b67a4'>47.00 ms</b></td>
+                            
+                        </tr>
+                        
+                        <tr>
+                            <th align='right' valign='top'>Max latency:</th>
+                            <td align='right'>38.55 ms</td>
+                            <td align='right'></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <br/><br/><br/>
+        
+        <hr/>
+        <div style='color:#044e9b;'>Report created by <a href='https://github.com/noconnor/JUnitPerf'>JunitPerf</a> </div>
 </center>
 </body>
 </html>
