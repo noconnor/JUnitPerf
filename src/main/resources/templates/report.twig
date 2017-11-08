@@ -4,6 +4,7 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <meta charset="utf-8">
     <title>JUnit Performance Report</title>
+
 </head>
 <body style='font-family:Verdana;'>
 <center>
@@ -37,6 +38,7 @@
                     <script type="text/javascript">
                         google.charts.load('current', {'packages':['corechart']});
                         google.charts.setOnLoadCallback(drawChart);
+                        google.charts.setOnLoadCallback(setCsvExportLink);
 
                         function drawChart() {
 
@@ -61,8 +63,25 @@
 
                             chart.draw(data, options);
                         }
+
+                        function setCsvExportLink() {
+                            var csvData = google.visualization.arrayToDataTable([
+                                ['Percentile', 'Latency'],
+                                {% for i in [1..99] %}
+                                [ {{ i }}, {{ context.statistics.getLatencyPercentile(i, milliseconds) }} ],
+                                {% endfor %}
+                            ]);
+                            var csvFormattedDataTable = google.visualization.dataTableToCsv(csvData);
+                            var encodedUri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csvFormattedDataTable);
+                            var link = document.getElementById('Export-{{ context.testName }}')
+                            link.href=encodedUri;
+                            link.download = '{{ context.testName }}.csv';
+                            link.target = '_blank';
+                        }
+
                     </script>
                     <div id="{{ context.testName }}" style="width: 600px; height: 400px;"></div>
+                    <a id="Export-{{ context.testName }}" href="#" style="margin-left: 230px;">Download as csv</a>
                 </td>
                 <td>
                     <table style='font-family:sans-serif;'>
