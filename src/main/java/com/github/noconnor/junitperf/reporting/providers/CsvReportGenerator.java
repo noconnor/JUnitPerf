@@ -37,9 +37,7 @@ public class CsvReportGenerator implements ReportGenerator {
 
     try (BufferedWriter writer = newBufferedWriter()) {
 
-      String header = buildHeader();
-
-      writer.write(header);
+      writer.write(buildHeader());
       writer.newLine();
       testContexts.forEach(context -> {
 
