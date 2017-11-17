@@ -7,7 +7,7 @@ apply plugin: 'jacoco'
 group = 'com.github.noconnor'
 sourceCompatibility = 1.8
 // http://semver.org/
-version = '1.6.0'
+version = '1.7.0'
 
 repositories {
     mavenCentral()
