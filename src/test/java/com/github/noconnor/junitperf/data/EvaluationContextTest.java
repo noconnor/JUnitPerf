@@ -109,9 +109,7 @@ public class EvaluationContextTest extends BaseTest {
   @Test
   public void whenLoadingJUnitPerfTestRequirements_thenAExecutionsPerSecShouldBeSensible() {
     when(perfTestRequirement.executionsPerSec()).thenReturn(-1);
-    expectRequirementsValidationError("ExecutionsPerSec must be > 0");
-    when(perfTestRequirement.executionsPerSec()).thenReturn(0);
-    expectRequirementsValidationError("ExecutionsPerSec must be > 0");
+    expectRequirementsValidationError("ExecutionsPerSec must be >= 0");
   }
 
   @Test(expected = IllegalStateException.class)
