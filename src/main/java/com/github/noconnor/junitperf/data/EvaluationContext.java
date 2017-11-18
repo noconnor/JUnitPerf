@@ -129,7 +129,7 @@ public class EvaluationContext {
 
   private void validateRequirements(JUnitPerfTestRequirement requirements) {
     checkState(requirements.allowedErrorPercentage() >= 0, "AllowedErrorPercentage must be >= 0");
-    checkState(requirements.executionsPerSec() > 0, "ExecutionsPerSec must be > 0");
+    checkState(requirements.executionsPerSec() >= 0, "ExecutionsPerSec must be >= 0");
   }
 
 }
