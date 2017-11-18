@@ -95,16 +95,9 @@ public class EvaluationContextTest extends BaseTest {
   @Test
   public void whenLoadingJUnitPerfTestRequirements_thenAppropriateContextSettingsShouldBeUpdated() {
     context.loadRequirements(perfTestRequirement);
-    assertThat(context.isValidationRequired(), is(true));
     assertThat(context.getRequiredAllowedErrorsRate(), is(perfTestRequirement.allowedErrorPercentage()));
     assertThat(context.getRequiredThroughput(), is(perfTestRequirement.executionsPerSec()));
     assertThat(context.getRequiredPercentiles(), is(ImmutableMap.of(90, 0.5F, 95, 9F)));
-  }
-
-  @Test
-  public void whenLoadingJUnitPerfTestRequirements_andRequirementsAreNull_thenValidationShouldNotBeRequired() {
-    context.loadRequirements(null);
-    assertThat(context.isValidationRequired(), is(false));
   }
 
   @Test
@@ -262,8 +255,8 @@ public class EvaluationContextTest extends BaseTest {
 
   private void initialiseStatisticsMockToPassValidation() {
     when(statisticsMock.getEvaluationCount()).thenReturn(15_000L);
-    when(statisticsMock.getErrorCount()).thenReturn(1L);
-    when(statisticsMock.getErrorPercentage()).thenReturn(1.0F);
+    when(statisticsMock.getErrorCount()).thenReturn(0L);
+    when(statisticsMock.getErrorPercentage()).thenReturn(0.0F);
     when(statisticsMock.getLatencyPercentile(90, NANOSECONDS)).thenReturn(2000F);
     when(statisticsMock.getLatencyPercentile(95, NANOSECONDS)).thenReturn(4000F);
   }

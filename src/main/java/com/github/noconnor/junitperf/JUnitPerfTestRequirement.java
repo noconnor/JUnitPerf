@@ -13,9 +13,9 @@ public @interface JUnitPerfTestRequirement {
   String percentiles() default "";
 
   // Expected test throughput (executions per second)
-  int executionsPerSec() default 1;
+  int executionsPerSec() default 0;
 
-  // Expected % of test failures. Failures are measured as test case exceptions
-  float allowedErrorPercentage() default 1;
+  // Expected % of test failures. Failures are measured as test case exceptions, default 0% errors allowed
+  float allowedErrorPercentage() default 0;
 
 }

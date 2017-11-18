@@ -35,13 +35,11 @@ public class EvaluationContext {
   private int configuredRateLimit;
 
   @Getter
-  private Map<Integer, Float> requiredPercentiles;
+  private Map<Integer, Float> requiredPercentiles = emptyMap();
   @Getter
-  private int requiredThroughput;
+  private int requiredThroughput = 0;
   @Getter
-  private float requiredAllowedErrorsRate;
-  @Getter
-  private boolean validationRequired;
+  private float requiredAllowedErrorsRate = 0;
 
   @Getter
   @Setter
@@ -75,10 +73,8 @@ public class EvaluationContext {
   }
 
   public void loadRequirements(JUnitPerfTestRequirement requirements) {
-    validationRequired = nonNull(requirements);
-    if (validationRequired) {
+    if (nonNull(requirements)) {
       validateRequirements(requirements);
-      validationRequired = true;
       requiredThroughput = requirements.executionsPerSec();
       requiredAllowedErrorsRate = requirements.allowedErrorPercentage();
       requiredPercentiles = parsePercentileLimits(requirements.percentiles());
@@ -87,17 +83,10 @@ public class EvaluationContext {
 
   public void runValidation() {
     checkState(nonNull(statistics), "Statistics must be calculated before running validation");
-    if (validationRequired) {
-      isThroughputAchieved = getThroughputQps() >= requiredThroughput;
-      isErrorThresholdAchieved = statistics.getErrorPercentage() <= (requiredAllowedErrorsRate * 100);
-      percentileResults = evaluateLatencyPercentiles();
-      isSuccessful = isThroughputAchieved && isErrorThresholdAchieved && noLatencyPercentileFailures();
-    } else {
-      isSuccessful = true;
-      isThroughputAchieved = true;
-      isErrorThresholdAchieved = true;
-      percentileResults = emptyMap();
-    }
+    isThroughputAchieved = getThroughputQps() >= requiredThroughput;
+    isErrorThresholdAchieved = statistics.getErrorPercentage() <= (requiredAllowedErrorsRate * 100);
+    percentileResults = evaluateLatencyPercentiles();
+    isSuccessful = isThroughputAchieved && isErrorThresholdAchieved && noLatencyPercentileFailures();
   }
 
   private boolean noLatencyPercentileFailures() {
