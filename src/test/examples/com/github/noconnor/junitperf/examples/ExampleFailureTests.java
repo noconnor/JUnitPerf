@@ -27,4 +27,12 @@ public class ExampleFailureTests {
     Thread.sleep(2);
   }
 
+  @Test
+  @JUnitPerfTest(threads = 1, durationMs = 1_000, maxExecutionsPerSecond = 1_000)
+  public void whenNoRequirementsAreSpecified_andExceptionIsThrown_thenTestShouldFail() throws InterruptedException {
+    // Mock some processing logic
+    Thread.sleep(2);
+    throw new IllegalStateException("testing failure");
+  }
+
 }
