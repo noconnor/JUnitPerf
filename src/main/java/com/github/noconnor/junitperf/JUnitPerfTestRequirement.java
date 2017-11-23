@@ -18,4 +18,10 @@ public @interface JUnitPerfTestRequirement {
   // Expected % of test failures. Failures are measured as test case exceptions, default 0% errors allowed
   float allowedErrorPercentage() default 0;
 
+  float minLatency() default -1;
+
+  float maxLatency() default -1;
+
+  float meanLatency() default -1;
+
 }
