@@ -266,6 +266,23 @@ public class EvaluationContextTest extends BaseTest {
     assertThat(context.isSuccessful(), is(false));
   }
 
+  @Test
+  public void whenRunningEvaluation_thenMeanLatencyRequirementsShouldBeChecked() {
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.isMeanLatencyAchieved(), is(true));
+    assertThat(context.isSuccessful(), is(true));
+  }
+
+  @Test
+  public void whenRunningEvaluation_andMeanLatencyCheckFails_thenIsSuccessfulShouldBeFalse() {
+    when(statisticsMock.getMeanLatency(NANOSECONDS)).thenReturn(10_090_000.9F);
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.isMeanLatencyAchieved(), is(false));
+    assertThat(context.isSuccessful(), is(false));
+  }
+
   private void initialiseContext() {
     context.loadConfiguration(perfTestAnnotation);
     context.loadRequirements(perfTestRequirement);

@@ -41,11 +41,11 @@ public class EvaluationContext {
   @Getter
   private float requiredAllowedErrorsRate = 0;
   @Getter
-  private float requiredMinLatencyRequirement = -1;
+  private float requiredMinLatency = -1;
   @Getter
-  private float requiredMaxLatencyRequirement = -1;
+  private float requiredMaxLatency = -1;
   @Getter
-  private float requiredMeanLatencyRequirement = -1;
+  private float requiredMeanLatency = -1;
 
   @Getter
   @Setter
@@ -90,9 +90,9 @@ public class EvaluationContext {
       requiredThroughput = requirements.executionsPerSec();
       requiredAllowedErrorsRate = requirements.allowedErrorPercentage();
       requiredPercentiles = parsePercentileLimits(requirements.percentiles());
-      requiredMinLatencyRequirement = requirements.minLatency();
-      requiredMaxLatencyRequirement = requirements.maxLatency();
-      requiredMeanLatencyRequirement = requirements.meanLatency();
+      requiredMinLatency = requirements.minLatency();
+      requiredMaxLatency = requirements.maxLatency();
+      requiredMeanLatency = requirements.meanLatency();
     }
   }
 
@@ -100,20 +100,22 @@ public class EvaluationContext {
     checkState(nonNull(statistics), "Statistics must be calculated before running validation");
     isThroughputAchieved = getThroughputQps() >= requiredThroughput;
     isErrorThresholdAchieved = statistics.getErrorPercentage() <= (requiredAllowedErrorsRate * 100);
-    isMinLatencyAchieved = validateMinLatency();
-    isMaxLatencyAchieved = validateMaxLatency();
+    isMinLatencyAchieved = validateLatency(statistics.getMinLatency(NANOSECONDS), requiredMinLatency);
+    isMaxLatencyAchieved = validateLatency(statistics.getMaxLatency(NANOSECONDS), requiredMaxLatency);
+    isMeanLatencyAchieved = validateLatency(statistics.getMeanLatency(NANOSECONDS), requiredMeanLatency);
     percentileResults = evaluateLatencyPercentiles();
-    isSuccessful = isThroughputAchieved && isMaxLatencyAchieved && isMinLatencyAchieved && isErrorThresholdAchieved && noLatencyPercentileFailures();
+
+    isSuccessful = isThroughputAchieved &&
+      isMaxLatencyAchieved &&
+      isMinLatencyAchieved &&
+      isMeanLatencyAchieved &&
+      isErrorThresholdAchieved &&
+      noLatencyPercentileFailures();
   }
 
-  private boolean validateMinLatency() {
-    long thresholdNs = (long)(requiredMinLatencyRequirement * MILLISECONDS.toNanos(1));
-    return requiredMinLatencyRequirement < 0 || statistics.getMinLatency(NANOSECONDS) <= thresholdNs;
-  }
-
-  private boolean validateMaxLatency() {
-    long thresholdNs = (long)(requiredMaxLatencyRequirement * MILLISECONDS.toNanos(1));
-    return requiredMaxLatencyRequirement < 0 || statistics.getMaxLatency(NANOSECONDS) <= thresholdNs;
+  private boolean validateLatency(float actualNs, float requiredMs) {
+    long thresholdNs = (long)(requiredMs * MILLISECONDS.toNanos(1));
+    return requiredMaxLatency < 0 || actualNs <= thresholdNs;
   }
 
   private boolean noLatencyPercentileFailures() {
