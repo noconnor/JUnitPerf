@@ -162,6 +162,9 @@ public class BaseReportGeneratorTest extends BaseTest {
     when(perfTestRequirementAnnotationMock.percentiles()).thenReturn("98:3.3,99:32.6,100:46.9999");
     when(perfTestRequirementAnnotationMock.allowedErrorPercentage()).thenReturn(0.3F);
     when(perfTestRequirementAnnotationMock.executionsPerSec()).thenReturn(13_000);
+    when(perfTestRequirementAnnotationMock.minLatency()).thenReturn(10.0F);
+    when(perfTestRequirementAnnotationMock.maxLatency()).thenReturn(200.66F);
+    when(perfTestRequirementAnnotationMock.meanLatency()).thenReturn(55.1F);
   }
 
   @SuppressWarnings("unused")
