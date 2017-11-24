@@ -40,6 +40,12 @@ public class EvaluationContext {
   private int requiredThroughput = 0;
   @Getter
   private float requiredAllowedErrorsRate = 0;
+  @Getter
+  private float requiredMinLatencyRequirement = -1;
+  @Getter
+  private float requiredMaxLatencyRequirement = -1;
+  @Getter
+  private float requiredMeanLatencyRequirement = -1;
 
   @Getter
   @Setter
@@ -47,6 +53,12 @@ public class EvaluationContext {
 
   @Getter
   private boolean isThroughputAchieved;
+  @Getter
+  private boolean isMinLatencyAchieved;
+  @Getter
+  private boolean isMaxLatencyAchieved;
+  @Getter
+  private boolean isMeanLatencyAchieved;
   @Getter
   private boolean isErrorThresholdAchieved;
   @Getter
@@ -78,6 +90,9 @@ public class EvaluationContext {
       requiredThroughput = requirements.executionsPerSec();
       requiredAllowedErrorsRate = requirements.allowedErrorPercentage();
       requiredPercentiles = parsePercentileLimits(requirements.percentiles());
+      requiredMinLatencyRequirement = requirements.minLatency();
+      requiredMaxLatencyRequirement = requirements.maxLatency();
+      requiredMeanLatencyRequirement = requirements.meanLatency();
     }
   }
 
@@ -85,8 +100,14 @@ public class EvaluationContext {
     checkState(nonNull(statistics), "Statistics must be calculated before running validation");
     isThroughputAchieved = getThroughputQps() >= requiredThroughput;
     isErrorThresholdAchieved = statistics.getErrorPercentage() <= (requiredAllowedErrorsRate * 100);
+    isMinLatencyAchieved = validateMinLatency();
     percentileResults = evaluateLatencyPercentiles();
-    isSuccessful = isThroughputAchieved && isErrorThresholdAchieved && noLatencyPercentileFailures();
+    isSuccessful = isThroughputAchieved && isMinLatencyAchieved && isErrorThresholdAchieved && noLatencyPercentileFailures();
+  }
+
+  private boolean validateMinLatency() {
+    long thresholdNs = (long)(requiredMinLatencyRequirement * MILLISECONDS.toNanos(1));
+    return requiredMinLatencyRequirement < 0 || statistics.getMinLatency(NANOSECONDS) <= thresholdNs;
   }
 
   private boolean noLatencyPercentileFailures() {
