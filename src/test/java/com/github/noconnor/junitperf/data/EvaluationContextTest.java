@@ -249,6 +249,23 @@ public class EvaluationContextTest extends BaseTest {
     assertThat(context.isSuccessful(), is(false));
   }
 
+  @Test
+  public void whenRunningEvaluation_thenMaxLatencyRequirementsShouldBeChecked() {
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.isMaxLatencyAchieved(), is(true));
+    assertThat(context.isSuccessful(), is(true));
+  }
+
+  @Test
+  public void whenRunningEvaluation_andMaxLatencyCheckFails_thenIsSuccessfulShouldBeFalse() {
+    when(statisticsMock.getMaxLatency(NANOSECONDS)).thenReturn(190_090_000.9F);
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.isMaxLatencyAchieved(), is(false));
+    assertThat(context.isSuccessful(), is(false));
+  }
+
   private void initialiseContext() {
     context.loadConfiguration(perfTestAnnotation);
     context.loadRequirements(perfTestRequirement);

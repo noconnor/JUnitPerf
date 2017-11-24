@@ -101,13 +101,19 @@ public class EvaluationContext {
     isThroughputAchieved = getThroughputQps() >= requiredThroughput;
     isErrorThresholdAchieved = statistics.getErrorPercentage() <= (requiredAllowedErrorsRate * 100);
     isMinLatencyAchieved = validateMinLatency();
+    isMaxLatencyAchieved = validateMaxLatency();
     percentileResults = evaluateLatencyPercentiles();
-    isSuccessful = isThroughputAchieved && isMinLatencyAchieved && isErrorThresholdAchieved && noLatencyPercentileFailures();
+    isSuccessful = isThroughputAchieved && isMaxLatencyAchieved && isMinLatencyAchieved && isErrorThresholdAchieved && noLatencyPercentileFailures();
   }
 
   private boolean validateMinLatency() {
     long thresholdNs = (long)(requiredMinLatencyRequirement * MILLISECONDS.toNanos(1));
     return requiredMinLatencyRequirement < 0 || statistics.getMinLatency(NANOSECONDS) <= thresholdNs;
+  }
+
+  private boolean validateMaxLatency() {
+    long thresholdNs = (long)(requiredMaxLatencyRequirement * MILLISECONDS.toNanos(1));
+    return requiredMaxLatencyRequirement < 0 || statistics.getMaxLatency(NANOSECONDS) <= thresholdNs;
   }
 
   private boolean noLatencyPercentileFailures() {
