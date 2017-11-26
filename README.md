@@ -112,6 +112,9 @@ More information on statistic calculations can be found [here](#statistics)
 | percentiles            | Comma separated list of percentile targets, format: percentile1:limit,percentile2:limit (ie. 90:3.3,99:6.8)                 |        ""      |
 | executionsPerSec       | Target executions per second                                                                                                |        1       |
 | allowedErrorPercentage | Allowed % of errors (uncaught exceptions) during test execution (value between 0 and 1, where 1 = 100% errors allowed)      |        1       |
+| minLatency             | Expected minimum latency in ms, if minimum latency is above this value, test will fail                                      |   disabled     |
+| maxLatency             | Expected maximum latency in ms, if maximum latency is above this value, test will fail                                      |   disabled     |
+| meanLatency            | Expected mean latency in ms, if mean latency is above this value, test will fail                                            |   disabled     |
 
 
 ## Reports

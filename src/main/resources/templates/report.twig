@@ -31,7 +31,7 @@
 
         {% for context in contextData %}
         <a name='{{ context.testName }}'><h2 style='color:#2b67a4'>{{ context.testName }}</h2></a>
-        <table width='900'>
+        <table width='970'>
             <tr>
                 <td>
                     <!-- ADD scatter Chart here!! -->
@@ -131,14 +131,16 @@
                             <td align='right'><b style='color:{{ colour }};'>{{ number_format(context.requiredThroughput, 0, ".", ",") }} / s</b></td>
                         </tr>
                         <tr>
-                            <th align='right' valign='top'>Min. latency:</th>
-                            <td align='right'>{{ number_format(context.statistics.getMinLatency(milliseconds), 2, ".", " ") }} ms</td>
-                            <td align='right'></td>
+                            {% set colour = (context.isMinLatencyAchieved) ? "#2b67a4" : "#d9534f" %}
+                            <th align='right' valign='top'><b style='color:{{ colour }}'>Min. latency:</b></th>
+                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.statistics.getMinLatency(milliseconds), 2, ".", " ") }} ms</b></td>
+                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.requiredMinLatency, 2, ".", " ") }} ms</b></td>
                         </tr>
                         <tr>
-                            <th align='right' valign='top'>Average latency:</th>
-                            <td align='right'>{{ number_format(context.statistics.getMeanLatency(milliseconds), 2, ".", " ") }} ms</td>
-                            <td align='right'></td>
+                            {% set colour = (context.isMeanLatencyAchieved) ? "#2b67a4" : "#d9534f" %}
+                            <th align='right' valign='top'><b style='color:{{ colour }}'>Average latency:</b></th>
+                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.statistics.getMeanLatency(milliseconds), 2, ".", " ") }} ms</b></td>
+                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.requiredMeanLatency, 2, ".", " ") }} ms</b></td>
                         </tr>
 
                         {% for percentile, target in context.requiredPercentiles %}
@@ -152,9 +154,10 @@
                         </tr>
                         {% endfor %}
                         <tr>
-                            <th align='right' valign='top'>Max latency:</th>
-                            <td align='right'>{{ number_format(context.statistics.getMaxLatency(milliseconds), 2, ".", ",") }} ms</td>
-                            <td align='right'></td>
+                            {% set colour = (context.isMaxLatencyAchieved) ? "#2b67a4" : "#d9534f" %}
+                            <th align='right' valign='top'><b style='color:{{ colour }}'>Max latency:</b></th>
+                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.statistics.getMaxLatency(milliseconds), 2, ".", ",") }} ms</b></td>
+                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.requiredMaxLatency, 2, ".", " ") }} ms</b></td>
                         </tr>
                     </table>
                 </td>

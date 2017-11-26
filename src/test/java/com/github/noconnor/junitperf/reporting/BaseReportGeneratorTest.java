@@ -106,8 +106,8 @@ public class BaseReportGeneratorTest extends BaseTest {
     when(statisticsMock.getMinLatency(NANOSECONDS)).thenReturn(1636367F);
     when(statisticsMock.getMeanLatency(NANOSECONDS)).thenReturn(17540000F);
     when(statisticsMock.getMaxLatency(MILLISECONDS)).thenReturn(38548467F / 1_000_000);
-    when(statisticsMock.getMinLatency(MILLISECONDS)).thenReturn(17540000F / 1_000_000);
-    when(statisticsMock.getMeanLatency(MILLISECONDS)).thenReturn(28343467F / 1_000_000);
+    when(statisticsMock.getMinLatency(MILLISECONDS)).thenReturn(1636367F / 1_000_000);
+    when(statisticsMock.getMeanLatency(MILLISECONDS)).thenReturn(17540000F / 1_000_000);
     return statisticsMock;
   }
 
@@ -119,12 +119,12 @@ public class BaseReportGeneratorTest extends BaseTest {
     when(statisticsMock.getLatencyPercentile(100, NANOSECONDS)).thenReturn(98548467F);
     when(statisticsMock.getLatencyPercentile(98, MILLISECONDS)).thenReturn(1636367F / 1_000_000);
     when(statisticsMock.getLatencyPercentile(99, MILLISECONDS)).thenReturn(28343467F / 1_000_000);
-    when(statisticsMock.getLatencyPercentile(100, MILLISECONDS)).thenReturn(98548467F / 1_000_000);
+    when(statisticsMock.getLatencyPercentile(100, MILLISECONDS)).thenReturn(28343467F / 1_000_000);
     when(statisticsMock.getEvaluationCount()).thenReturn(130_000L);
     when(statisticsMock.getErrorCount()).thenReturn(78_000L);
     when(statisticsMock.getMaxLatency(NANOSECONDS)).thenReturn(38548467F);
-    when(statisticsMock.getMinLatency(NANOSECONDS)).thenReturn(1636367F);
-    when(statisticsMock.getMeanLatency(NANOSECONDS)).thenReturn(17540000F);
+    when(statisticsMock.getMinLatency(NANOSECONDS)).thenReturn(17540000F);
+    when(statisticsMock.getMeanLatency(NANOSECONDS)).thenReturn(28343467F);
     when(statisticsMock.getMaxLatency(MILLISECONDS)).thenReturn(38548467F / 1_000_000);
     when(statisticsMock.getMinLatency(MILLISECONDS)).thenReturn(17540000F / 1_000_000);
     when(statisticsMock.getMeanLatency(MILLISECONDS)).thenReturn(28343467F / 1_000_000);
@@ -139,15 +139,15 @@ public class BaseReportGeneratorTest extends BaseTest {
     when(statisticsMock.getLatencyPercentile(100, NANOSECONDS)).thenReturn(58548467F);
     when(statisticsMock.getLatencyPercentile(98, MILLISECONDS)).thenReturn(4636367F / 1_000_000);
     when(statisticsMock.getLatencyPercentile(99, MILLISECONDS)).thenReturn(48343467F / 1_000_000);
-    when(statisticsMock.getLatencyPercentile(100, MILLISECONDS)).thenReturn(58548467F / 1_000_000);
+    when(statisticsMock.getLatencyPercentile(100, MILLISECONDS)).thenReturn(234680000F / 1_000_000);
     when(statisticsMock.getEvaluationCount()).thenReturn(1000L);
     when(statisticsMock.getErrorCount()).thenReturn(400L);
-    when(statisticsMock.getMaxLatency(NANOSECONDS)).thenReturn(100002F);
-    when(statisticsMock.getMinLatency(NANOSECONDS)).thenReturn(500000F);
-    when(statisticsMock.getMeanLatency(NANOSECONDS)).thenReturn(600000F);
-    when(statisticsMock.getMaxLatency(MILLISECONDS)).thenReturn(100002F / 1_000_000);
-    when(statisticsMock.getMinLatency(MILLISECONDS)).thenReturn(500000F / 1_000_000);
-    when(statisticsMock.getMeanLatency(MILLISECONDS)).thenReturn(600000F / 1_000_000);
+    when(statisticsMock.getMaxLatency(NANOSECONDS)).thenReturn(234680000F);
+    when(statisticsMock.getMinLatency(NANOSECONDS)).thenReturn(12700000F);
+    when(statisticsMock.getMeanLatency(NANOSECONDS)).thenReturn(61700000F);
+    when(statisticsMock.getMaxLatency(MILLISECONDS)).thenReturn(234680000F / 1_000_000);
+    when(statisticsMock.getMinLatency(MILLISECONDS)).thenReturn(12700000F / 1_000_000);
+    when(statisticsMock.getMeanLatency(MILLISECONDS)).thenReturn(61700000F / 1_000_000);
     return statisticsMock;
   }
 
@@ -162,6 +162,9 @@ public class BaseReportGeneratorTest extends BaseTest {
     when(perfTestRequirementAnnotationMock.percentiles()).thenReturn("98:3.3,99:32.6,100:46.9999");
     when(perfTestRequirementAnnotationMock.allowedErrorPercentage()).thenReturn(0.3F);
     when(perfTestRequirementAnnotationMock.executionsPerSec()).thenReturn(13_000);
+    when(perfTestRequirementAnnotationMock.minLatency()).thenReturn(10.0F);
+    when(perfTestRequirementAnnotationMock.maxLatency()).thenReturn(200.66F);
+    when(perfTestRequirementAnnotationMock.meanLatency()).thenReturn(55.1F);
   }
 
   @SuppressWarnings("unused")

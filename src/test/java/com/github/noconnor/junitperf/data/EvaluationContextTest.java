@@ -232,6 +232,57 @@ public class EvaluationContextTest extends BaseTest {
     assertThat(context.getThroughputQps(), is(expected));
   }
 
+  @Test
+  public void whenRunningEvaluation_thenMinLatencyRequirementsShouldBeChecked() {
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.isMinLatencyAchieved(), is(true));
+    assertThat(context.isSuccessful(), is(true));
+  }
+
+  @Test
+  public void whenRunningEvaluation_andMinLatencyCheckFails_thenIsSuccessfulShouldBeFalse() {
+    when(statisticsMock.getMinLatency(NANOSECONDS)).thenReturn(60_090_000.9F);
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.isMinLatencyAchieved(), is(false));
+    assertThat(context.isSuccessful(), is(false));
+  }
+
+  @Test
+  public void whenRunningEvaluation_thenMaxLatencyRequirementsShouldBeChecked() {
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.isMaxLatencyAchieved(), is(true));
+    assertThat(context.isSuccessful(), is(true));
+  }
+
+  @Test
+  public void whenRunningEvaluation_andMaxLatencyCheckFails_thenIsSuccessfulShouldBeFalse() {
+    when(statisticsMock.getMaxLatency(NANOSECONDS)).thenReturn(190_090_000.9F);
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.isMaxLatencyAchieved(), is(false));
+    assertThat(context.isSuccessful(), is(false));
+  }
+
+  @Test
+  public void whenRunningEvaluation_thenMeanLatencyRequirementsShouldBeChecked() {
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.isMeanLatencyAchieved(), is(true));
+    assertThat(context.isSuccessful(), is(true));
+  }
+
+  @Test
+  public void whenRunningEvaluation_andMeanLatencyCheckFails_thenIsSuccessfulShouldBeFalse() {
+    when(statisticsMock.getMeanLatency(NANOSECONDS)).thenReturn(10_090_000.9F);
+    initialiseContext();
+    context.runValidation();
+    assertThat(context.isMeanLatencyAchieved(), is(false));
+    assertThat(context.isSuccessful(), is(false));
+  }
+
   private void initialiseContext() {
     context.loadConfiguration(perfTestAnnotation);
     context.loadRequirements(perfTestRequirement);
@@ -249,11 +300,17 @@ public class EvaluationContextTest extends BaseTest {
     when(perfTestRequirement.executionsPerSec()).thenReturn(10_000);
     when(perfTestRequirement.allowedErrorPercentage()).thenReturn(0.5f);
     when(perfTestRequirement.percentiles()).thenReturn("90:0.5,95:9");
+    when(perfTestRequirement.meanLatency()).thenReturn(4.8F);
+    when(perfTestRequirement.minLatency()).thenReturn(1.6F);
+    when(perfTestRequirement.maxLatency()).thenReturn(100.6F);
   }
 
   private void initialiseStatisticsMockToPassValidation() {
     when(statisticsMock.getEvaluationCount()).thenReturn(15_000L);
     when(statisticsMock.getErrorCount()).thenReturn(0L);
+    when(statisticsMock.getMaxLatency(NANOSECONDS)).thenReturn(130.0F);
+    when(statisticsMock.getMinLatency(NANOSECONDS)).thenReturn(5.1F);
+    when(statisticsMock.getMeanLatency(NANOSECONDS)).thenReturn(30.9F);
     when(statisticsMock.getErrorPercentage()).thenReturn(0.0F);
     when(statisticsMock.getLatencyPercentile(90, NANOSECONDS)).thenReturn(2000F);
     when(statisticsMock.getLatencyPercentile(95, NANOSECONDS)).thenReturn(4000F);

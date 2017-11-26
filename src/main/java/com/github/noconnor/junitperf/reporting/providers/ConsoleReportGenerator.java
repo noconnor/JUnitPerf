@@ -36,9 +36,15 @@ public class ConsoleReportGenerator implements ReportGenerator {
         context.getThroughputQps(),
         context.getRequiredThroughput(),
         throughputStatus);
-      log.info("Min. latency:   {}ms", statistics.getMinLatency(MILLISECONDS));
-      log.info("Max latency:    {}ms", statistics.getMaxLatency(MILLISECONDS));
-      log.info("Ave latency:    {}ms", statistics.getMeanLatency(MILLISECONDS));
+      log.info("Min. latency:   {}ms (Required: {}ms) - {}",
+        statistics.getMinLatency(MILLISECONDS),
+        context.getRequiredMinLatency());
+      log.info("Max latency:    {}ms (Required: {}ms) - {}",
+        statistics.getMaxLatency(MILLISECONDS),
+        context.getRequiredMaxLatency());
+      log.info("Ave latency:    {}ms (Required: {}ms) - {}",
+        statistics.getMeanLatency(MILLISECONDS),
+        context.getRequiredMeanLatency());
       context.getRequiredPercentiles().forEach((percentile, threshold) -> {
         String percentileStatus = context.getPercentileResults().get(percentile) ? PASSED : FAILED;
         log.info("{}:    {}ms (Required: {}ms) - {}",
