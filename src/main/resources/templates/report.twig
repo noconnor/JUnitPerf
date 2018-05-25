@@ -132,15 +132,17 @@
                         </tr>
                         <tr>
                             {% set colour = (context.isMinLatencyAchieved) ? "#2b67a4" : "#d9534f" %}
-                            <th align='right' valign='top'><b style='color:{{ colour }}'>Min. latency:</b></th>
+                            <th align='right' valign='top'><b style='color:{{ colour }}'>Min latency:</b></th>
                             <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.statistics.getMinLatency(milliseconds), 2, ".", " ") }} ms</b></td>
-                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.requiredMinLatency, 2, ".", " ") }} ms</b></td>
+                            {% set minLatency = (context.requiredMinLatency < 0) ? "N/A" :number_format(context.requiredMinLatency, 2, ".", " ") %}
+                            <td align='right'><b style='color:{{ colour }}'>{{ minLatency }} ms</b></td>
                         </tr>
                         <tr>
                             {% set colour = (context.isMeanLatencyAchieved) ? "#2b67a4" : "#d9534f" %}
                             <th align='right' valign='top'><b style='color:{{ colour }}'>Average latency:</b></th>
                             <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.statistics.getMeanLatency(milliseconds), 2, ".", " ") }} ms</b></td>
-                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.requiredMeanLatency, 2, ".", " ") }} ms</b></td>
+                            {% set meanLatency = (context.requiredMeanLatency < 0) ? "N/A" :number_format(context.requiredMeanLatency, 2, ".", " ") %}
+                            <td align='right'><b style='color:{{ colour }}'>{{ meanLatency }} ms</b></td>
                         </tr>
 
                         {% for percentile, target in context.requiredPercentiles %}
@@ -157,7 +159,8 @@
                             {% set colour = (context.isMaxLatencyAchieved) ? "#2b67a4" : "#d9534f" %}
                             <th align='right' valign='top'><b style='color:{{ colour }}'>Max latency:</b></th>
                             <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.statistics.getMaxLatency(milliseconds), 2, ".", ",") }} ms</b></td>
-                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.requiredMaxLatency, 2, ".", " ") }} ms</b></td>
+                            {% set maxLatency = (context.requiredMaxLatency < 0) ? "N/A" :number_format(context.requiredMaxLatency, 2, ".", " ") %}
+                            <td align='right'><b style='color:{{ colour }}'>{{ maxLatency }} ms</b></td>
                         </tr>
                     </table>
                 </td>
