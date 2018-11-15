@@ -1,10 +1,11 @@
 package com.github.noconnor.junitperf.statistics.providers;
 
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
+import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math.stat.descriptive.SynchronizedDescriptiveStatistics;
-import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class DescriptiveStatisticsCalculator implements StatisticsCalculator {
 
@@ -48,27 +49,33 @@ public class DescriptiveStatisticsCalculator implements StatisticsCalculator {
 
   @Override
   public float getLatencyPercentile(int percentile, TimeUnit unit) {
-    return (float)statistics.getPercentile((double)(percentile)) / unit.toNanos(1);
+    float value = (float) statistics.getPercentile((double) (percentile));
+    return value > 0 ? value / unit.toNanos(1) : 0;
   }
 
   @Override
   public float getMaxLatency(TimeUnit unit) {
-    return (float)statistics.getMax() / unit.toNanos(1);
+    float max = (float) statistics.getMax();
+    return max > 0 ? max / unit.toNanos(1) : 0;
   }
 
   @Override
   public float getMinLatency(TimeUnit unit) {
-    return (float)statistics.getMin() / unit.toNanos(1);
+    float min = (float) statistics.getMin();
+    return min > 0 ? min / unit.toNanos(1) : 0;
   }
 
   @Override
   public float getMeanLatency(TimeUnit unit) {
-    return (float)statistics.getMean() / unit.toNanos(1);
+    float mean = (float) statistics.getMean();
+    return mean > 0 ? mean / unit.toNanos(1) : 0;
   }
 
   @Override
   public float getErrorPercentage() {
-    return ((float)errorCount.get() / (float)evaluationCount.get()) * 100;
+    float evalCount = evaluationCount.get();
+    float errCount = errorCount.get();
+    return evalCount > 0 ? (errCount / evalCount) * 100 : 0;
   }
 
 }
