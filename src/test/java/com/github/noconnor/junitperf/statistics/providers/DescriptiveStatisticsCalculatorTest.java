@@ -109,4 +109,30 @@ public class DescriptiveStatisticsCalculatorTest extends BaseTest {
     evaluator.incrementEvaluationCount();
     assertThat(evaluator.getErrorPercentage(), is(50F));
   }
+
+  @Test
+  public void whenEvaluationCountIsZero_andGetPercentageErrorIsCalled_thenZeroShouldBeReturned() {
+    assertThat(evaluator.getErrorPercentage(), is(0F));
+  }
+
+  @Test
+  public void whenMeanLatencyIsZero_andGetMeanLatencyIsCalled_thenZeroShouldBeReturned() {
+    assertThat(evaluator.getMeanLatency(MILLISECONDS), is(0F));
+  }
+
+  @Test
+  public void whenMinLatencyIsZero_andGetMinLatencyIsCalled_thenZeroShouldBeReturned() {
+    assertThat(evaluator.getMinLatency(MILLISECONDS), is(0F));
+  }
+
+  @Test
+  public void whenMaxLatencyIsZero_andGetMaxLatencyIsCalled_thenZeroShouldBeReturned() {
+    assertThat(evaluator.getMaxLatency(MILLISECONDS), is(0F));
+  }
+
+  @Test
+  public void whenLatencyPercentilesAreZero_andGetLatencyPercentileIsCalled_thenZeroShouldBeReturned() {
+    assertThat(evaluator.getLatencyPercentile(90, MILLISECONDS), is(0F));
+  }
+
 }
