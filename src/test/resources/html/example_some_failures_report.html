@@ -247,7 +247,15 @@
 
                             var options = {
                                 title: 'Latency percentile Distribution',
-                                hAxis: {title: 'Percentile', minValue: 0, maxValue: 100},
+                                hAxis: {
+                                    title: 'Percentile',
+                                    minValue: 0,
+                                    maxValue: 100,
+                                    viewWindow: {
+                                        min: 0,
+                                        max: 100
+                                    }
+                                },
                                 vAxis: {title: 'Latency', minValue: 0, maxValue: 15},
                                 legend: 'none',
                                 lineWidth: 1,
