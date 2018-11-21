@@ -109,7 +109,7 @@ More information on statistic calculations can be found [here](#statistics)
 
 | Property               | Definition                                                                                                                  | Default value  |
 | ----------------------:|:---------------------------------------------------------------------------------------------------------------------------:| --------------:|
-| percentiles            | Comma separated list of percentile targets, format: percentile1:limit,percentile2:limit (ie. 90:3.3,99:6.8)                 |        ""      |
+| percentiles            | Comma separated list of ms percentile targets, format: percentile1:limit,percentile2:limit (ie. 90:3.3,99:6.8)                 |        ""      |
 | executionsPerSec       | Target executions per second                                                                                                |        1       |
 | allowedErrorPercentage | Allowed % of errors (uncaught exceptions) during test execution (value between 0 and 1, where 1 = 100% errors allowed)      |        1       |
 | minLatency             | Expected minimum latency in ms, if minimum latency is above this value, test will fail                                      |   disabled     |

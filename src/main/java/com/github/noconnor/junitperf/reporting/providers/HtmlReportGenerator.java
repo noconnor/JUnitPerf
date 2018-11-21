@@ -33,8 +33,7 @@ public class HtmlReportGenerator implements ReportGenerator {
     Path outputPath = Paths.get(reportPath);
     JtwigTemplate template = JtwigTemplate.classpathTemplate(REPORT_TEMPLATE);
     JtwigModel model = JtwigModel.newModel()
-      .with("contextData", testContexts)
-      .with("milliseconds", TimeUnit.MILLISECONDS);
+      .with("contextData", testContexts);
     try {
       Files.createDirectories(outputPath.getParent());
       log.info("Rendering report to: " + outputPath);

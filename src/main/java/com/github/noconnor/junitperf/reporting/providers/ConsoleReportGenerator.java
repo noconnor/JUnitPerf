@@ -19,16 +19,15 @@ public class ConsoleReportGenerator implements ReportGenerator {
   @Override
   public void generateReport(Set<EvaluationContext> testContexts) {
     testContexts.forEach(context -> {
-      StatisticsCalculator statistics = context.getStatistics();
       String throughputStatus = context.isThroughputAchieved() ? PASSED : FAILED;
       String errorRateStatus = context.isErrorThresholdAchieved() ? PASSED : FAILED;
 
       log.info("Test Name:    {}", context.getTestName());
       log.info("Started at:   {}", context.getStartTime());
-      log.info("Invocations:  {}", statistics.getEvaluationCount());
-      log.info("  - Success:  {}", statistics.getEvaluationCount() - statistics.getErrorCount());
-      log.info("  - Errors:   {}", statistics.getErrorCount());
-      log.info("  - Errors:   {}% - {}", statistics.getErrorPercentage(), errorRateStatus);
+      log.info("Invocations:  {}", context.getEvaluationCount());
+      log.info("  - Success:  {}", context.getEvaluationCount() - context.getErrorCount());
+      log.info("  - Errors:   {}", context.getErrorCount());
+      log.info("  - Errors:   {}% - {}", context.getErrorPercentage(), errorRateStatus);
       log.info("");
       log.info("Thread Count: {}", context.getConfiguredThreads());
       log.info("Warm up:      {} ms", context.getConfiguredWarmUp());
@@ -39,19 +38,19 @@ public class ConsoleReportGenerator implements ReportGenerator {
         context.getRequiredThroughput(),
         throughputStatus);
       log.info("Min. latency:   {} ms (Required: {}ms) - {}",
-        statistics.getMinLatency(MILLISECONDS),
+        context.getMinLatencyMs(),
         format(context.getRequiredMinLatency()));
       log.info("Max. latency:    {} ms (Required: {}ms) - {}",
-        statistics.getMaxLatency(MILLISECONDS),
+        context.getMaxLatencyMs(),
         format(context.getRequiredMaxLatency()));
       log.info("Ave. latency:    {} ms (Required: {}ms) - {}",
-        statistics.getMeanLatency(MILLISECONDS),
+        context.getMeanLatencyMs(),
         format(context.getRequiredMeanLatency()));
       context.getRequiredPercentiles().forEach((percentile, threshold) -> {
         String percentileStatus = context.getPercentileResults().get(percentile) ? PASSED : FAILED;
         log.info("{}:    {}ms (Required: {} ms) - {}",
           percentile,
-          statistics.getLatencyPercentile(percentile, MILLISECONDS),
+          context.getLatencyPercentileMs(percentile),
           format(threshold),
           percentileStatus);
       });

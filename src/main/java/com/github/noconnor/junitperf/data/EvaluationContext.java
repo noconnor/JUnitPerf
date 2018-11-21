@@ -1,17 +1,17 @@
 package com.github.noconnor.junitperf.data;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-
-import java.util.Map;
-import java.util.stream.Stream;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
+import java.util.Map;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -19,7 +19,7 @@ import static com.google.common.collect.Maps.newTreeMap;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.util.stream.IntStream.range;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @RequiredArgsConstructor
@@ -47,7 +47,6 @@ public class EvaluationContext {
   @Getter
   private float requiredMeanLatency = -1;
 
-  @Getter
   @Setter
   private StatisticsCalculator statistics;
 
@@ -66,9 +65,29 @@ public class EvaluationContext {
   @Getter
   private boolean isSuccessful;
 
+  @Getter
+  private float[] percentiles = new float[101];
+  @Getter
+  private float minLatencyMs;
+  @Getter
+  private float maxLatencyMs;
+  @Getter
+  private float meanLatencyMs;
+  @Getter
+  private float errorPercentage;
+  @Getter
+  private long evaluationCount;
+  @Getter
+  private long errorCount;
+
+
   @SuppressWarnings("WeakerAccess")
   public long getThroughputQps() {
-    return (long)(((float)statistics.getEvaluationCount() / ((float)configuredDuration - configuredWarmUp)) * 1000);
+    return (long)((evaluationCount/ ((float)configuredDuration - configuredWarmUp)) * 1000);
+  }
+
+  public float getLatencyPercentileMs(int percentile) {
+    return percentiles[percentile];
   }
 
   @Getter
@@ -98,11 +117,12 @@ public class EvaluationContext {
 
   public void runValidation() {
     checkState(nonNull(statistics), "Statistics must be calculated before running validation");
+    calculateAndCacheStatistics();
     isThroughputAchieved = getThroughputQps() >= requiredThroughput;
-    isErrorThresholdAchieved = statistics.getErrorPercentage() <= (requiredAllowedErrorsRate * 100);
-    isMinLatencyAchieved = validateLatency(statistics.getMinLatency(NANOSECONDS), requiredMinLatency);
-    isMaxLatencyAchieved = validateLatency(statistics.getMaxLatency(NANOSECONDS), requiredMaxLatency);
-    isMeanLatencyAchieved = validateLatency(statistics.getMeanLatency(NANOSECONDS), requiredMeanLatency);
+    isErrorThresholdAchieved = errorPercentage <= (requiredAllowedErrorsRate * 100);
+    isMinLatencyAchieved = validateLatency(minLatencyMs, requiredMinLatency);
+    isMaxLatencyAchieved = validateLatency(maxLatencyMs, requiredMaxLatency);
+    isMeanLatencyAchieved = validateLatency(meanLatencyMs, requiredMeanLatency);
     percentileResults = evaluateLatencyPercentiles();
 
     isSuccessful = isThroughputAchieved &&
@@ -113,9 +133,8 @@ public class EvaluationContext {
       noLatencyPercentileFailures();
   }
 
-  private boolean validateLatency(float actualNs, float requiredMs) {
-    long thresholdNs = (long)(requiredMs * MILLISECONDS.toNanos(1));
-    return requiredMaxLatency < 0 || actualNs <= thresholdNs;
+  private boolean validateLatency(float actualMs, float requiredMs) {
+    return requiredMaxLatency < 0 || actualMs <= requiredMs;
   }
 
   private boolean noLatencyPercentileFailures() {
@@ -125,8 +144,7 @@ public class EvaluationContext {
   private Map<Integer, Boolean> evaluateLatencyPercentiles() {
     Map<Integer, Boolean> results = newTreeMap();
     requiredPercentiles.forEach((percentile, thresholdMs) -> {
-      long thresholdNs = (long)(thresholdMs * MILLISECONDS.toNanos(1));
-      boolean result = statistics.getLatencyPercentile(percentile, NANOSECONDS) <= thresholdNs;
+      boolean result = getLatencyPercentileMs(percentile) <= thresholdMs;
       results.put(percentile, result);
     });
     return results;
@@ -159,6 +177,18 @@ public class EvaluationContext {
   private void validateRequirements(JUnitPerfTestRequirement requirements) {
     checkState(requirements.allowedErrorPercentage() >= 0, "AllowedErrorPercentage must be >= 0");
     checkState(requirements.executionsPerSec() >= 0, "ExecutionsPerSec must be >= 0");
+  }
+
+  private void calculateAndCacheStatistics() {
+    // Statistics calculations (specifically percentile calculation) can be an expensive operation.
+    // Therefore results should be calculated once and cached
+    range(1, 101).forEach(i -> percentiles[i] = statistics.getLatencyPercentile(i, MILLISECONDS));
+    minLatencyMs = statistics.getMinLatency(MILLISECONDS);
+    maxLatencyMs = statistics.getMaxLatency(MILLISECONDS);
+    meanLatencyMs = statistics.getMeanLatency(MILLISECONDS);
+    errorPercentage = statistics.getErrorPercentage();
+    errorCount = statistics.getErrorCount();
+    evaluationCount = statistics.getEvaluationCount();
   }
 
 }
