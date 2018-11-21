@@ -1,17 +1,18 @@
 package com.github.noconnor.junitperf.data;
 
-import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 import com.github.noconnor.junitperf.BaseTest;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.collect.ImmutableMap;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import java.util.Map;
 
 import static java.util.Collections.emptyMap;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
@@ -171,7 +172,7 @@ public class EvaluationContextTest extends BaseTest {
 
   @Test
   public void whenRunningEvaluation_andAPercentileThresholdIsNotMet_thenIsSuccessfulShouldReturnFalse() {
-    when(statisticsMock.getLatencyPercentile(90, NANOSECONDS)).thenReturn(1000000F);
+    when(statisticsMock.getLatencyPercentile(90, MILLISECONDS)).thenReturn(100F);
     Map<Integer, Boolean> validationResults = ImmutableMap.of(90, false, 95, true);
     initialiseContext();
     context.runValidation();
@@ -227,6 +228,7 @@ public class EvaluationContextTest extends BaseTest {
   @Test
   public void whenCalculatingThroughputQps_thenCorrectValueShouldBeCalculated() {
     initialiseContext();
+    context.runValidation();
     long expected = (long)(statisticsMock.getEvaluationCount() / (float)(perfTestAnnotation.durationMs() - perfTestAnnotation
       .warmUpMs())) * 1000;
     assertThat(context.getThroughputQps(), is(expected));
@@ -242,7 +244,7 @@ public class EvaluationContextTest extends BaseTest {
 
   @Test
   public void whenRunningEvaluation_andMinLatencyCheckFails_thenIsSuccessfulShouldBeFalse() {
-    when(statisticsMock.getMinLatency(NANOSECONDS)).thenReturn(60_090_000.9F);
+    when(statisticsMock.getMinLatency(MILLISECONDS)).thenReturn(60.9F);
     initialiseContext();
     context.runValidation();
     assertThat(context.isMinLatencyAchieved(), is(false));
@@ -259,7 +261,7 @@ public class EvaluationContextTest extends BaseTest {
 
   @Test
   public void whenRunningEvaluation_andMaxLatencyCheckFails_thenIsSuccessfulShouldBeFalse() {
-    when(statisticsMock.getMaxLatency(NANOSECONDS)).thenReturn(190_090_000.9F);
+    when(statisticsMock.getMaxLatency(MILLISECONDS)).thenReturn(190.9F);
     initialiseContext();
     context.runValidation();
     assertThat(context.isMaxLatencyAchieved(), is(false));
@@ -276,7 +278,7 @@ public class EvaluationContextTest extends BaseTest {
 
   @Test
   public void whenRunningEvaluation_andMeanLatencyCheckFails_thenIsSuccessfulShouldBeFalse() {
-    when(statisticsMock.getMeanLatency(NANOSECONDS)).thenReturn(10_090_000.9F);
+    when(statisticsMock.getMeanLatency(MILLISECONDS)).thenReturn(10.9F);
     initialiseContext();
     context.runValidation();
     assertThat(context.isMeanLatencyAchieved(), is(false));
@@ -308,12 +310,12 @@ public class EvaluationContextTest extends BaseTest {
   private void initialiseStatisticsMockToPassValidation() {
     when(statisticsMock.getEvaluationCount()).thenReturn(15_000L);
     when(statisticsMock.getErrorCount()).thenReturn(0L);
-    when(statisticsMock.getMaxLatency(NANOSECONDS)).thenReturn(130.0F);
-    when(statisticsMock.getMinLatency(NANOSECONDS)).thenReturn(5.1F);
-    when(statisticsMock.getMeanLatency(NANOSECONDS)).thenReturn(30.9F);
+    when(statisticsMock.getMaxLatency(MILLISECONDS)).thenReturn(99.0F);
+    when(statisticsMock.getMinLatency(MILLISECONDS)).thenReturn(1.1F);
+    when(statisticsMock.getMeanLatency(MILLISECONDS)).thenReturn(3.9F);
     when(statisticsMock.getErrorPercentage()).thenReturn(0.0F);
-    when(statisticsMock.getLatencyPercentile(90, NANOSECONDS)).thenReturn(2000F);
-    when(statisticsMock.getLatencyPercentile(95, NANOSECONDS)).thenReturn(4000F);
+    when(statisticsMock.getLatencyPercentile(90, MILLISECONDS)).thenReturn(0.2F);
+    when(statisticsMock.getLatencyPercentile(95, MILLISECONDS)).thenReturn(4F);
   }
 
   private void loadPercentilesAndAssertParsedCorrectly(String percentiles, Map<Integer, Float> expected) {

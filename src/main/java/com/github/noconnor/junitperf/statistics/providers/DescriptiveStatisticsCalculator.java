@@ -1,8 +1,8 @@
 package com.github.noconnor.junitperf.statistics.providers;
 
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math.stat.descriptive.SynchronizedDescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatistics;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;

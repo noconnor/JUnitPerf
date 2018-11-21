@@ -7,7 +7,7 @@ apply plugin: 'jacoco'
 group = 'com.github.noconnor'
 sourceCompatibility = 1.8
 // http://semver.org/
-version = '1.9.3'
+version = '1.10.0'
 
 repositories {
     mavenCentral()
@@ -20,7 +20,8 @@ dependencies {
     compile "com.google.guava:guava:19.0"
     compile "commons-collections:commons-collections:3.2.2"
     compile 'junit:junit:4.12'
-    compile 'commons-math:commons-math:1.2'
+//    compile 'commons-math:commons-math:1.2'
+    compile 'org.apache.commons:commons-math3:3.6.1'
 
     // Reporting
     compile "org.jtwig:jtwig-core:5.86.1.RELEASE"

@@ -21,7 +21,6 @@ import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -94,17 +93,11 @@ public class BaseReportGeneratorTest extends BaseTest {
   private StatisticsCalculator createAllSuccessMock() {
     StatisticsCalculator statisticsMock = mock(StatisticsCalculator.class);
     when(statisticsMock.getErrorPercentage()).thenReturn(20.0F);
-    when(statisticsMock.getLatencyPercentile(98, NANOSECONDS)).thenReturn(1636367F);
-    when(statisticsMock.getLatencyPercentile(99, NANOSECONDS)).thenReturn(28343467F);
-    when(statisticsMock.getLatencyPercentile(100, NANOSECONDS)).thenReturn(38548467F);
     when(statisticsMock.getLatencyPercentile(98, MILLISECONDS)).thenReturn(1636367F / 1_000_000);
     when(statisticsMock.getLatencyPercentile(99, MILLISECONDS)).thenReturn(28343467F / 1_000_000);
     when(statisticsMock.getLatencyPercentile(100, MILLISECONDS)).thenReturn(38548467F / 1_000_000);
     when(statisticsMock.getEvaluationCount()).thenReturn(130_000L);
     when(statisticsMock.getErrorCount()).thenReturn(26_000L);
-    when(statisticsMock.getMaxLatency(NANOSECONDS)).thenReturn(38548467F);
-    when(statisticsMock.getMinLatency(NANOSECONDS)).thenReturn(1636367F);
-    when(statisticsMock.getMeanLatency(NANOSECONDS)).thenReturn(17540000F);
     when(statisticsMock.getMaxLatency(MILLISECONDS)).thenReturn(38548467F / 1_000_000);
     when(statisticsMock.getMinLatency(MILLISECONDS)).thenReturn(1636367F / 1_000_000);
     when(statisticsMock.getMeanLatency(MILLISECONDS)).thenReturn(17540000F / 1_000_000);
@@ -114,17 +107,11 @@ public class BaseReportGeneratorTest extends BaseTest {
   private StatisticsCalculator createSomeFailuresMock() {
     StatisticsCalculator statisticsMock = mock(StatisticsCalculator.class);
     when(statisticsMock.getErrorPercentage()).thenReturn(60.0F);
-    when(statisticsMock.getLatencyPercentile(98, NANOSECONDS)).thenReturn(1636367F);
-    when(statisticsMock.getLatencyPercentile(99, NANOSECONDS)).thenReturn(28343467F);
-    when(statisticsMock.getLatencyPercentile(100, NANOSECONDS)).thenReturn(98548467F);
     when(statisticsMock.getLatencyPercentile(98, MILLISECONDS)).thenReturn(1636367F / 1_000_000);
     when(statisticsMock.getLatencyPercentile(99, MILLISECONDS)).thenReturn(28343467F / 1_000_000);
     when(statisticsMock.getLatencyPercentile(100, MILLISECONDS)).thenReturn(28343467F / 1_000_000);
     when(statisticsMock.getEvaluationCount()).thenReturn(130_000L);
     when(statisticsMock.getErrorCount()).thenReturn(78_000L);
-    when(statisticsMock.getMaxLatency(NANOSECONDS)).thenReturn(38548467F);
-    when(statisticsMock.getMinLatency(NANOSECONDS)).thenReturn(17540000F);
-    when(statisticsMock.getMeanLatency(NANOSECONDS)).thenReturn(28343467F);
     when(statisticsMock.getMaxLatency(MILLISECONDS)).thenReturn(38548467F / 1_000_000);
     when(statisticsMock.getMinLatency(MILLISECONDS)).thenReturn(17540000F / 1_000_000);
     when(statisticsMock.getMeanLatency(MILLISECONDS)).thenReturn(28343467F / 1_000_000);
@@ -134,17 +121,11 @@ public class BaseReportGeneratorTest extends BaseTest {
   private StatisticsCalculator createAllFailureMock() {
     StatisticsCalculator statisticsMock = mock(StatisticsCalculator.class);
     when(statisticsMock.getErrorPercentage()).thenReturn(40.0F);
-    when(statisticsMock.getLatencyPercentile(98, NANOSECONDS)).thenReturn(4636367F);
-    when(statisticsMock.getLatencyPercentile(99, NANOSECONDS)).thenReturn(48343467F);
-    when(statisticsMock.getLatencyPercentile(100, NANOSECONDS)).thenReturn(58548467F);
     when(statisticsMock.getLatencyPercentile(98, MILLISECONDS)).thenReturn(4636367F / 1_000_000);
     when(statisticsMock.getLatencyPercentile(99, MILLISECONDS)).thenReturn(48343467F / 1_000_000);
     when(statisticsMock.getLatencyPercentile(100, MILLISECONDS)).thenReturn(234680000F / 1_000_000);
     when(statisticsMock.getEvaluationCount()).thenReturn(1000L);
     when(statisticsMock.getErrorCount()).thenReturn(400L);
-    when(statisticsMock.getMaxLatency(NANOSECONDS)).thenReturn(234680000F);
-    when(statisticsMock.getMinLatency(NANOSECONDS)).thenReturn(12700000F);
-    when(statisticsMock.getMeanLatency(NANOSECONDS)).thenReturn(61700000F);
     when(statisticsMock.getMaxLatency(MILLISECONDS)).thenReturn(234680000F / 1_000_000);
     when(statisticsMock.getMinLatency(MILLISECONDS)).thenReturn(12700000F / 1_000_000);
     when(statisticsMock.getMeanLatency(MILLISECONDS)).thenReturn(61700000F / 1_000_000);

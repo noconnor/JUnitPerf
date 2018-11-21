@@ -46,9 +46,9 @@ public class CsvReportGenerator implements ReportGenerator {
           context.getConfiguredDuration(),
           context.getConfiguredThreads(),
           context.getThroughputQps(),
-          context.getStatistics().getMinLatency(MILLISECONDS),
-          context.getStatistics().getMaxLatency(MILLISECONDS),
-          context.getStatistics().getMeanLatency(MILLISECONDS),
+          context.getMinLatencyMs(),
+          context.getMaxLatencyMs(),
+          context.getMeanLatencyMs(),
           Joiner.on(",").skipNulls().join(generateFormattedPercentileData(context)));
         try {
           writer.write(record);
@@ -69,7 +69,7 @@ public class CsvReportGenerator implements ReportGenerator {
 
   private List<String> generateFormattedPercentileData(final EvaluationContext context) {
     return IntStream.range(1, 101).mapToObj(i -> {
-      return String.format("%.4f", context.getStatistics().getLatencyPercentile(i, MILLISECONDS));
+      return String.format("%.4f", context.getLatencyPercentileMs(i));
     }).collect(toList());
   }
 

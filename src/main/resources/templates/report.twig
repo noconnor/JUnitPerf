@@ -45,7 +45,7 @@
                             var data = google.visualization.arrayToDataTable([
                                 ['Percentile', 'Latency', { role: "tooltip"} ],
                                 {% for i in [1..99] %}
-                                [ {{ i }}, {{ context.statistics.getLatencyPercentile(i, milliseconds) }}, "{{ i }}% of executions ≤ {{ number_format(context.statistics.getLatencyPercentile(i, milliseconds), 2, '.', ',') }}ms"],
+                                [ {{ i }}, {{ context.getLatencyPercentileMs(i) }}, "{{ i }}% of executions ≤ {{ number_format(context.getLatencyPercentileMs(i), 2, '.', ',') }}ms"],
                                 {% endfor %}
                             ]);
 
@@ -76,7 +76,7 @@
                             var csvData = google.visualization.arrayToDataTable([
                                 ['Percentile', 'Latency'],
                                 {% for i in [1..100] %}
-                                [ {{ i }}, {{ context.statistics.getLatencyPercentile(i, milliseconds) }} ],
+                                [ {{ i }}, {{ context.getLatencyPercentileMs(i) }} ],
                                 {% endfor %}
                             ]);
                             var csvFormattedDataTable = google.visualization.dataTableToCsv(csvData);
@@ -96,19 +96,19 @@
                         <tr><th>Started at:</th><td colspan='2'><b>{{ context.startTime }}</b></td></tr>
                         <tr>
                             <th align='right' valign='top'>Invocations:</th>
-                            <td align='right'>{{ number_format(context.statistics.evaluationCount, 0, ".", ",") }}</td>
+                            <td align='right'>{{ number_format(context.evaluationCount, 0, ".", ",") }}</td>
                             <td align='right'></td>
                         </tr>
                         <tr>
                             <th align='right' valign='top'>- Success:</th>
-                            <td align='right'>{{ number_format(context.statistics.evaluationCount - context.statistics.errorCount, 0, ".", ",") }}</td>
+                            <td align='right'>{{ number_format(context.evaluationCount - context.errorCount, 0, ".", ",") }}</td>
                             <td align='right'></td>
                         </tr>
                         <tr>
                             {% set colour = (context.isErrorThresholdAchieved) ? "#2b67a4" : "#d9534f" %}
                             <th align='right' valign='top'><b style='color:{{ colour }}'>- Errors:</b></th>
-                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.statistics.errorCount, 0, ".", ",") }}</b></td>
-                            <td align='right'><b style='color:{{ colour }};'>{{ number_format(context.statistics.errorPercentage, 2, ".", ",") }}%</b></td>
+                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.errorCount, 0, ".", ",") }}</b></td>
+                            <td align='right'><b style='color:{{ colour }};'>{{ number_format(context.errorPercentage, 2, ".", ",") }}%</b></td>
                         </tr>
                         <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
                         <tr>
@@ -141,14 +141,14 @@
                         <tr>
                             {% set colour = (context.isMinLatencyAchieved) ? "#2b67a4" : "#d9534f" %}
                             <th align='right' valign='top'><b style='color:{{ colour }}'>Min latency:</b></th>
-                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.statistics.getMinLatency(milliseconds), 2, ".", " ") }} ms</b></td>
+                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.getMinLatencyMs(), 2, ".", " ") }} ms</b></td>
                             {% set minLatency = (context.requiredMinLatency < 0) ? "N/A" :number_format(context.requiredMinLatency, 2, ".", " ") %}
                             <td align='right'><b style='color:{{ colour }}'>{{ minLatency }} ms</b></td>
                         </tr>
                         <tr>
                             {% set colour = (context.isMeanLatencyAchieved) ? "#2b67a4" : "#d9534f" %}
                             <th align='right' valign='top'><b style='color:{{ colour }}'>Average latency:</b></th>
-                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.statistics.getMeanLatency(milliseconds), 2, ".", " ") }} ms</b></td>
+                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.getMeanLatencyMs(), 2, ".", " ") }} ms</b></td>
                             {% set meanLatency = (context.requiredMeanLatency < 0) ? "N/A" :number_format(context.requiredMeanLatency, 2, ".", " ") %}
                             <td align='right'><b style='color:{{ colour }}'>{{ meanLatency }} ms</b></td>
                         </tr>
@@ -158,7 +158,7 @@
                             {% for i in [percentile .. percentile] %} <!-- HACK to get parameter passed to function -->
                             {% set colour = (context.getPercentileResults().get(i)) ? "#2b67a4" : "#d9534f" %}
                             <th align='right' valign='top'><b style='color:{{ colour }}'>{{ percentile }}:</b></th>
-                            <td align='right'><b style='color:{{ colour }};'>{{ number_format(context.statistics.getLatencyPercentile(i, milliseconds), 2, ".", ",") }} ms</b></td>
+                            <td align='right'><b style='color:{{ colour }};'>{{ number_format(context.getLatencyPercentileMs(i), 2, ".", ",") }} ms</b></td>
                             <td align='right'><b style='color:{{ colour }}'>{{ number_format(target, 2, ".", ",") }} ms</b></td>
                             {% endfor %}
                         </tr>
@@ -166,7 +166,7 @@
                         <tr>
                             {% set colour = (context.isMaxLatencyAchieved) ? "#2b67a4" : "#d9534f" %}
                             <th align='right' valign='top'><b style='color:{{ colour }}'>Max latency:</b></th>
-                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.statistics.getMaxLatency(milliseconds), 2, ".", ",") }} ms</b></td>
+                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.getMaxLatencyMs(), 2, ".", ",") }} ms</b></td>
                             {% set maxLatency = (context.requiredMaxLatency < 0) ? "N/A" :number_format(context.requiredMaxLatency, 2, ".", " ") %}
                             <td align='right'><b style='color:{{ colour }}'>{{ maxLatency }} ms</b></td>
                         </tr>

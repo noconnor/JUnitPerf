@@ -1,10 +1,10 @@
 package com.github.noconnor.junitperf.statistics.providers;
 
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import com.github.noconnor.junitperf.BaseTest;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Spy;
-import com.github.noconnor.junitperf.BaseTest;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
