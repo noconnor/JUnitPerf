@@ -204,8 +204,8 @@ public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CsvReportGenerator("/s
 The CSV output will have the following format:
 
 ```
-testName,duration,threadCount,throughput,minLatencyNs,maxLatencyNs,meanLatencyNs,percentileData
-unittest1,10000,50,101,500000.0,100002.0,600000.0,1:0.0;2:0.0;3:0.0;4:0.0;5:0.0; ... ;98:4636367.0;99:48343468.0
+testName,duration,threadCount,throughput,minLatencyMs,maxLatencyMs,meanLatencyMs,percentileData
+unittest1,10000,50,101,500000.0,1.430,6.430,1:0.0;2:0.0;3:0.0;4:0.0;5:0.0; ... ;98:4.03434;99:4.83434680
 ```
 
 NOTE: the percentileData is formatted as ```percentile1:latency;percentile2:latency; ...```
