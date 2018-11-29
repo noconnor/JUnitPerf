@@ -134,7 +134,7 @@ public class EvaluationContext {
   }
 
   private boolean validateLatency(float actualMs, float requiredMs) {
-    return requiredMaxLatency < 0 || actualMs <= requiredMs;
+    return requiredMs < 0 || actualMs <= requiredMs;
   }
 
   private boolean noLatencyPercentileFailures() {
