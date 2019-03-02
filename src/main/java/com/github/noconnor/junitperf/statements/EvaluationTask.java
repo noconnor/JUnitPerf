@@ -1,9 +1,11 @@
 package com.github.noconnor.junitperf.statements;
 
-import java.util.function.Supplier;
-import org.junit.runners.model.Statement;
-import com.google.common.util.concurrent.RateLimiter;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+import com.google.common.util.concurrent.RateLimiter;
+import lombok.Builder;
+import org.junit.runners.model.Statement;
+
+import java.util.function.Supplier;
 
 import static java.lang.System.nanoTime;
 import static java.util.Objects.nonNull;
@@ -18,16 +20,17 @@ final class EvaluationTask implements Runnable {
   private final StatisticsCalculator stats;
   private final long warmUpPeriodNs;
 
+  @Builder
   EvaluationTask(Statement statement, RateLimiter rateLimiter, StatisticsCalculator stats, int warmUpPeriodMs) {
     this(statement, rateLimiter, () -> Thread.currentThread().isInterrupted(), stats, warmUpPeriodMs);
   }
 
   // Test only
   EvaluationTask(Statement statement,
-                 RateLimiter rateLimiter,
-                 Supplier<Boolean> terminator,
-                 StatisticsCalculator stats,
-                 int warmUpPeriodMs) {
+    RateLimiter rateLimiter,
+    Supplier<Boolean> terminator,
+    StatisticsCalculator stats,
+    int warmUpPeriodMs) {
     this.statement = statement;
     this.rateLimiter = rateLimiter;
     this.terminator = terminator;
