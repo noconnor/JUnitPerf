@@ -16,6 +16,8 @@ while gathering statistical information.
 This library interface was heavily influenced by the interface in the deprecated 
 [Contiperf library](https://github.com/lucaspouzac/contiperf) developed by [Lucas Pouzac](https://github.com/lucaspouzac)
 
+<br />
+
 ## Contents
 
 [Install Instructions](#install-instructions)
@@ -28,6 +30,8 @@ This library interface was heavily influenced by the interface in the deprecated
 
 [Build Instructions](#build-instructions)
 
+<br />
+
 ## Install Instructions 
 
 `JUnitPerf` is available in [maven central](http://bit.ly/2idQDvA)
@@ -36,10 +40,20 @@ To add the latest version of `JunitPerf` to your gradle project add the followin
 
 `compile 'com.github.noconnor:junitperf:+'`
 
+<br />
 
 ## Usage Instructions
 
-This section contains usage details for the `JUnitPerf` library. To see example test cases browse to the [src/test/examples/](src/test/examples/) folder. 
+[Synchronous Usage](#synchronous-usage)
+
+[Asynchronous Usage](#asynchronous-usage)
+
+<br />
+
+### Synchronous Usage
+
+This section contains details for usage of the `JUnitPerf` library in *synchronous* mode. 
+To see example test cases browse to the [src/test/examples/](src/test/examples/) folder. 
 
 Add the JUnitPerf Rule to your test class
 
@@ -94,6 +108,98 @@ The latency is a measurement of the time taken to execute one loop (not includin
 
 More information on statistic calculations can be found [here](#statistics)
 
+<br />
+
+### Asynchronous Usage
+
+
+
+
+This section contains details for usage of the `JUnitPerf` library in *asynchronous* mode. 
+To see example test cases browse to the [src/test/examples/ExampleAsyncTests](src/test/examples/ExampleAsyncTests.java) folder. 
+
+Add the async JUnitPerf Rule to your test class
+
+```
+@Rule
+public JUnitPerfAsyncRule rule = new JUnitPerfAsyncRule();
+```
+
+Next add the `JUnitPerfTest` annotation to the unit test you would like to convert into a performance test  
+
+```
+@Test
+@JUnitPerfTest(durationMs = 125_000, warmUpMs = 10_000, maxExecutionsPerSecond = 1000)
+public void whenExecuting1Kqps_thenApiShouldNotCrash(){
+   TestContext context = rule.newContext();
+   threadPool.submit( () -> {
+      ... EXECUTE ASYNC TASK ...
+      ... THEN NOTIFY FRAMEWORK OF SUCCESS/FAILURE...
+      context.success();
+      // OR
+      context.Fail();
+  }
+}
+``` 
+
+In the example above, the unittest `whenExecuting1Kqps_thenApiShouldNotCrash` will be executed in a loop for 
+125 secs (125,000ms). 
+
+Async tasks will be rate limited to 1,000 task submissions per second.
+
+The `TestContext` instance is used to capture latency and error stats during the duration of the test. A timer is started when
+`rule.newContext()` is called and the timer is stopped when either `context.success()` or `context.fail()` is called.
+
+No statistical data will be captured during the warm up period (10 seconds - 10,000ms) 
+
+**NOTE: It is highly recommended to set a maxExecutionsPerSecond when running Async tests to prevent flooding the async client code with task submissions**
+
+
+Optionally add the performance test requirement annotation (`JUnitPerfTestRequirement`). 
+The specified requirements will be applied to the statistics gathered during the performance test execution. 
+If thresholds are not met, test will fail.
+
+
+```
+@Test
+@JUnitPerfTest(durationMs = 125_000, warmUpMs = 10_000, maxExecutionsPerSecond = 1000)
+@JUnitPerfTestRequirement(percentiles = "90:7,95:7,98:7,99:8", executionsPerSec = 1000, allowedErrorPercentage = 0.10)
+public void whenExecuting1Kqps_thenApiShouldNotCrash(){
+   TestContext context = rule.newContext();
+   threadPool.submit( () -> {
+      ... EXECUTE ASYNC TASK ...
+      ... THEN NOTIFY FRAMEWORK OF SUCCESS/FAILURE...
+      context.success();
+      // OR
+      context.Fail();
+  }
+}
+``` 
+ 
+
+In the example above, the `JUnitPerfTestRequirement` annotation will apply a number of threshold constraints to the performance test.
+
+The tests calculated throughput (executions per second) will be compared to the `executionsPerSec` requirement. 
+If the test throughput is *less* than the target throughput then the test will fail.
+
+This example test also contains a requirement that the execution error rate be no more than 10% (`allowedErrorPercentage = 0.10`). 
+An error is an uncaught exception thrown during unittest execution. 
+If the specified `allowedErrorPercentage` is not met then the test will fail.
+
+Finally the example sets a number of latency thresholds on the 90th, 95th, 98th and 99th percentiles (i.e. if the 
+99th percentile latency is *greater* than 8ms then the test will fail). 
+The latency is a measurement of the time taken to execute one loop (not including statistics measurement calculations) 
+
+More information on statistic calculations can be found [here](#statistics)
+
+
+
+
+
+<br />
+
+## Test Configuration Options 
+
 `@JUnitPerfTest` has the following configuration parameters:
 
 | Property               | Definition                                                                                                                        | Default value  |
@@ -116,6 +222,7 @@ More information on statistic calculations can be found [here](#statistics)
 | maxLatency             | Expected maximum latency in ms, if maximum latency is above this value, test will fail                                      |   disabled     |
 | meanLatency            | Expected mean latency in ms, if mean latency is above this value, test will fail                                            |   disabled     |
 
+<br />
 
 ## Reports
 
@@ -129,6 +236,7 @@ More information on statistic calculations can be found [here](#statistics)
 
 [Multiple Reports](#multiple-reports)
 
+<br />
 
 #### HTML Reports
 
@@ -148,6 +256,7 @@ public JUnitPerfRule perfTestRule = new JUnitPerfRule(new HtmlReportGenerator("/
 HTML reports are generated using the [jtwig library](http://jtwig.org/). The jtwig report template can be found under `src/main/resources/templates/report.twig`.
 It is possible to override this template by placing a customised `templates/report.twig` file on the classpath ahead of the default template.
 
+<br />
 
 #### Console Reporting
 
@@ -180,6 +289,8 @@ Example output:
 15:55:06.583 [main] INFO  c.g.n.j.r.p.ConsoleReportGenerator - 
 ```
 
+<br />
+
 #### CSV Reporting
 
 It is also possible to use the built-in CSV reporter. 
@@ -211,6 +322,7 @@ unittest1,10000,50,101,500000.0,1.430,6.430,1:0.0;2:0.0;3:0.0;4:0.0;5:0.0; ... ;
 NOTE: the percentileData is formatted as ```percentile1:latency;percentile2:latency; ...```
 
 
+<br />
 
 #### Custom Reporting
 
@@ -220,6 +332,8 @@ If further customisation is required, a custom implementation of the `ReportGene
 @Rule
 public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CustomReportGeneratorImpl());
 ```
+
+<br />
 
 #### Multiple Reports
 
@@ -233,7 +347,7 @@ public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CsvReportGenerator(), 
 With this configuration a HTML report **AND** a CSV report will be generated
 
 
-
+<br />
 
 ## Statistics
 
@@ -248,6 +362,7 @@ be passed to the `JUnitPerfRule` constructor:
 public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CustomStatisticsCalculatorImpl());
 ``` 
 
+<br />
 
 ## Build Instructions
 
