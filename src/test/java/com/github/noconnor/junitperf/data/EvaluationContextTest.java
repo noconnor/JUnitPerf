@@ -3,6 +3,7 @@ package com.github.noconnor.junitperf.data;
 import com.github.noconnor.junitperf.BaseTest;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
+import com.github.noconnor.junitperf.datetime.DatetimeUtils;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
@@ -11,6 +12,7 @@ import org.mockito.Mock;
 
 import java.util.Map;
 
+import static java.lang.System.nanoTime;
 import static java.util.Collections.emptyMap;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.Matchers.anEmptyMap;
@@ -23,6 +25,7 @@ import static org.mockito.Mockito.when;
 public class EvaluationContextTest extends BaseTest {
 
   private static final String TEST_NAME = "UNITTEST";
+  private static final String DATE_OVERRIDE = "2019-03-01 14:27:45";
 
   private EvaluationContext context;
 
@@ -40,7 +43,8 @@ public class EvaluationContextTest extends BaseTest {
     initialisePerfTestAnnotation();
     initialisePerfTestRequirementAnnotation();
     initialiseStatisticsMockToPassValidation();
-    context = new EvaluationContext(TEST_NAME, "TEST");
+    DatetimeUtils.setOverride(DATE_OVERRIDE);
+    context = new EvaluationContext(TEST_NAME, nanoTime());
   }
 
   @Test
@@ -283,6 +287,24 @@ public class EvaluationContextTest extends BaseTest {
     context.runValidation();
     assertThat(context.isMeanLatencyAchieved(), is(false));
     assertThat(context.isSuccessful(), is(false));
+  }
+
+  @Test
+  public void whenSupplyingANanosecondStartTime_thenTheStartTimeShouldBeSet() {
+    long now = nanoTime();
+    context = new EvaluationContext(TEST_NAME, now);
+    assertThat(context.getStartTimeNs(), is(now));
+  }
+
+  @Test
+  public void whenCreatingDefaultContext_thenIsAsyncShouldBeFalse() {
+    assertThat(context.isAsyncEvaluation(), is(false));
+  }
+
+  @Test
+  public void whenSpecifyingAsyncFlag_thenIsAsyncShouldBeTrue() {
+    context = new EvaluationContext(TEST_NAME, nanoTime(), true);
+    assertThat(context.isAsyncEvaluation(), is(true));
   }
 
   private void initialiseContext() {

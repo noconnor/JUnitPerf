@@ -2,6 +2,8 @@ package com.github.noconnor.junitperf.reporting.providers;
 
 import java.io.File;
 import java.io.IOException;
+
+import com.github.noconnor.junitperf.datetime.DatetimeUtils;
 import org.junit.Before;
 import org.junit.Test;
 import com.github.noconnor.junitperf.reporting.BaseReportGeneratorTest;
@@ -18,6 +20,7 @@ public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
   public void setup() throws IOException {
     reportFile = folder.newFile("report.html");
     reportGenerator = new HtmlReportGenerator(reportFile.getPath());
+    DatetimeUtils.setOverride("unittest o'clock");
     initialisePerfTestAnnotationMock();
     initialisePerfTestRequirementAnnotationMock();
   }

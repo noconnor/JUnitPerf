@@ -1,15 +1,16 @@
 package com.github.noconnor.junitperf.statements;
 
+import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+import com.github.noconnor.junitperf.statistics.providers.NoOpStatisticsCollector;
+import com.google.common.util.concurrent.RateLimiter;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.Builder;
+import org.junit.runners.model.Statement;
 
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
-import org.junit.runners.model.Statement;
-import com.github.noconnor.junitperf.data.EvaluationContext;
-import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
-import com.google.common.util.concurrent.RateLimiter;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.util.concurrent.RateLimiter.create;
@@ -33,10 +34,10 @@ public class PerformanceEvaluationStatement extends Statement {
 
   @Builder
   private PerformanceEvaluationStatement(Statement baseStatement,
-                                         StatisticsCalculator statistics,
-                                         EvaluationContext context,
-                                         ThreadFactory threadFactory,
-                                         Consumer<Void> listener) {
+    StatisticsCalculator statistics,
+    EvaluationContext context,
+    ThreadFactory threadFactory,
+    Consumer<Void> listener) {
     this.context = context;
     this.baseStatement = baseStatement;
     this.statistics = statistics;
@@ -50,8 +51,7 @@ public class PerformanceEvaluationStatement extends Statement {
     List<Thread> threads = newArrayList();
     try {
       for (int i = 0; i < context.getConfiguredThreads(); i++) {
-        EvaluationTask task = new EvaluationTask(baseStatement, rateLimiter, statistics, context.getConfiguredWarmUp());
-        Thread t = threadFactory.newThread(task);
+        Thread t = threadFactory.newThread(createTask());
         threads.add(t);
         t.start();
       }
@@ -63,6 +63,16 @@ public class PerformanceEvaluationStatement extends Statement {
     context.runValidation();
     listener.accept(null);
     assertThresholdsMet();
+  }
+
+  private EvaluationTask createTask() {
+    StatisticsCalculator stats = context.isAsyncEvaluation() ? NoOpStatisticsCollector.INSTANCE : statistics;
+    return EvaluationTask.builder()
+      .statement(baseStatement)
+      .rateLimiter(rateLimiter)
+      .stats(stats)
+      .warmUpPeriodMs(context.getConfiguredWarmUp())
+      .build();
   }
 
   private void assertThresholdsMet() {

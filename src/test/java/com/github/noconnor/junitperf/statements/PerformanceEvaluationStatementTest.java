@@ -1,17 +1,18 @@
 package com.github.noconnor.junitperf.statements;
 
-import java.util.concurrent.ThreadFactory;
-import java.util.function.Consumer;
+import com.github.noconnor.junitperf.BaseTest;
+import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
-import com.github.noconnor.junitperf.BaseTest;
-import com.github.noconnor.junitperf.data.EvaluationContext;
-import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
-import com.google.common.collect.ImmutableMap;
+
+import java.util.concurrent.ThreadFactory;
+import java.util.function.Consumer;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.emptyMap;
@@ -143,6 +144,19 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
     } catch (Error e) {
       assertThat(e.getMessage(), startsWith("95th Percentile has not achieved required threshold"));
     }
+  }
+
+  @Test
+  public void whenCreatingEvaluationTasks_thenIsAsyncEvaluationShouldBeChecked() throws Throwable {
+    statement.evaluate();
+    verify(contextMock).isAsyncEvaluation();
+  }
+
+  @Test
+  public void whenCreatingEvaluationTasks_andIsAsyncEvaluationIsTrue_thenTaskThreadShouldBeCreated() throws Throwable {
+    when(contextMock.isAsyncEvaluation()).thenReturn(true);
+    statement.evaluate();
+    verify(threadFactoryMock).newThread(any(EvaluationTask.class));
   }
 
   private void initialiseThreadFactoryMock() {
