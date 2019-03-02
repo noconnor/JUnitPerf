@@ -19,6 +19,7 @@ import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsC
 
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.System.nanoTime;
 import static java.util.Objects.nonNull;
 
 @Slf4j
@@ -63,7 +64,7 @@ public class JUnitPerfRule implements TestRule {
       // Group test contexts by test class
       ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), newHashSet());
 
-      EvaluationContext context = new EvaluationContext(description.getMethodName(), generateTestStartTime());
+      EvaluationContext context = new EvaluationContext(description.getMethodName(), nanoTime());
       context.loadConfiguration(perfTestAnnotation);
       context.loadRequirements(requirementsAnnotation);
       ACTIVE_CONTEXTS.get(description.getTestClass()).add(context);
@@ -80,11 +81,6 @@ public class JUnitPerfRule implements TestRule {
     reporters.forEach(r -> {
       r.generateReport(ACTIVE_CONTEXTS.get(testClass));
     });
-
-  }
-
-  private String generateTestStartTime() {
-    return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
   }
 
 }

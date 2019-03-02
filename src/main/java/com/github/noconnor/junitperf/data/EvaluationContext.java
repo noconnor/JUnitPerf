@@ -2,11 +2,11 @@ package com.github.noconnor.junitperf.data;
 
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
+import com.github.noconnor.junitperf.datetime.DatetimeUtils;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -22,7 +22,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.IntStream.range;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-@RequiredArgsConstructor
 public class EvaluationContext {
 
   @Getter
@@ -33,6 +32,10 @@ public class EvaluationContext {
   private int configuredWarmUp;
   @Getter
   private int configuredRateLimit;
+  @Getter
+  private long startTimeNs;
+  @Getter
+  private boolean isAsyncEvaluation;
 
   @Getter
   private Map<Integer, Float> requiredPercentiles = emptyMap();
@@ -80,6 +83,21 @@ public class EvaluationContext {
   @Getter
   private long errorCount;
 
+  @Getter
+  private final String testName;
+  @Getter
+  private final String startTime;
+
+  public EvaluationContext(String testName, long startTimeNs) {
+    this(testName, startTimeNs, false);
+  }
+
+  public EvaluationContext(String testName, long startTimeNs, boolean isAsyncEvaluation) {
+    this.testName = testName;
+    this.startTimeNs = startTimeNs;
+    this.startTime = DatetimeUtils.now();
+    this.isAsyncEvaluation = isAsyncEvaluation;
+  }
 
   @SuppressWarnings("WeakerAccess")
   public long getThroughputQps() {
@@ -89,11 +107,6 @@ public class EvaluationContext {
   public float getLatencyPercentileMs(int percentile) {
     return percentiles[percentile];
   }
-
-  @Getter
-  private final String testName;
-  @Getter
-  private final String startTime;
 
   public void loadConfiguration(JUnitPerfTest testSettings) {
     validateTestSettings(testSettings);
