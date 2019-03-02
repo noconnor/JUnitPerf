@@ -23,31 +23,28 @@ import static java.lang.System.nanoTime;
 import static java.util.Objects.nonNull;
 
 @Slf4j
+@SuppressWarnings("WeakerAccess")
 public class JUnitPerfRule implements TestRule {
 
   static final Map<Class, Set<EvaluationContext>> ACTIVE_CONTEXTS = newHashMap();
 
-
-  private final StatisticsCalculator statisticsCalculator;
   private final Set<ReportGenerator> reporters;
+
+  StatisticsCalculator statisticsCalculator;
   PerformanceEvaluationStatementBuilder perEvalBuilder;
 
-  @SuppressWarnings("WeakerAccess")
   public JUnitPerfRule() {
     this(new DescriptiveStatisticsCalculator(), new HtmlReportGenerator());
   }
 
-  @SuppressWarnings("WeakerAccess")
   public JUnitPerfRule(ReportGenerator... reportGenerator) {
     this(new DescriptiveStatisticsCalculator(), reportGenerator);
   }
 
-  @SuppressWarnings("WeakerAccess")
   public JUnitPerfRule(StatisticsCalculator statisticsCalculator) {
     this(statisticsCalculator, new HtmlReportGenerator());
   }
 
-  @SuppressWarnings("WeakerAccess")
   public JUnitPerfRule(StatisticsCalculator statisticsCalculator, ReportGenerator... reportGenerator) {
     this.perEvalBuilder = PerformanceEvaluationStatement.builder();
     this.statisticsCalculator = statisticsCalculator;
@@ -57,17 +54,19 @@ public class JUnitPerfRule implements TestRule {
   @Override
   public Statement apply(Statement base, Description description) {
     Statement activeStatement = base;
+
     JUnitPerfTest perfTestAnnotation = description.getAnnotation(JUnitPerfTest.class);
     JUnitPerfTestRequirement requirementsAnnotation = description.getAnnotation(JUnitPerfTestRequirement.class);
 
     if (nonNull(perfTestAnnotation)) {
-      // Group test contexts by test class
-      ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), newHashSet());
-
-      EvaluationContext context = new EvaluationContext(description.getMethodName(), nanoTime());
+      EvaluationContext context = createEvaluationContext(description);
       context.loadConfiguration(perfTestAnnotation);
       context.loadRequirements(requirementsAnnotation);
+
+      // Group test contexts by test class
+      ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), newHashSet());
       ACTIVE_CONTEXTS.get(description.getTestClass()).add(context);
+
       activeStatement = perEvalBuilder.baseStatement(base)
         .statistics(statisticsCalculator)
         .context(context)
@@ -75,6 +74,10 @@ public class JUnitPerfRule implements TestRule {
         .build();
     }
     return activeStatement;
+  }
+
+  EvaluationContext createEvaluationContext(Description description) {
+    return new EvaluationContext(description.getMethodName(), nanoTime());
   }
 
   private synchronized void updateReport(Class<?> testClass) {

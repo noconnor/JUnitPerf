@@ -1,7 +1,11 @@
 package com.github.noconnor.junitperf;
 
-import java.util.Set;
-import java.util.function.Consumer;
+import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.reporting.ReportGenerator;
+import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
+import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
+import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+import org.hamcrest.junit.MatcherAssert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,11 +14,9 @@ import org.junit.runners.model.Statement;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import com.github.noconnor.junitperf.data.EvaluationContext;
-import com.github.noconnor.junitperf.reporting.ReportGenerator;
-import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
-import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
-import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+
+import java.util.Set;
+import java.util.function.Consumer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -137,6 +139,12 @@ public class JUnitPerfRuleTest extends BaseTest {
     perfRule = new JUnitPerfRule(htmlReporterMock, csvReporterMock);
     perfRule = new JUnitPerfRule(statisticsCalculatorMock);
     perfRule = new JUnitPerfRule(statisticsCalculatorMock, htmlReporterMock, csvReporterMock);
+  }
+
+  @Test
+  public void whenCallingCreateEvaluationContext_thenContextShouldHaveAsyncFlagSetToFalse() {
+    EvaluationContext context = perfRule.createEvaluationContext(descriptionMock);
+    MatcherAssert.assertThat(context.isAsyncEvaluation(), is(false));
   }
 
   private void triggerReportGeneration() {

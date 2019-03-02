@@ -2,6 +2,8 @@ package com.github.noconnor.junitperf.data;
 
 public class NoOpTestContext extends TestContext {
 
+  public static final NoOpTestContext INSTANCE = new NoOpTestContext();
+
   public NoOpTestContext() {
     super(null);
   }
