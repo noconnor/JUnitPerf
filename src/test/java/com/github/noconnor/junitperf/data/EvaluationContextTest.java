@@ -72,6 +72,13 @@ public class EvaluationContextTest extends BaseTest {
   }
 
   @Test
+  public void whenLoadingJUnitPerfTestSettings_thenRampUpMsShouldBeLessThanTestDuration() {
+    when(perfTestAnnotation.rampUpPeriodMs()).thenReturn(60);
+    when(perfTestAnnotation.durationMs()).thenReturn(50);
+    expectValidationError("RampUpPeriodMs must be < DurationMs");
+  }
+
+  @Test
   public void whenLoadingJUnitPerfTestSettings_thenWarmUpMsShouldBeSensible() {
     when(perfTestAnnotation.warmUpMs()).thenReturn(-9);
     expectValidationError("WarmUpMs must be >= 0ms");
@@ -325,7 +332,7 @@ public class EvaluationContextTest extends BaseTest {
     when(perfTestAnnotation.maxExecutionsPerSecond()).thenReturn(1_000);
     when(perfTestAnnotation.threads()).thenReturn(50);
     when(perfTestAnnotation.warmUpMs()).thenReturn(5);
-    when(perfTestAnnotation.rampUpPeriodMs()).thenReturn(40);
+    when(perfTestAnnotation.rampUpPeriodMs()).thenReturn(4);
   }
 
   private void initialisePerfTestRequirementAnnotation() {
