@@ -136,6 +136,7 @@ public class BaseReportGeneratorTest extends BaseTest {
   protected void initialisePerfTestAnnotationMock() {
     when(perfTestAnnotationMock.durationMs()).thenReturn(10_000);
     when(perfTestAnnotationMock.warmUpMs()).thenReturn(100);
+    when(perfTestAnnotationMock.rampUpPeriodMs()).thenReturn(50);
     when(perfTestAnnotationMock.threads()).thenReturn(50);
     when(perfTestAnnotationMock.maxExecutionsPerSecond()).thenReturn(11_000);
   }

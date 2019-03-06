@@ -12,7 +12,7 @@ public class ConsoleReportGeneratorTest extends BaseReportGeneratorTest {
   private ConsoleReportGenerator reportGenerator;
 
   @Before
-  public void setup() throws IOException {
+  public void setup() {
     reportGenerator = new ConsoleReportGenerator();
     initialisePerfTestAnnotationMock();
     initialisePerfTestRequirementAnnotationMock();
