@@ -16,6 +16,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.util.concurrent.RateLimiter.create;
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -42,7 +43,7 @@ public class PerformanceEvaluationStatement extends Statement {
     this.baseStatement = baseStatement;
     this.statistics = statistics;
     this.threadFactory = nonNull(threadFactory) ? threadFactory : FACTORY;
-    this.rateLimiter = context.getConfiguredRateLimit() > 0 ? create(context.getConfiguredRateLimit()) : null;
+    this.rateLimiter = context.getConfiguredRateLimit() > 0 ? createRateLimiter(context) : null;
     this.listener = listener;
   }
 
@@ -82,5 +83,10 @@ public class PerformanceEvaluationStatement extends Statement {
       assertThat(format("%dth Percentile has not achieved required threshold", percentile), isAchieved, is(true));
     });
   }
+
+  private RateLimiter createRateLimiter(final EvaluationContext context) {
+    return create(context.getConfiguredRateLimit(), context.getConfiguredRampUpPeriodMs(), MILLISECONDS);
+  }
+
 
 }
