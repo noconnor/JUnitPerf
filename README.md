@@ -66,7 +66,7 @@ Next add the `JUnitPerfTest` annotation to the unit test you would like to conve
 
 ```
 @Test
-@JUnitPerfTest(threads = 50, durationMs = 125_000, warmUpMs = 10_000, maxExecutionsPerSecond = 11_000)
+@JUnitPerfTest(threads = 50, durationMs = 125_000, rampUpPeriodMs = 2_000, warmUpMs = 10_000, maxExecutionsPerSecond = 11_000)
 public void whenExecuting11Kqps_thenApiShouldNotCrash(){
   ... EXECUTE TIME SENSITIVE TASK ...
 }
@@ -75,7 +75,8 @@ public void whenExecuting11Kqps_thenApiShouldNotCrash(){
 In the example above, the unittest `whenExecuting11Kqps_thenApiShouldNotCrash` will be executed in a loop for 
 125 secs (125,000ms) using 50 threads. 
 
-The executions will be rate limited to 11K loop executions per second. 
+The executions will be rate limited to 11K loop executions per second. The execution rate will ramp up smoothly to 11K 
+over a period of 2 seconds (rampUpPeriodMs). 
 
 No statistical data will be captured during the warm up period (10 seconds - 10,000ms) 
 
@@ -129,7 +130,7 @@ Next add the `JUnitPerfTest` annotation to the unit test you would like to conve
 
 ```
 @Test
-@JUnitPerfTest(durationMs = 125_000, warmUpMs = 10_000, maxExecutionsPerSecond = 1000)
+@JUnitPerfTest(durationMs = 125_000, rampUpPeriodMs = 2_000, warmUpMs = 10_000, maxExecutionsPerSecond = 1000)
 public void whenExecuting1Kqps_thenApiShouldNotCrash(){
    TestContext context = rule.newContext();
    threadPool.submit( () -> {
@@ -145,7 +146,8 @@ public void whenExecuting1Kqps_thenApiShouldNotCrash(){
 In the example above, the unittest `whenExecuting1Kqps_thenApiShouldNotCrash` will be executed in a loop for 
 125 secs (125,000ms). 
 
-Async tasks will be rate limited to 1,000 task submissions per second.
+Async tasks will be rate limited to 1,000 task submissions per second. The execution rate will ramp up smoothly to 1K 
+over a period of 2 seconds (rampUpPeriodMs).
 
 The `TestContext` instance is used to capture latency and error stats during the duration of the test. A timer is started when
 `rule.newContext()` is called and the timer is stopped when either `context.success()` or `context.fail()` is called.
@@ -208,6 +210,7 @@ More information on statistic calculations can be found [here](#statistics)
 | durationMs             | Total time to run the test in millisecs (ms) (includes warmup period)                                                             |      60,000    |
 | warmUpMs               | Warm up period in ms, test logic will be executed during warm up, but results will not be considered during statistics evaluation |        0       |
 | maxExecutionsPerSecond | Sets the maximum number of iteration per second (disabled by default)                                                             |       -1       |
+| rampUpPeriodMs         | Framework ramps up its executions per second smoothly over the duration of this period (disabled by default)                      |        0       |
 
 <br />
 

@@ -33,6 +33,8 @@ public class EvaluationContext {
   @Getter
   private int configuredRateLimit;
   @Getter
+  private int configuredRampUpPeriodMs;
+  @Getter
   private long startTimeNs;
   @Getter
   private boolean isAsyncEvaluation;
@@ -114,6 +116,7 @@ public class EvaluationContext {
     configuredDuration = testSettings.durationMs();
     configuredWarmUp = testSettings.warmUpMs();
     configuredRateLimit = testSettings.maxExecutionsPerSecond();
+    configuredRampUpPeriodMs = testSettings.rampUpPeriodMs();
   }
 
   public void loadRequirements(JUnitPerfTestRequirement requirements) {
@@ -180,6 +183,8 @@ public class EvaluationContext {
   private void validateTestSettings(JUnitPerfTest testSettings) {
     checkNotNull(testSettings, "Test settings must not be null");
     checkState(testSettings.durationMs() > 0, "DurationMs must be greater than 0ms");
+    checkState(testSettings.rampUpPeriodMs() >= 0, "RampUpPeriodMs must be >= 0ms");
+    checkState(testSettings.rampUpPeriodMs() < testSettings.durationMs(), "RampUpPeriodMs must be < DurationMs");
     checkState(testSettings.warmUpMs() >= 0, "WarmUpMs must be >= 0ms");
     checkState(testSettings.warmUpMs() < testSettings.durationMs(), "WarmUpMs must be < DurationMs");
     checkState(testSettings.threads() > 0, "Threads must be > 0");
