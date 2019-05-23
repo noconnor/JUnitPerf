@@ -1,16 +1,16 @@
 package com.github.noconnor.junitperf.statements;
 
+import lombok.Builder;
+
+import java.util.List;
+import java.util.concurrent.ThreadFactory;
+import java.util.function.Consumer;
+import org.junit.runners.model.Statement;
 import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.NoOpStatisticsCollector;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import lombok.Builder;
-import org.junit.runners.model.Statement;
-
-import java.util.List;
-import java.util.concurrent.ThreadFactory;
-import java.util.function.Consumer;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.util.concurrent.RateLimiter.create;
@@ -85,7 +85,9 @@ public class PerformanceEvaluationStatement extends Statement {
   }
 
   private RateLimiter createRateLimiter(final EvaluationContext context) {
-    return create(context.getConfiguredRateLimit(), context.getConfiguredRampUpPeriodMs(), MILLISECONDS);
+    int rampUp = context.getConfiguredRampUpPeriodMs();
+    int rateLimit = context.getConfiguredRateLimit();
+    return rampUp > 0 ? create(rateLimit, rampUp, MILLISECONDS) : create(rateLimit);
   }
 
 
