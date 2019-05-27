@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -26,20 +28,26 @@ public class CsvReportGenerator implements ReportGenerator {
   private static final String DEFAULT_REPORT_PATH = getProperty("user.dir") + "/build/reports/junitperf_report.csv";
 
   private final String reportPath;
+  private final Set<EvaluationContext> history;
 
-  public CsvReportGenerator() {this(DEFAULT_REPORT_PATH);}
+  public CsvReportGenerator() {
+    this(DEFAULT_REPORT_PATH);
+  }
 
   @SuppressWarnings("WeakerAccess")
-  public CsvReportGenerator(String reportPath) {this.reportPath = reportPath;}
+  public CsvReportGenerator(String reportPath) {
+    this.reportPath = reportPath;
+    this.history = new LinkedHashSet<>();
+  }
 
   @Override
   public void generateReport(final Set<EvaluationContext> testContexts) {
-
+    history.addAll(testContexts);
     try (BufferedWriter writer = newBufferedWriter()) {
 
       writer.write(buildHeader());
       writer.newLine();
-      testContexts.forEach(context -> {
+      history.forEach(context -> {
 
         String record = String.format("%s,%d,%d,%d,%.4f,%.4f,%.4f,%s",
           context.getTestName(),
