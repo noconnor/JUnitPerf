@@ -6,6 +6,8 @@ import com.github.noconnor.junitperf.datetime.DatetimeUtils;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
+
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.tuple.ImmutablePair;

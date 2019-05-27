@@ -6,8 +6,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 import com.github.noconnor.junitperf.data.EvaluationContext;
@@ -22,18 +23,28 @@ public class HtmlReportGenerator implements ReportGenerator {
   private static final String REPORT_TEMPLATE = "templates/report.twig";
 
   private final String reportPath;
+  private final Set<EvaluationContext> history;
 
-  public HtmlReportGenerator() {this(DEFAULT_REPORT_PATH);}
+  public HtmlReportGenerator() {
+    this(DEFAULT_REPORT_PATH);
+  }
 
   @SuppressWarnings("WeakerAccess")
-  public HtmlReportGenerator(String reportPath) {this.reportPath = reportPath;}
+  public HtmlReportGenerator(String reportPath) {
+    this.reportPath = reportPath;
+    this.history = new LinkedHashSet<>();
+  }
 
   @Override
   public void generateReport(Set<EvaluationContext> testContexts) {
+    history.addAll(testContexts);
+    renderTemplate();
+  }
+
+  private void renderTemplate() {
     Path outputPath = Paths.get(reportPath);
     JtwigTemplate template = JtwigTemplate.classpathTemplate(REPORT_TEMPLATE);
-    JtwigModel model = JtwigModel.newModel()
-      .with("contextData", testContexts);
+    JtwigModel model = JtwigModel.newModel().with("contextData", history);
     try {
       Files.createDirectories(outputPath.getParent());
       log.info("Rendering report to: " + outputPath);

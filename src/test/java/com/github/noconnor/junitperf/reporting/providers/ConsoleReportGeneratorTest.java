@@ -1,8 +1,10 @@
 package com.github.noconnor.junitperf.reporting.providers;
 
 import java.io.IOException;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
+import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.BaseReportGeneratorTest;
 
 import static org.junit.Assert.assertNull;
@@ -19,27 +21,34 @@ public class ConsoleReportGeneratorTest extends BaseReportGeneratorTest {
   }
 
   @Test
-  public void whenGeneratingAReport_andAllTestsFailed_thenAppropriateReportShouldBeGenerated() throws IOException {
+  public void whenGeneratingAReport_andAllTestsFailed_thenAppropriateReportShouldBeGenerated() {
     reportGenerator.generateReport(generateAllFailureOrderedContexts());
   }
 
   @Test
-  public void whenGeneratingAReport_andAllTestsPass_thenAppropriateReportShouldBeGenerated() throws IOException {
+  public void whenGeneratingAReport_andAllTestsPass_thenAppropriateReportShouldBeGenerated() {
     reportGenerator.generateReport(generateAllPassedOrderedContexts());
   }
 
   @Test
-  public void whenGeneratingAReport_andTestsContainsAMixOfPassAndFailures_thenAppropriateReportShouldBeGenerated() throws IOException {
+  public void whenGeneratingAReport_andTestsContainsAMixOfPassAndFailures_thenAppropriateReportShouldBeGenerated() {
     reportGenerator.generateReport(generateMixedOrderedContexts());
   }
 
   @Test
-  public void whenGeneratingAReport_andTestsContainsSomeFailures_thenAppropriateReportShouldBeGenerated() throws IOException {
+  public void whenGeneratingAReport_andTestsContainsSomeFailures_thenAppropriateReportShouldBeGenerated() {
     reportGenerator.generateReport(generateSomeFailuresContext());
   }
 
   @Test
-  public void whenCallingGetReportPath_thenNullShouldBeReturned() throws IOException {
+  public void whenGeneratingAReport_andGenerateIsCalledMultipleTimes_thenOnlyNewResultsShouldBePrinted() {
+    Set<EvaluationContext> contexts = generateSomeFailuresContext();
+    reportGenerator.generateReport(contexts);
+    reportGenerator.generateReport(contexts);
+  }
+
+  @Test
+  public void whenCallingGetReportPath_thenNullShouldBeReturned() {
     assertNull(reportGenerator.getReportPath());
   }
 }
