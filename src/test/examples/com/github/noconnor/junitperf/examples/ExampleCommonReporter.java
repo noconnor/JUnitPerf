@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 })
 public class ExampleCommonReporter {
 
-  // Both ExampleConsoleReporter classes should report to the same HTML file
+  // Both test classes should report to the same HTML file
   private static final HtmlReportGenerator REPORTER = new HtmlReportGenerator();
 
   public static class TestClassOne {
