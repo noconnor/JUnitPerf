@@ -8,18 +8,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.google.common.base.Joiner;
 
 import static java.lang.System.getProperty;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
@@ -41,7 +38,7 @@ public class CsvReportGenerator implements ReportGenerator {
   }
 
   @Override
-  public void generateReport(final Set<EvaluationContext> testContexts) {
+  public void generateReport(LinkedHashSet<EvaluationContext> testContexts) {
     history.addAll(testContexts);
     try (BufferedWriter writer = newBufferedWriter()) {
 

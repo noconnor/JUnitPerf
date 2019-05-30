@@ -2,8 +2,7 @@ package com.github.noconnor.junitperf;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.junit.rules.TestRule;
@@ -19,6 +18,7 @@ import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsC
 
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 import static java.lang.System.nanoTime;
 import static java.util.Objects.nonNull;
 
@@ -26,7 +26,7 @@ import static java.util.Objects.nonNull;
 @SuppressWarnings("WeakerAccess")
 public class JUnitPerfRule implements TestRule {
 
-  static final Map<Class, Set<EvaluationContext>> ACTIVE_CONTEXTS = newHashMap();
+  static final Map<Class, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = newHashMap();
 
   private final Set<ReportGenerator> reporters;
 
@@ -64,7 +64,7 @@ public class JUnitPerfRule implements TestRule {
       context.loadRequirements(requirementsAnnotation);
 
       // Group test contexts by test class
-      ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), newHashSet());
+      ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), newLinkedHashSet());
       ACTIVE_CONTEXTS.get(description.getTestClass()).add(context);
 
       activeStatement = perEvalBuilder.baseStatement(base)
