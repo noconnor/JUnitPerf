@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -158,7 +159,7 @@ public class BaseReportGeneratorTest extends BaseTest {
     }
   }
 
-  protected Set<EvaluationContext> generateAllFailureOrderedContexts() {
+  protected LinkedHashSet<EvaluationContext> generateAllFailureOrderedContexts() {
     EvaluationContext context1 = createdFailedEvaluationContext("unittest1");
     EvaluationContext context2 = createdFailedEvaluationContext("unittest2");
     verifyAllValidationFailed(context1);
@@ -166,7 +167,7 @@ public class BaseReportGeneratorTest extends BaseTest {
     return newLinkedHashSet(newArrayList(context1, context2));
   }
 
-  protected Set<EvaluationContext> generateAllPassedOrderedContexts() {
+  protected LinkedHashSet<EvaluationContext> generateAllPassedOrderedContexts() {
     EvaluationContext context1 = createdSuccessfulEvaluationContext("unittest1");
     EvaluationContext context2 = createdSuccessfulEvaluationContext("unittest2");
     verifyAllValidationPassed(context1);
@@ -174,7 +175,7 @@ public class BaseReportGeneratorTest extends BaseTest {
     return newLinkedHashSet(newArrayList(context1, context2));
   }
 
-  protected Set<EvaluationContext> generateMixedOrderedContexts() {
+  protected LinkedHashSet<EvaluationContext> generateMixedOrderedContexts() {
     EvaluationContext context1 = createdFailedEvaluationContext("unittest1");
     EvaluationContext context2 = createdSuccessfulEvaluationContext("unittest2");
     verifyAllValidationFailed(context1);
@@ -182,7 +183,7 @@ public class BaseReportGeneratorTest extends BaseTest {
     return newLinkedHashSet(newArrayList(context1, context2));
   }
 
-  protected Set<EvaluationContext> generateSomeFailuresContext() {
+  protected LinkedHashSet<EvaluationContext> generateSomeFailuresContext() {
     EvaluationContext context = createdSomeFailuresEvaluationContext("unittest1");
     return newLinkedHashSet(newArrayList(context));
   }

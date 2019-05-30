@@ -2,12 +2,10 @@ package com.github.noconnor.junitperf.reporting.providers;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
-import com.google.common.collect.Sets;
 
 import static com.github.noconnor.junitperf.reporting.utils.FormatterUtils.format;
 
@@ -17,19 +15,16 @@ public class ConsoleReportGenerator implements ReportGenerator {
   private static final String PASSED = "PASSED";
   private static final String FAILED = "FAILED!!";
 
-  private final Set<EvaluationContext> history;
-
-  public ConsoleReportGenerator() {
-    this.history = new HashSet<>();
-  }
 
   @Override
-  public void generateReport(Set<EvaluationContext> testContexts) {
-    // Only output the difference - new contexts
-    Sets.difference(testContexts, history).forEach( c -> {
-      history.add(c);
-      updateReport(c);
-    });
+  public void generateReport(LinkedHashSet<EvaluationContext> testContexts) {
+    // Only output the last context
+    final Iterator<EvaluationContext> itr = testContexts.iterator();
+    EvaluationContext context = itr.next();
+    while (itr.hasNext()) {
+      context = itr.next();
+    }
+    updateReport(context);
   }
 
   public void updateReport(EvaluationContext context) {
