@@ -53,7 +53,7 @@ To add the latest version of `JunitPerf` to your gradle project add the followin
 ### Synchronous Usage
 
 This section contains details for usage of the `JUnitPerf` library in *synchronous* mode. 
-To see example test cases browse to the [src/test/examples/](src/test/examples/) folder. 
+To see example test cases browse to the [junit4-examples/src/test/examples/](junit4-examples/src/test/examples/) folder. 
 
 Add the JUnitPerf Rule to your test class
 
@@ -247,7 +247,7 @@ By default, the JUnitPerf library will generate a HTML performance report under 
 
 An example report can be seen below
 
-![HTML Report](https://raw.githubusercontent.com/noconnor/JUnitPerf/master/src/common/images/example_report.png "Example JUnitPerf html report")
+![HTML Report](https://raw.githubusercontent.com/noconnor/JUnitPerf/master/docs/common/images/example_report.png "Example JUnitPerf html report")
 
 Hovering over the datapoints on the percentile latency graph will provide latency/percentile information. 
 It is possible to override the default output path by constructing the `JUnitPerfRule` in the following way:

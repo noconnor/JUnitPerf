@@ -1,0 +1,61 @@
+
+group 'com.github.noconnor'
+version '1.16.0'
+
+dependencies {
+    implementation project(':junitperf-core')
+    compile 'junit:junit:4.12'
+    compile "com.google.guava:guava:19.0"
+    compileOnly "org.projectlombok:lombok:1.16.18"
+    annotationProcessor "org.projectlombok:lombok:1.16.18"
+    testCompile 'org.mockito:mockito-core:2.11.0'
+    testCompile "org.hamcrest:hamcrest-junit:2.0.0.0"
+}
+
+// http://central.sonatype.org/pages/gradle.html
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
+            }
+
+            pom.project {
+                name 'junitperf'
+                artifactId 'junitperf'
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description 'API performance testing framework built using JUnit'
+                url 'https://github.com/noconnor/JUnitPerf'
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                scm {
+                    connection 'scm:git@github.com:noconnor/JUnitPerf.git'
+                    developerConnection 'scm:git@github.com:noconnor/JUnitPerf.git'
+                    url 'git@github.com:noconnor/JUnitPerf.git'
+                }
+
+                developers {
+                    developer {
+                        id 'noconnor'
+                        name 'noconnor'
+                        email 'noconnorie@protonmail.com'
+                    }
+                }
+
+            }
+        }
+    }
+}
