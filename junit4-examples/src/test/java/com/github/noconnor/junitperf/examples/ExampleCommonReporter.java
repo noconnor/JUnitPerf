@@ -43,7 +43,7 @@ public class ExampleCommonReporter {
     @Rule
     public JUnitPerfRule perfRule = new JUnitPerfRule(REPORTER);
 
-    @Test(expected = AssertionError.class)
+    @Test
     @JUnitPerfTest(threads = 1, durationMs = 1_000, maxExecutionsPerSecond = 1_000)
     @JUnitPerfTestRequirement(executionsPerSec = 10_000)
     public void whenThroughputRequirementIsNotMet_thenTestShouldFail() throws InterruptedException {
