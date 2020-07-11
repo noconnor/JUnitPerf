@@ -19,33 +19,49 @@ shadowJar {
     }
 }
 
-jar.enabled = false
-
-configurations.archives.artifacts.clear()
-artifacts {
-    add("archives", shadowJar)
+jar {
+    archiveClassifier = 'minimised'
 }
 
-task javadocJar(type: Jar) {
+task shadowJavadocJar(type: Jar) {
     from javadoc.destinationDir
     archiveBaseName = 'junitperf'
     archiveClassifier = 'javadoc'
 }
 
-task sourcesJar(type: Jar) {
+task shadowSourcesJar(type: Jar) {
     archiveBaseName = 'junitperf'
     archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
+task javadocJar(type: Jar) {
+    from javadoc.destinationDir
+    archiveClassifier = 'minimised-javadoc'
+}
+
+task sourcesJar(type: Jar) {
+    archiveClassifier = 'minimised-sources'
+    from sourceSets.main.allSource
+}
+
 artifacts {
+    archives shadowJar
+    archives shadowJavadocJar
+    archives shadowSourcesJar
+    archives jar
     archives sourcesJar
     archives javadocJar
 }
 
 // http://blog.sonatype.com/2010/01/how-to-generate-pgp-signatures-with-maven/
 signing {
-    sign configurations.archives
+    sign shadowJavadocJar
+    sign shadowSourcesJar
+    sign javadocJar
+    sign sourcesJar
+    sign shadowJar
+    sign jar
 }
 
 // http://central.sonatype.org/pages/gradle.html
