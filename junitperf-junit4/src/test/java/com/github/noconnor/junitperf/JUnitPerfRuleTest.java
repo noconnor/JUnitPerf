@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -21,7 +20,9 @@ import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Answers.RETURNS_SELF;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -54,7 +55,7 @@ public class JUnitPerfRuleTest {
   @Mock
   private JUnitPerfTestRequirement requirementAnnotationMock;
 
-  @Mock(answer = Answers.RETURNS_SELF)
+  @Mock(answer = RETURNS_SELF)
   private PerformanceEvaluationStatementBuilder perfEvalBuilderMock;
 
   @Mock
@@ -159,15 +160,15 @@ public class JUnitPerfRuleTest {
   @SuppressWarnings("unchecked")
   private LinkedHashSet<EvaluationContext> captureReportContexts() {
     ArgumentCaptor<LinkedHashSet<EvaluationContext>> captor = ArgumentCaptor.forClass(LinkedHashSet.class);
-    verify(csvReporterMock, Mockito.atLeastOnce()).generateReport(captor.capture());
-    verify(htmlReporterMock, Mockito.atLeastOnce()).generateReport(captor.capture());
+    verify(csvReporterMock, atLeastOnce()).generateReport(captor.capture());
+    verify(htmlReporterMock, atLeastOnce()).generateReport(captor.capture());
     return captor.getValue();
   }
 
   @SuppressWarnings("unchecked")
   private Consumer<Void> captureListener() {
     ArgumentCaptor<Consumer<Void>> captor = ArgumentCaptor.forClass(Consumer.class);
-    verify(perfEvalBuilderMock, Mockito.atLeastOnce()).listener(captor.capture());
+    verify(perfEvalBuilderMock, atLeastOnce()).listener(captor.capture());
     return captor.getValue();
   }
 

@@ -24,7 +24,7 @@ import static java.util.stream.Collectors.toSet;
 @SuppressWarnings("WeakerAccess")
 public class JUnitPerfRule implements TestRule {
 
-  static final Map<Class, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = new HashMap<>();
+  static final Map<Class<?>, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = new HashMap<>();
 
   private final Set<ReportGenerator> reporters;
 
@@ -62,9 +62,10 @@ public class JUnitPerfRule implements TestRule {
       context.loadRequirements(requirementsAnnotation);
 
       // Group test contexts by test class
-      ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), new LinkedHashSet());
+      ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), new LinkedHashSet<>());
       ACTIVE_CONTEXTS.get(description.getTestClass()).add(context);
 
+      @SuppressWarnings("Convert2MethodRef")
       TestStatement test = perEvalBuilder.baseStatement(() -> base.evaluate())
         .statistics(statisticsCalculator)
         .context(context)

@@ -7,7 +7,7 @@ version '1.16.0'
 
 dependencies {
     implementation project(':junitperf-core')
-    compile 'junit:junit:4.12'
+    implementation 'junit:junit:4.12'
 }
 
 
