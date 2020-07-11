@@ -1,114 +1,40 @@
-apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'maven-publish'
-apply plugin: 'signing'
-apply plugin: 'jacoco'
 
-group = 'com.github.noconnor'
-sourceCompatibility = 1.8
-// http://semver.org/
-version = '1.15.0'
+subprojects {
 
-repositories {
-    mavenCentral()
-    jcenter()
-}
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'signing'
+    apply plugin: 'jacoco'
 
-dependencies {
-    compile "org.apache.commons:commons-lang3:3.4"
-    compile "ch.qos.logback:logback-classic:1.1.3"
-    compile "com.google.guava:guava:19.0"
-    compile "commons-collections:commons-collections:3.2.2"
-    compile 'junit:junit:4.12'
-    compile 'org.apache.commons:commons-math3:3.6.1'
-
-    // Reporting
-    compile "org.jtwig:jtwig-core:5.86.1.RELEASE"
-    compileOnly "org.projectlombok:lombok:1.16.18"
-
-    testCompile 'org.mockito:mockito-core:2.11.0'
-    testCompile "org.hamcrest:hamcrest-junit:2.0.0.0"
-}
-
-jar {
-    baseName "junitperf"
-    duplicatesStrategy "exclude"
-}
-
-
-task javadocJar(type: Jar) {
-    from javadoc.destinationDir
-    classifier = 'javadoc'
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-}
-
-// http://blog.sonatype.com/2010/01/how-to-generate-pgp-signatures-with-maven/
-signing {
-    sign configurations.archives
-}
-
-// http://central.sonatype.org/pages/gradle.html
-uploadArchives {
     repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
+    dependencies {
+        testImplementation 'org.mockito:mockito-core:2.11.0'
+        testImplementation "org.hamcrest:hamcrest-junit:2.0.0.0"
+    }
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+            html.enabled false
+        }
+    }
 
-            pom.project {
-                name 'junitperf'
-                artifactId 'junitperf'
-                packaging 'jar'
-                // optionally artifactId can be defined here
-                description 'API performance testing framework built using JUnit'
-                url 'https://github.com/noconnor/JUnitPerf'
+    check.dependsOn jacocoTestReport
+}
 
-                licenses {
-                    license {
-                        name 'The Apache License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-
-                scm {
-                    connection 'scm:git@github.com:noconnor/JUnitPerf.git'
-                    developerConnection 'scm:git@github.com:noconnor/JUnitPerf.git'
-                    url 'git@github.com:noconnor/JUnitPerf.git'
-                }
-
-                developers {
-                    developer {
-                        id 'noconnor'
-                        name 'noconnor'
-                        email 'noconnorie@protonmail.com'
-                    }
-                }
-
-            }
+project('junit4-examples') {
+    test {
+        onlyIf {
+            project.hasProperty("runExamples")
         }
     }
 }
-
-jacocoTestReport {
-    reports {
-        xml.enabled true
-        html.enabled false
-    }
-}
-
-check.dependsOn jacocoTestReport

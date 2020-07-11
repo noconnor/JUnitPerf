@@ -1,0 +1,7 @@
+
+group 'com.github.noconnor'
+version '1.16.0'
+
+dependencies {
+    implementation project(':junitperf-core')
+}
