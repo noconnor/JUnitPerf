@@ -56,12 +56,7 @@ artifacts {
 
 // http://blog.sonatype.com/2010/01/how-to-generate-pgp-signatures-with-maven/
 signing {
-    sign shadowJavadocJar
-    sign shadowSourcesJar
-    sign javadocJar
-    sign sourcesJar
-    sign shadowJar
-    sign jar
+    sign configurations.archives
 }
 
 // http://central.sonatype.org/pages/gradle.html
