@@ -8,6 +8,7 @@ subprojects {
     apply plugin: 'jacoco'
 
     repositories {
+        mavenLocal()
         mavenCentral()
         jcenter()
         maven {

@@ -6,6 +6,6 @@ group 'com.github.noconnor'
 version '1.16.0'
 
 dependencies {
-    implementation project(':junitperf-core')
-    implementation project(':junitperf-junit4')
+    testCompile 'junit:junit:4.12'
+    testCompile 'com.github.noconnor:junitperf:1.15.0'
 }

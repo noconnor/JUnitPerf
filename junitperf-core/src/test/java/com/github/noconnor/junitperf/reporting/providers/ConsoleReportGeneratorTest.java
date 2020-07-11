@@ -4,7 +4,6 @@ import java.util.LinkedHashSet;
 import org.junit.Before;
 import org.junit.Test;
 import com.github.noconnor.junitperf.data.EvaluationContext;
-
 import com.github.noconnor.junitperf.reporting.BaseReportGeneratorTest;
 
 import static org.junit.Assert.assertNull;

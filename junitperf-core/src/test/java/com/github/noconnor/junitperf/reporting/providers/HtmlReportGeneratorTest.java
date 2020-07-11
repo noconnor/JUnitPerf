@@ -2,11 +2,9 @@ package com.github.noconnor.junitperf.reporting.providers;
 
 import java.io.File;
 import java.io.IOException;
-
-import com.github.noconnor.junitperf.datetime.DatetimeUtils;
-
 import org.junit.Before;
 import org.junit.Test;
+import com.github.noconnor.junitperf.datetime.DatetimeUtils;
 import com.github.noconnor.junitperf.reporting.BaseReportGeneratorTest;
 
 import static java.lang.System.getProperty;

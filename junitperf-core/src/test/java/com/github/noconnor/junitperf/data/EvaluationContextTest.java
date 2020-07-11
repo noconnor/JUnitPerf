@@ -1,17 +1,15 @@
 package com.github.noconnor.junitperf.data;
 
-import com.github.noconnor.junitperf.BaseTest;
-import com.github.noconnor.junitperf.JUnitPerfTest;
-import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
-
-import com.github.noconnor.junitperf.datetime.DatetimeUtils;
-import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import java.util.Map;
+import com.github.noconnor.junitperf.BaseTest;
+import com.github.noconnor.junitperf.JUnitPerfTest;
+import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
+import com.github.noconnor.junitperf.datetime.DatetimeUtils;
+import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+import com.google.common.collect.ImmutableMap;
 
 import static java.lang.System.nanoTime;
 import static java.util.Collections.emptyMap;

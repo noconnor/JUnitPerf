@@ -26,10 +26,10 @@ final class EvaluationTask implements Runnable {
 
   // Test only
   EvaluationTask(TestStatement statement,
-                 RateLimiter rateLimiter,
-                 Supplier<Boolean> terminator,
-                 StatisticsCalculator stats,
-                 int warmUpPeriodMs) {
+    RateLimiter rateLimiter,
+    Supplier<Boolean> terminator,
+    StatisticsCalculator stats,
+    int warmUpPeriodMs) {
     this.statement = statement;
     this.rateLimiter = rateLimiter;
     this.terminator = terminator;

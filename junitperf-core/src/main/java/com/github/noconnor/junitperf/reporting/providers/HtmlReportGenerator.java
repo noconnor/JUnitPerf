@@ -1,7 +1,5 @@
 package com.github.noconnor.junitperf.reporting.providers;
 
-import com.github.noconnor.junitperf.data.EvaluationContext;
-import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -12,6 +10,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
+import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.reporting.ReportGenerator;
 
 import static java.lang.System.getProperty;
 

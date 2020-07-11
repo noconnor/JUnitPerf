@@ -1,7 +1,5 @@
 package com.github.noconnor.junitperf.reporting.providers;
 
-import com.github.noconnor.junitperf.data.EvaluationContext;
-import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedWriter;
@@ -14,6 +12,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
+import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.google.common.base.Joiner;
 
 import static java.lang.System.getProperty;

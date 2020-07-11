@@ -32,10 +32,10 @@ public class PerformanceEvaluationStatement implements TestStatement {
 
   @Builder
   private PerformanceEvaluationStatement(TestStatement baseStatement,
-                                         StatisticsCalculator statistics,
-                                         EvaluationContext context,
-                                         ThreadFactory threadFactory,
-                                         Consumer<Void> listener) {
+    StatisticsCalculator statistics,
+    EvaluationContext context,
+    ThreadFactory threadFactory,
+    Consumer<Void> listener) {
     this.context = context;
     this.baseStatement = baseStatement;
     this.statistics = statistics;

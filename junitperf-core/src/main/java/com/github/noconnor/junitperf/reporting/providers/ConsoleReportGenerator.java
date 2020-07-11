@@ -1,12 +1,13 @@
 package com.github.noconnor.junitperf.reporting.providers;
 
-import com.github.noconnor.junitperf.data.EvaluationContext;
-import com.github.noconnor.junitperf.reporting.ReportGenerator;
-import com.github.noconnor.junitperf.reporting.utils.FormatterUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.reporting.ReportGenerator;
+
+import static com.github.noconnor.junitperf.reporting.utils.FormatterUtils.format;
 
 @Slf4j
 public class ConsoleReportGenerator implements ReportGenerator {
@@ -48,19 +49,19 @@ public class ConsoleReportGenerator implements ReportGenerator {
       throughputStatus);
     log.info("Min. latency:   {} ms (Required: {}ms) - {}",
       context.getMinLatencyMs(),
-      FormatterUtils.format(context.getRequiredMinLatency()));
+      format(context.getRequiredMinLatency()));
     log.info("Max. latency:    {} ms (Required: {}ms) - {}",
       context.getMaxLatencyMs(),
-      FormatterUtils.format(context.getRequiredMaxLatency()));
+      format(context.getRequiredMaxLatency()));
     log.info("Ave. latency:    {} ms (Required: {}ms) - {}",
       context.getMeanLatencyMs(),
-      FormatterUtils.format(context.getRequiredMeanLatency()));
+      format(context.getRequiredMeanLatency()));
     context.getRequiredPercentiles().forEach((percentile, threshold) -> {
       String percentileStatus = context.getPercentileResults().get(percentile) ? PASSED : FAILED;
       log.info("{}:    {}ms (Required: {} ms) - {}",
         percentile,
         context.getLatencyPercentileMs(percentile),
-        FormatterUtils.format(threshold),
+        format(threshold),
         percentileStatus);
     });
     log.info("");

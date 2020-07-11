@@ -2,8 +2,6 @@ package com.github.noconnor.junitperf;
 
 import java.util.LinkedHashSet;
 import java.util.function.Consumer;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 
 public class JUnitPerfRuleTest {
@@ -93,7 +92,7 @@ public class JUnitPerfRuleTest {
   public void whenExecutingApply_andNoJunitPerfTestAnnotationIsPresent_thenTheBaseStatementShouldBeReturned() {
     mockJunitPerfTestAnnotationNotPresent();
     Statement statement = perfRule.apply(statementMock, descriptionMock);
-    MatcherAssert.assertThat(statement, is(statementMock));
+    assertThat(statement, is(statementMock));
   }
 
   @Test
@@ -115,11 +114,11 @@ public class JUnitPerfRuleTest {
   @SuppressWarnings("unchecked")
   public void whenExecutingApply_thenJunitPerfTestAnnotationAttributesShouldBeUsedWhenBuildingEvalStatement() {
     perfRule.apply(statementMock, descriptionMock);
-    Mockito.verify(perfEvalBuilderMock).baseStatement(any());
-    Mockito.verify(perfEvalBuilderMock).statistics(statisticsCalculatorMock);
-    Mockito.verify(perfEvalBuilderMock).context(any(EvaluationContext.class));
-    Mockito.verify(perfEvalBuilderMock).listener(any(Consumer.class));
-    Mockito.verify(perfEvalBuilderMock).build();
+    verify(perfEvalBuilderMock).baseStatement(any());
+    verify(perfEvalBuilderMock).statistics(statisticsCalculatorMock);
+    verify(perfEvalBuilderMock).context(any(EvaluationContext.class));
+    verify(perfEvalBuilderMock).listener(any(Consumer.class));
+    verify(perfEvalBuilderMock).build();
     verifyNoMoreInteractions(perfEvalBuilderMock);
   }
 
@@ -149,7 +148,7 @@ public class JUnitPerfRuleTest {
   @Test
   public void whenCallingCreateEvaluationContext_thenContextShouldHaveAsyncFlagSetToFalse() {
     EvaluationContext context = perfRule.createEvaluationContext(descriptionMock);
-    MatcherAssert.assertThat(context.isAsyncEvaluation(), is(false));
+    assertThat(context.isAsyncEvaluation(), is(false));
   }
 
   private void triggerReportGeneration() {
@@ -160,49 +159,49 @@ public class JUnitPerfRuleTest {
   @SuppressWarnings("unchecked")
   private LinkedHashSet<EvaluationContext> captureReportContexts() {
     ArgumentCaptor<LinkedHashSet<EvaluationContext>> captor = ArgumentCaptor.forClass(LinkedHashSet.class);
-    Mockito.verify(csvReporterMock, Mockito.atLeastOnce()).generateReport(captor.capture());
-    Mockito.verify(htmlReporterMock, Mockito.atLeastOnce()).generateReport(captor.capture());
+    verify(csvReporterMock, Mockito.atLeastOnce()).generateReport(captor.capture());
+    verify(htmlReporterMock, Mockito.atLeastOnce()).generateReport(captor.capture());
     return captor.getValue();
   }
 
   @SuppressWarnings("unchecked")
   private Consumer<Void> captureListener() {
     ArgumentCaptor<Consumer<Void>> captor = ArgumentCaptor.forClass(Consumer.class);
-    Mockito.verify(perfEvalBuilderMock, Mockito.atLeastOnce()).listener(captor.capture());
+    verify(perfEvalBuilderMock, Mockito.atLeastOnce()).listener(captor.capture());
     return captor.getValue();
   }
 
   private void initialisePerfEvalBuilderMock() {
-    Mockito.when(perfEvalBuilderMock.build()).thenReturn(perfEvalStatement);
+    when(perfEvalBuilderMock.build()).thenReturn(perfEvalStatement);
   }
 
   private void mockJunitPerfTestAnnotationPresent() {
-    Mockito.when(descriptionMock.getAnnotation(JUnitPerfTest.class)).thenReturn(perfTestAnnotationMock);
+    when(descriptionMock.getAnnotation(JUnitPerfTest.class)).thenReturn(perfTestAnnotationMock);
   }
 
   private void mockJunitPerfTestRequirementAnnotationPresent() {
-    Mockito.when(descriptionMock.getAnnotation(JUnitPerfTestRequirement.class)).thenReturn(requirementAnnotationMock);
+    when(descriptionMock.getAnnotation(JUnitPerfTestRequirement.class)).thenReturn(requirementAnnotationMock);
   }
 
   private void mockJunitPerfTestAnnotationNotPresent() {
-    Mockito.when(descriptionMock.getAnnotation(JUnitPerfTest.class)).thenReturn(null);
+    when(descriptionMock.getAnnotation(JUnitPerfTest.class)).thenReturn(null);
   }
 
   private void mockJunitPerfTestRequirementAnnotationNotPresent() {
-    Mockito.when(descriptionMock.getAnnotation(JUnitPerfTestRequirement.class)).thenReturn(null);
+    when(descriptionMock.getAnnotation(JUnitPerfTestRequirement.class)).thenReturn(null);
   }
 
   private void initialisePerfTestAnnotationMock() {
-    Mockito.when(perfTestAnnotationMock.durationMs()).thenReturn(DURATION);
-    Mockito.when(perfTestAnnotationMock.maxExecutionsPerSecond()).thenReturn(RATE_LIMIT);
-    Mockito.when(perfTestAnnotationMock.threads()).thenReturn(THREADS);
-    Mockito.when(perfTestAnnotationMock.warmUpMs()).thenReturn(WARM_UP);
+    when(perfTestAnnotationMock.durationMs()).thenReturn(DURATION);
+    when(perfTestAnnotationMock.maxExecutionsPerSecond()).thenReturn(RATE_LIMIT);
+    when(perfTestAnnotationMock.threads()).thenReturn(THREADS);
+    when(perfTestAnnotationMock.warmUpMs()).thenReturn(WARM_UP);
   }
 
   private void initialisePerfTestRequirementAnnotationMock() {
-    Mockito.when(requirementAnnotationMock.allowedErrorPercentage()).thenReturn(ALLOWED_ERRORS);
-    Mockito.when(requirementAnnotationMock.percentiles()).thenReturn(PERCENTILES);
-    Mockito.when(requirementAnnotationMock.executionsPerSec()).thenReturn(THROUGHPUT);
+    when(requirementAnnotationMock.allowedErrorPercentage()).thenReturn(ALLOWED_ERRORS);
+    when(requirementAnnotationMock.percentiles()).thenReturn(PERCENTILES);
+    when(requirementAnnotationMock.executionsPerSec()).thenReturn(THROUGHPUT);
   }
 
   private void initialiseDescriptionMock() {

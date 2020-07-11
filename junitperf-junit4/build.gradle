@@ -8,8 +8,6 @@ version '1.16.0'
 dependencies {
     implementation project(':junitperf-core')
     compile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:2.11.0'
-    testCompile "org.hamcrest:hamcrest-junit:2.0.0.0"
 }
 
 
@@ -49,14 +47,6 @@ artifacts {
 signing {
     sign configurations.archives
 }
-
-//publishing {
-//    publications {
-//        shadow(MavenPublication) { publication ->
-//            project.shadow.component(publication)
-//        }
-//    }
-//}
 
 // http://central.sonatype.org/pages/gradle.html
 uploadArchives {

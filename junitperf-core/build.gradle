@@ -13,9 +13,6 @@ dependencies {
     compile "org.jtwig:jtwig-core:5.86.1.RELEASE"
     compileOnly "org.projectlombok:lombok:1.16.18"
     annotationProcessor "org.projectlombok:lombok:1.16.18"
-
-    testCompile 'org.mockito:mockito-core:2.11.0'
-    testCompile "org.hamcrest:hamcrest-junit:2.0.0.0"
 }
 
 jar {
@@ -25,11 +22,11 @@ jar {
 
 task javadocJar(type: Jar) {
     from javadoc.destinationDir
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
 }
 
 task sourcesJar(type: Jar) {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
