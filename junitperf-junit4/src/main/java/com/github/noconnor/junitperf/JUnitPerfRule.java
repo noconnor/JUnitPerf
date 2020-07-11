@@ -1,7 +1,7 @@
 package com.github.noconnor.junitperf;
 
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -16,17 +16,15 @@ import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.P
 import com.github.noconnor.junitperf.statements.TestStatement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import static java.lang.System.nanoTime;
 import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toSet;
 
-@Slf4j
 @SuppressWarnings("WeakerAccess")
 public class JUnitPerfRule implements TestRule {
 
-  static final Map<Class, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = Maps.newHashMap();
+  static final Map<Class, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = new HashMap<>();
 
   private final Set<ReportGenerator> reporters;
 
@@ -48,7 +46,7 @@ public class JUnitPerfRule implements TestRule {
   public JUnitPerfRule(StatisticsCalculator statisticsCalculator, ReportGenerator... reportGenerator) {
     this.perEvalBuilder = PerformanceEvaluationStatement.builder();
     this.statisticsCalculator = statisticsCalculator;
-    this.reporters = Sets.newHashSet(reportGenerator);
+    this.reporters = Arrays.stream(reportGenerator).collect(toSet());
   }
 
   @Override
@@ -64,7 +62,7 @@ public class JUnitPerfRule implements TestRule {
       context.loadRequirements(requirementsAnnotation);
 
       // Group test contexts by test class
-      ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), Sets.newLinkedHashSet());
+      ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), new LinkedHashSet());
       ACTIVE_CONTEXTS.get(description.getTestClass()).add(context);
 
       TestStatement test = perEvalBuilder.baseStatement(() -> base.evaluate())

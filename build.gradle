@@ -10,36 +10,14 @@ subprojects {
     repositories {
         mavenCentral()
         jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
 
     dependencies {
         testCompile 'org.mockito:mockito-core:2.11.0'
         testCompile "org.hamcrest:hamcrest-junit:2.0.0.0"
-    }
-
-    jar {
-        baseName "junitperf"
-        duplicatesStrategy "exclude"
-    }
-
-    task javadocJar(type: Jar) {
-        from javadoc.destinationDir
-        classifier = 'javadoc'
-    }
-
-    task sourcesJar(type: Jar) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-
-    artifacts {
-        archives sourcesJar
-        archives javadocJar
-    }
-
-    // http://blog.sonatype.com/2010/01/how-to-generate-pgp-signatures-with-maven/
-    signing {
-        sign configurations.archives
     }
 
     jacocoTestReport {
