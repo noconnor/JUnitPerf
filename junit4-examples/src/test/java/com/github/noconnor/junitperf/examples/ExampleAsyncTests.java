@@ -12,10 +12,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.github.noconnor.junitperf.examples.utils.ReportingUtils.newHtmlReporter;
+
 public class ExampleAsyncTests {
 
   @Rule
-  public JUnitPerfAsyncRule rule = new JUnitPerfAsyncRule();
+  public JUnitPerfAsyncRule rule = new JUnitPerfAsyncRule(newHtmlReporter("async_test.html"));
 
   private static ExecutorService pool;
 

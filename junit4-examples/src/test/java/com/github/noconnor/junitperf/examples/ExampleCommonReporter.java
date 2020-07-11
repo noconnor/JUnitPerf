@@ -12,6 +12,7 @@ import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
 import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
 
+import static com.github.noconnor.junitperf.examples.utils.ReportingUtils.newHtmlReporter;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Suite.class)
@@ -22,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 public class ExampleCommonReporter {
 
   // Both test classes should report to the same HTML file
-  private static final HtmlReportGenerator REPORTER = new HtmlReportGenerator();
+  private static final HtmlReportGenerator REPORTER = newHtmlReporter("common_reporter.html");
 
   public static class TestClassOne {
     @Rule

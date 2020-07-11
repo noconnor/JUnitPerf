@@ -8,12 +8,13 @@ import org.junit.Test;
 import com.github.noconnor.junitperf.JUnitPerfRule;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 
+import static com.github.noconnor.junitperf.examples.utils.ReportingUtils.newHtmlReporter;
 import static org.junit.Assert.assertTrue;
 
 public class ExampleSuccessTests {
 
   @Rule
-  public JUnitPerfRule perfRule = new JUnitPerfRule();
+  public JUnitPerfRule perfRule = new JUnitPerfRule(newHtmlReporter("success.html"));
 
   @Test
   @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000, maxExecutionsPerSecond = 100)

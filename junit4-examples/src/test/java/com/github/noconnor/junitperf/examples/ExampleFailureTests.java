@@ -6,10 +6,12 @@ import com.github.noconnor.junitperf.JUnitPerfRule;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
 
+import static com.github.noconnor.junitperf.examples.utils.ReportingUtils.newHtmlReporter;
+
 public class ExampleFailureTests {
 
   @Rule
-  public JUnitPerfRule perfRule = new JUnitPerfRule();
+  public JUnitPerfRule perfRule = new JUnitPerfRule(newHtmlReporter("failures.html"));
 
   @Test(expected = AssertionError.class)
   @JUnitPerfTest(threads = 1, durationMs = 1_000, maxExecutionsPerSecond = 1_000)
