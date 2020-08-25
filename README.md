@@ -53,7 +53,7 @@ To add the latest version of `JunitPerf` to your gradle project add the followin
 ### Synchronous Usage
 
 This section contains details for usage of the `JUnitPerf` library in *synchronous* mode. 
-To see example test cases browse to the [junit4-examples/src/test/examples/](junit4-examples/src/test/examples/) folder. 
+To see example test cases browse to the [junit4-examples/src/test/java/com/github/noconnor/junitperf/examples](junit4-examples/src/test/examples/) folder. 
 
 Add the JUnitPerf Rule to your test class
 
@@ -117,7 +117,7 @@ More information on statistic calculations can be found [here](#statistics)
 
 
 This section contains details for usage of the `JUnitPerf` library in *asynchronous* mode. 
-To see example test cases browse to the [src/test/examples/ExampleAsyncTests](src/test/examples/ExampleAsyncTests.java) folder. 
+To see example test cases browse to the [junit4-examples/src/test/java/com/github/noconnor/junitperf/examples/ExampleAsyncTests.java](src/test/examples/ExampleAsyncTests.java) folder. 
 
 Add the async JUnitPerf Rule to your test class
 
@@ -355,7 +355,7 @@ With this configuration a HTML report **AND** a CSV report will be generated
 ## Statistics
 
 By default, statistics are captured and calculated using the apache [Descriptive Statistics library](http://commons.apache.org/proper/commons-math/userguide/stat.html#a1.2_Descriptive_statistics).
-See [DescriptiveStatisticsCalculator](src/main/java/com/github/noconnor/junitperf/statistics/providers/DescriptiveStatisticsCalculator.java) for more details.
+See [DescriptiveStatisticsCalculator](junitperf-core/src/main/java/com/github/noconnor/junitperf/statistics/providers/DescriptiveStatisticsCalculator.java) for more details.
 
 To override the default statistics calculation class, a custom implementation of the `StatisticsCalculator` interface can 
 be passed to the `JUnitPerfRule` constructor:
