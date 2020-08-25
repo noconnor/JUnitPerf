@@ -117,7 +117,7 @@ More information on statistic calculations can be found [here](#statistics)
 
 
 This section contains details for usage of the `JUnitPerf` library in *asynchronous* mode. 
-To see example test cases browse to the [ExampleAsyncTests.java](src/test/examples/ExampleAsyncTests.java) folder. 
+To see example test cases browse to the [ExampleAsyncTests.java](junit4-examples/src/test/java/com/github/noconnor/junitperf/examples/ExampleAsyncTests.java). 
 
 Add the async JUnitPerf Rule to your test class
 
