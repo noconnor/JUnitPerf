@@ -53,7 +53,7 @@ To add the latest version of `JunitPerf` to your gradle project add the followin
 ### Synchronous Usage
 
 This section contains details for usage of the `JUnitPerf` library in *synchronous* mode. 
-To see example test cases browse to the [junit4-examples/src/test/java/com/github/noconnor/junitperf/examples](junit4-examples/src/test/examples/) folder. 
+To see example test cases browse to the [junit4-examples/src/test/examples/](junit4-examples/src/test/java/com/github/noconnor/junitperf/examples) folder. 
 
 Add the JUnitPerf Rule to your test class
 
@@ -117,7 +117,7 @@ More information on statistic calculations can be found [here](#statistics)
 
 
 This section contains details for usage of the `JUnitPerf` library in *asynchronous* mode. 
-To see example test cases browse to the [junit4-examples/src/test/java/com/github/noconnor/junitperf/examples/ExampleAsyncTests.java](src/test/examples/ExampleAsyncTests.java) folder. 
+To see example test cases browse to the [ExampleAsyncTests.java](src/test/examples/ExampleAsyncTests.java) folder. 
 
 Add the async JUnitPerf Rule to your test class
 
