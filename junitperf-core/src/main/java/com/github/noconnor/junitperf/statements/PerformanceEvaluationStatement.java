@@ -76,6 +76,9 @@ public class PerformanceEvaluationStatement implements TestStatement {
   private void assertThresholdsMet() {
     assertThat("Error threshold not achieved", context.isErrorThresholdAchieved(), true);
     assertThat("Test throughput threshold not achieved", context.isThroughputAchieved(), true);
+    assertThat("Test min latency threshold not achieved", context.isMinLatencyAchieved(), true);
+    assertThat("Test max latency threshold not achieved", context.isMaxLatencyAchieved(), true);
+    assertThat("Test mean latency threshold not achieved", context.isMeanLatencyAchieved(), true);
     context.getPercentileResults().forEach((percentile, isAchieved) -> {
       assertThat(format("%dth Percentile has not achieved required threshold", percentile), isAchieved, true);
     });

@@ -124,6 +124,39 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   }
 
   @Test
+  public void whenEvaluationCompletes_andMinLatencyValidationFails_thenAssertionShouldBeGenerated() throws Throwable {
+    when(contextMock.isMinLatencyAchieved()).thenReturn(false);
+    try {
+      statement.evaluate();
+      fail("Assertion expected during validation");
+    } catch (Error e) {
+      assertThat(e.getMessage(), startsWith("Test min latency threshold not achieved"));
+    }
+  }
+
+  @Test
+  public void whenEvaluationCompletes_andMeanLatencyValidationFails_thenAssertionShouldBeGenerated() throws Throwable {
+    when(contextMock.isMeanLatencyAchieved()).thenReturn(false);
+    try {
+      statement.evaluate();
+      fail("Assertion expected during validation");
+    } catch (Error e) {
+      assertThat(e.getMessage(), startsWith("Test mean latency threshold not achieved"));
+    }
+  }
+
+  @Test
+  public void whenEvaluationCompletes_andMaxLatencyValidationFails_thenAssertionShouldBeGenerated() throws Throwable {
+    when(contextMock.isMaxLatencyAchieved()).thenReturn(false);
+    try {
+      statement.evaluate();
+      fail("Assertion expected during validation");
+    } catch (Error e) {
+      assertThat(e.getMessage(), startsWith("Test max latency threshold not achieved"));
+    }
+  }
+
+  @Test
   public void whenEvaluationCompletes_andErrorValidationFails_thenAssertionShouldBeGenerated() throws Throwable {
     when(contextMock.isErrorThresholdAchieved()).thenReturn(false);
     try {
@@ -167,6 +200,9 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
     when(contextMock.getConfiguredDuration()).thenReturn(100);
     when(contextMock.isErrorThresholdAchieved()).thenReturn(true);
     when(contextMock.isThroughputAchieved()).thenReturn(true);
+    when(contextMock.isMaxLatencyAchieved()).thenReturn(true);
+    when(contextMock.isMinLatencyAchieved()).thenReturn(true);
+    when(contextMock.isMeanLatencyAchieved()).thenReturn(true);
     when(contextMock.getPercentileResults()).thenReturn(emptyMap());
   }
 

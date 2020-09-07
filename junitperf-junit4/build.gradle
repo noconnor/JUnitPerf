@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.github.noconnor'
-version '1.16.0'
+version '1.16.1'
 
 dependencies {
     implementation project(':junitperf-core')
