@@ -7,5 +7,6 @@ version '1.16.1'
 
 dependencies {
     testImplementation 'junit:junit:4.12'
-    testImplementation 'com.github.noconnor:junitperf-junit4:1.16.1'
+    testImplementation project(':junitperf-core')
+    testImplementation project(':junitperf-junit4')
 }
