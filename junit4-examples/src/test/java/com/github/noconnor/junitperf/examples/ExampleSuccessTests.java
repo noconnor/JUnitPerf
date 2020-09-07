@@ -9,7 +9,6 @@ import com.github.noconnor.junitperf.JUnitPerfRule;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 
 import static com.github.noconnor.junitperf.examples.utils.ReportingUtils.newHtmlReporter;
-import static org.junit.Assert.assertTrue;
 
 public class ExampleSuccessTests {
 
@@ -21,7 +20,6 @@ public class ExampleSuccessTests {
   public void whenNoRequirementsArePresent_thenTestShouldAlwaysPass() throws IOException {
     try (Socket socket = new Socket()) {
       socket.connect(new InetSocketAddress("www.google.com", 80), 1000);
-      assertTrue(socket.isConnected());
     }
   }
 }
