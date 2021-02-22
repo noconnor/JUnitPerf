@@ -7,5 +7,5 @@ version '1.17.0'
 
 dependencies {
     testImplementation 'junit:junit:4.12'
-    testImplementation 'com.github.noconnor:junitperf:4.12'
+    testImplementation 'com.github.noconnor:junitperf:1.16.1'
 }
