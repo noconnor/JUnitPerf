@@ -14,3 +14,6 @@
 **/out/
 **/target/**
 .gradle
+
+**/*.versionsBackup
+release.properties
