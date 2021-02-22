@@ -16,4 +16,5 @@
 .gradle
 
 **/*.versionsBackup
+**/*.releaseBackup
 release.properties
