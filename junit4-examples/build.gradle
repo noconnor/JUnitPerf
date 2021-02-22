@@ -3,10 +3,9 @@ plugins {
 }
 
 group 'com.github.noconnor'
-version '1.16.1'
+version '1.17.0'
 
 dependencies {
     testImplementation 'junit:junit:4.12'
-    testImplementation project(':junitperf-core')
-    testImplementation project(':junitperf-junit4')
+    testImplementation 'com.github.noconnor:junitperf:4.12'
 }
