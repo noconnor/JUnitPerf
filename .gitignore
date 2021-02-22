@@ -12,5 +12,5 @@
 **/classes/**
 
 **/out/
-
+**/target/**
 .gradle
