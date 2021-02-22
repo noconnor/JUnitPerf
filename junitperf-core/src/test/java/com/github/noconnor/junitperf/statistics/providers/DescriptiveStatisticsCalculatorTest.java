@@ -135,4 +135,9 @@ public class DescriptiveStatisticsCalculatorTest extends BaseTest {
     assertThat(evaluator.getLatencyPercentile(90, MILLISECONDS), is(0F));
   }
 
+  @Test
+  public void whenCreatingANewDescriptiveStatisticsCalculator_thenItShouldBePossibleToSetTheWindowSize() {
+    evaluator = new DescriptiveStatisticsCalculator(10);
+  }
+
 }

@@ -18,7 +18,11 @@ public class DescriptiveStatisticsCalculator implements StatisticsCalculator {
     this(new SynchronizedDescriptiveStatistics());
   }
 
-  DescriptiveStatisticsCalculator(DescriptiveStatistics statistics) {
+  public DescriptiveStatisticsCalculator(int windowSize) {
+    this(new SynchronizedDescriptiveStatistics(windowSize));
+  }
+
+  public DescriptiveStatisticsCalculator(DescriptiveStatistics statistics) {
     this.statistics = statistics;
   }
 
