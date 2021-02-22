@@ -8,17 +8,8 @@ jdk:
 before_install:
   - pip install --user codecov
 
-# https://stackoverflow.com/questions/38595216/travis-ci-build-failure
 install:
-  ./gradlew assemble -x signArchives
-
-before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-cache:
-  directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper
+  mvn clean install -Dgpg.skip
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

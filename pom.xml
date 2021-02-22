@@ -18,6 +18,7 @@
         <junit.version>4.13.2</junit.version>
         <mockito.version>2.11.0</mockito.version>
         <hamcrest.version>2.0.0.0</hamcrest.version>
+        <jacoco-plugin-version>0.8.5</jacoco-plugin-version>
     </properties>
 
     <modules>
@@ -147,6 +148,40 @@
                         <configuration>
                             <keyname>${gpg.keyname}</keyname>
                             <passphraseServerId>${gpg.keyname}</passphraseServerId>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- reference https://git.ouroath.com/1M/geneva-api/blob/master/pom.xml#L1014 -->
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-plugin-version}</version>
+                <executions>
+                    <execution>
+                        <id>pre-unit-test</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>post-unit-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                </rule>
+                            </rules>
                         </configuration>
                     </execution>
                 </executions>
