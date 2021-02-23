@@ -34,11 +34,15 @@ This library interface was heavily influenced by the interface in the deprecated
 
 ## Install Instructions 
 
-`JUnitPerf` is available in [maven central](http://bit.ly/2idQDvA)
+`JUnitPerf` is available in [maven central](https://search.maven.org/artifact/com.github.noconnor/junitperf/)
 
-To add the latest version of `JunitPerf` to your gradle project add the following line to your build.gradle files dependencies:
-
-`compile 'com.github.noconnor:junitperf:+'`
+```
+<dependency>
+  <groupId>com.github.noconnor</groupId>
+  <artifactId>junitperf</artifactId>
+  <version>1.17.0</version>
+</dependency>
+```
 
 <br />
 
@@ -369,9 +373,9 @@ public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CustomStatisticsCalcul
 
 ## Build Instructions
 
-To compile this project and run tests execute the following command from the root project directory: `./gradlew clean test`
+To compile this project and run tests execute the following command from the root project directory: ` mvn clean test`
 
-To generate a library jar execute: `./gradlew clean assemble -x sign` or `./gradlew clean jar` 
+To generate a library jar execute: `mvn clean package` 
 
 **Intellij 14 Setup**
 

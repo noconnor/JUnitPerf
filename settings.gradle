@@ -1,5 +1,0 @@
-include 'junitperf-core'
-include 'junitperf-junit4'
-include 'junitperf-junit5'
-include 'junit4-examples'
-

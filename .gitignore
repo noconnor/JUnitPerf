@@ -12,5 +12,9 @@
 **/classes/**
 
 **/out/
-
+**/target/**
 .gradle
+
+**/*.versionsBackup
+**/*.releaseBackup
+release.properties
