@@ -398,6 +398,16 @@ public class EvaluationContextTest extends BaseTest {
     assertTrue(context.isAsyncEvaluation());
   }
 
+  @Test
+  public void whenDurationIsValid_thenDurationShouldBeFormatted() {
+    when(perfTestAnnotation.durationMs()).thenReturn(100_000_000);
+    context.loadConfiguration(perfTestAnnotation);
+    assertEquals("1d:3h:46m:40s", context.getTestDurationFormatted());
+    when(perfTestAnnotation.durationMs()).thenReturn(300);
+    context.loadConfiguration(perfTestAnnotation);
+    assertEquals("300ms", context.getTestDurationFormatted());
+  }
+
   private void initialiseContext() {
     context.loadConfiguration(perfTestAnnotation);
     context.loadRequirements(perfTestRequirement);

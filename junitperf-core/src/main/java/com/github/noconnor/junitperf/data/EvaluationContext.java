@@ -15,7 +15,10 @@ import com.github.noconnor.junitperf.datetime.DatetimeUtils;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
@@ -115,6 +118,10 @@ public class EvaluationContext {
 
   public float getLatencyPercentileMs(int percentile) {
     return percentiles[percentile];
+  }
+
+  public String getTestDurationFormatted() {
+    return DatetimeUtils.format(configuredDuration);
   }
 
   public void loadConfiguration(JUnitPerfTest testSettings) {

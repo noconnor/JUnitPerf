@@ -134,7 +134,7 @@
                         </tr>
                         <tr>
                             <th align='right' valign='top'>Execution time:</th>
-                            <td align='right'>{{ number_format(context.configuredDuration, 0, ".", ",") }} ms</td>
+                            <td align='right'>{{ context.getTestDurationFormatted() }}</td>
                             <td align='right'></td>
                         </tr>
                         <tr>

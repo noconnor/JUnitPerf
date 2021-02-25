@@ -42,7 +42,7 @@ public class ConsoleReportGenerator implements ReportGenerator {
     log.info("Warm up:      {} ms", context.getConfiguredWarmUp());
     log.info("Ramp up:      {} ms", context.getConfiguredRampUpPeriodMs());
     log.info("");
-    log.info("Execution time: {} ms", context.getConfiguredDuration());
+    log.info("Execution time: {}", context.getTestDurationFormatted());
     log.info("Throughput:     {}/s (Required: {}/s) - {}",
       context.getThroughputQps(),
       context.getRequiredThroughput(),
