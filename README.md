@@ -216,6 +216,11 @@ More information on statistic calculations can be found [here](#statistics)
 | maxExecutionsPerSecond | Sets the maximum number of iteration per second (disabled by default)                                                             |       -1       |
 | rampUpPeriodMs         | Framework ramps up its executions per second smoothly over the duration of this period (disabled by default)                      |        0       |
 
+These configuration parameters can be overridden at runtime by specifying a VM args of the form: `-Djunitperf.<param>=X`
+
+i.e. To set a test duration of 10 mins at runtime, specify `-Djunitperf.durationMs=600_000`.
+This will override the `durationMs` set in the `@JUnitPerfTest` annotation.
+
 <br />
 
 `@JUnitPerfTestRequirement` has the following configuration parameters:
@@ -360,6 +365,10 @@ With this configuration a HTML report **AND** a CSV report will be generated
 
 By default, statistics are captured and calculated using the apache [Descriptive Statistics library](http://commons.apache.org/proper/commons-math/userguide/stat.html#a1.2_Descriptive_statistics).
 See [DescriptiveStatisticsCalculator](junitperf-core/src/main/java/com/github/noconnor/junitperf/statistics/providers/DescriptiveStatisticsCalculator.java) for more details.
+
+The default statistics calculator has an "infinite" size sampling window.
+As a result, long running tests may require a lot of memory to hold all test samples.
+The window size may be set to a fixed size as follows : `new DescriptiveStatisticsCalculator(1_000_000)` 
 
 To override the default statistics calculation class, a custom implementation of the `StatisticsCalculator` interface can 
 be passed to the `JUnitPerfRule` constructor:
