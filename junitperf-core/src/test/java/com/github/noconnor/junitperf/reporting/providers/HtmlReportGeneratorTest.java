@@ -9,6 +9,7 @@ import com.github.noconnor.junitperf.reporting.BaseReportGeneratorTest;
 
 import static java.lang.System.getProperty;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
@@ -39,28 +40,28 @@ public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
   public void whenGeneratingAReport_andAllTestsFailed_thenAppropriateReportShouldBeGenerated() throws IOException {
     reportGenerator.generateReport(generateAllFailureOrderedContexts());
     File expectedContents = getResourceFile("html/example_all_failed_report.html");
-    assertThat(readFileContents(reportFile), is(readFileContents(expectedContents)));
+    assertEquals(readFileContents(expectedContents), readFileContents(reportFile));
   }
 
   @Test
   public void whenGeneratingAReport_andAllTestsPass_thenAppropriateReportShouldBeGenerated() throws IOException {
     reportGenerator.generateReport(generateAllPassedOrderedContexts());
     File expectedContents = getResourceFile("html/example_all_passed_report.html");
-    assertThat(readFileContents(reportFile), is(readFileContents(expectedContents)));
+    assertEquals(readFileContents(expectedContents), readFileContents(reportFile));
   }
 
   @Test
   public void whenGeneratingAReport_andTestsContainsAMixOfPassAndFailures_thenAppropriateReportShouldBeGenerated() throws IOException {
     reportGenerator.generateReport(generateMixedOrderedContexts());
     File expectedContents = getResourceFile("html/example_mixed_report.html");
-    assertThat(readFileContents(reportFile), is(readFileContents(expectedContents)));
+    assertEquals(readFileContents(expectedContents), readFileContents(reportFile));
   }
 
   @Test
   public void whenGeneratingAReport_andTestsContainsSomeFailures_thenAppropriateReportShouldBeGenerated() throws IOException {
     reportGenerator.generateReport(generateSomeFailuresContext());
     File expectedContents = getResourceFile("html/example_some_failures_report.html");
-    assertThat(readFileContents(reportFile), is(readFileContents(expectedContents)));
+    assertEquals(readFileContents(expectedContents), readFileContents(reportFile));
   }
 
   @Test
@@ -71,7 +72,7 @@ public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
   @Test
   public void whenCallingGetReportPath_andDefaultPathHasBeenSpecified_thenCorrectPathShouldBeReturned() {
     reportGenerator = new HtmlReportGenerator();
-    assertThat(reportGenerator.getReportPath(), is(getProperty("user.dir") + "/build/reports/junitperf_report.html"));
+    assertEquals(getProperty("user.dir") + "/build/reports/junitperf_report.html", reportGenerator.getReportPath());
   }
 
 }

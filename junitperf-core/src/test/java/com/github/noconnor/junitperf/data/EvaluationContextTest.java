@@ -1,25 +1,30 @@
 package com.github.noconnor.junitperf.data;
 
-import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
+import static com.github.noconnor.junitperf.data.EvaluationContext.JUNITPERF_DURATION_MS;
+import static com.github.noconnor.junitperf.data.EvaluationContext.JUNITPERF_MAX_EXECUTIONS_PER_SECOND;
+import static com.github.noconnor.junitperf.data.EvaluationContext.JUNITPERF_RAMP_UP_PERIOD_MS;
+import static com.github.noconnor.junitperf.data.EvaluationContext.JUNITPERF_THREADS;
+import static com.github.noconnor.junitperf.data.EvaluationContext.JUNITPERF_WARM_UP_MS;
+import static java.lang.System.nanoTime;
+import static java.util.Collections.emptyMap;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
+
 import com.github.noconnor.junitperf.BaseTest;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
 import com.github.noconnor.junitperf.datetime.DatetimeUtils;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.collect.ImmutableMap;
-
-import static java.lang.System.nanoTime;
-import static java.util.Collections.emptyMap;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.hamcrest.Matchers.anEmptyMap;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
+import java.util.Map;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 public class EvaluationContextTest extends BaseTest {
 
@@ -46,14 +51,38 @@ public class EvaluationContextTest extends BaseTest {
     context = new EvaluationContext(TEST_NAME, nanoTime());
   }
 
+  @After
+  public void tearDown(){
+    System.clearProperty(JUNITPERF_THREADS);
+    System.clearProperty(JUNITPERF_DURATION_MS);
+    System.clearProperty(JUNITPERF_WARM_UP_MS);
+    System.clearProperty(JUNITPERF_MAX_EXECUTIONS_PER_SECOND);
+    System.clearProperty(JUNITPERF_RAMP_UP_PERIOD_MS);
+  }
+
   @Test
   public void whenLoadingJUnitPerfTestSettings_thenAppropriateContextSettingsShouldBeUpdated() {
     context.loadConfiguration(perfTestAnnotation);
-    assertThat(context.getConfiguredDuration(), is(perfTestAnnotation.durationMs()));
-    assertThat(context.getConfiguredRateLimit(), is(perfTestAnnotation.maxExecutionsPerSecond()));
-    assertThat(context.getConfiguredThreads(), is(perfTestAnnotation.threads()));
-    assertThat(context.getConfiguredWarmUp(), is(perfTestAnnotation.warmUpMs()));
-    assertThat(context.getConfiguredRampUpPeriodMs(), is(perfTestAnnotation.rampUpPeriodMs()));
+    assertEquals(perfTestAnnotation.durationMs(), context.getConfiguredDuration());
+    assertEquals(perfTestAnnotation.maxExecutionsPerSecond(), context.getConfiguredRateLimit());
+    assertEquals(perfTestAnnotation.threads(), context.getConfiguredThreads());
+    assertEquals(perfTestAnnotation.warmUpMs(), context.getConfiguredWarmUp());
+    assertEquals(perfTestAnnotation.rampUpPeriodMs(), context.getConfiguredRampUpPeriodMs());
+  }
+
+  @Test
+  public void whenLoadingJUnitPerfTestSettings_andEnvironmentHasOverrides_thenAppropriateContextSettingsShouldBeUpdated() {
+    System.setProperty(JUNITPERF_THREADS, "45");
+    System.setProperty(JUNITPERF_DURATION_MS, "60000");
+    System.setProperty(JUNITPERF_WARM_UP_MS, "2000");
+    System.setProperty(JUNITPERF_MAX_EXECUTIONS_PER_SECOND, "55");
+    System.setProperty(JUNITPERF_RAMP_UP_PERIOD_MS, "1000");
+    context.loadConfiguration(perfTestAnnotation);
+    assertEquals(60000, context.getConfiguredDuration());
+    assertEquals(55, context.getConfiguredRateLimit());
+    assertEquals(45, context.getConfiguredThreads());
+    assertEquals(2000, context.getConfiguredWarmUp());
+    assertEquals(1000, context.getConfiguredRampUpPeriodMs());
   }
 
   @Test
@@ -65,8 +94,22 @@ public class EvaluationContextTest extends BaseTest {
   }
 
   @Test
+  public void whenLoadingJUnitPerfTestSettings_andEnvOverridesAreSet_thenDurationMsShouldBeSensible() {
+    System.setProperty(JUNITPERF_DURATION_MS, "0");
+    expectValidationError("DurationMs must be greater than 0ms");
+    System.setProperty(JUNITPERF_DURATION_MS, "-98");
+    expectValidationError("DurationMs must be greater than 0ms");
+  }
+
+  @Test
   public void whenLoadingJUnitPerfTestSettings_thenRampUpMsShouldBeGreaterThanZero() {
     when(perfTestAnnotation.rampUpPeriodMs()).thenReturn(-9);
+    expectValidationError("RampUpPeriodMs must be >= 0ms");
+  }
+
+  @Test
+  public void whenLoadingJUnitPerfTestSettings_andEnvOverridesAreSet_thenRampUpMsShouldBeGreaterThanZero() {
+    System.setProperty(JUNITPERF_RAMP_UP_PERIOD_MS, "-8");
     expectValidationError("RampUpPeriodMs must be >= 0ms");
   }
 
@@ -74,6 +117,13 @@ public class EvaluationContextTest extends BaseTest {
   public void whenLoadingJUnitPerfTestSettings_thenRampUpMsShouldBeLessThanTestDuration() {
     when(perfTestAnnotation.rampUpPeriodMs()).thenReturn(60);
     when(perfTestAnnotation.durationMs()).thenReturn(50);
+    expectValidationError("RampUpPeriodMs must be < DurationMs");
+  }
+
+  @Test
+  public void whenLoadingJUnitPerfTestSettings_andEnvOverridesAreSet_thenRampUpMsShouldBeLessThanTestDuration() {
+    System.setProperty(JUNITPERF_RAMP_UP_PERIOD_MS, "67");
+    System.setProperty(JUNITPERF_DURATION_MS, "55");
     expectValidationError("RampUpPeriodMs must be < DurationMs");
   }
 
@@ -87,10 +137,27 @@ public class EvaluationContextTest extends BaseTest {
   }
 
   @Test
+  public void whenLoadingJUnitPerfTestSettings_andEnvOverridesAreSet_thenWarmUpMsShouldBeSensible() {
+    System.setProperty(JUNITPERF_WARM_UP_MS, "-88");
+    expectValidationError("WarmUpMs must be >= 0ms");
+    System.setProperty(JUNITPERF_DURATION_MS, "38");
+    System.setProperty(JUNITPERF_WARM_UP_MS, "44");
+    expectValidationError("WarmUpMs must be < DurationMs");
+  }
+
+  @Test
   public void whenLoadingJUnitPerfTestSettings_thenThreadsShouldBeSensible() {
     when(perfTestAnnotation.threads()).thenReturn(-9);
     expectValidationError("Threads must be > 0");
     when(perfTestAnnotation.threads()).thenReturn(0);
+    expectValidationError("Threads must be > 0");
+  }
+
+  @Test
+  public void whenLoadingJUnitPerfTestSettings_andEnvOverridesAreSet_thenThreadsShouldBeSensible() {
+    System.setProperty(JUNITPERF_THREADS, "-88");
+    expectValidationError("Threads must be > 0");
+    System.setProperty(JUNITPERF_THREADS, "0");
     expectValidationError("Threads must be > 0");
   }
 
@@ -105,6 +172,17 @@ public class EvaluationContextTest extends BaseTest {
     context.loadConfiguration(perfTestAnnotation);
   }
 
+  @Test
+  public void whenLoadingJUnitPerfTestSettings_andEnvOverridesAreSet_thenMaxExecutionsPerSecondShouldBeSensible() {
+    System.setProperty(JUNITPERF_MAX_EXECUTIONS_PER_SECOND, "-8");
+    expectValidationError("MaxExecutionsPerSecond must be > 0 or -1 (to disable)");
+    System.setProperty(JUNITPERF_MAX_EXECUTIONS_PER_SECOND, "0");
+    expectValidationError("MaxExecutionsPerSecond must be > 0 or -1 (to disable)");
+    // ALLOWED value
+    System.setProperty(JUNITPERF_MAX_EXECUTIONS_PER_SECOND, "-1");
+    context.loadConfiguration(perfTestAnnotation);
+  }
+
   @Test(expected = NullPointerException.class)
   public void whenLoadingJUnitPerfTestSettings_andSettingsAreNull_thenExceptionShouldBeThrown() {
     context.loadConfiguration(null);
@@ -113,9 +191,9 @@ public class EvaluationContextTest extends BaseTest {
   @Test
   public void whenLoadingJUnitPerfTestRequirements_thenAppropriateContextSettingsShouldBeUpdated() {
     context.loadRequirements(perfTestRequirement);
-    assertThat(context.getRequiredAllowedErrorsRate(), is(perfTestRequirement.allowedErrorPercentage()));
-    assertThat(context.getRequiredThroughput(), is(perfTestRequirement.executionsPerSec()));
-    assertThat(context.getRequiredPercentiles(), is(ImmutableMap.of(90, 0.5F, 95, 9F)));
+    assertEquals(perfTestRequirement.allowedErrorPercentage(), context.getRequiredAllowedErrorsRate(),0);
+    assertEquals(perfTestRequirement.executionsPerSec(), context.getRequiredThroughput());
+    assertEquals(ImmutableMap.of(90, 0.5F, 95, 9F), context.getRequiredPercentiles());
   }
 
   @Test
@@ -139,8 +217,8 @@ public class EvaluationContextTest extends BaseTest {
   public void whenRunningEvaluation_thenThroughputRequirementsShouldBeChecked() {
     initialiseContext();
     context.runValidation();
-    assertThat(context.isThroughputAchieved(), is(true));
-    assertThat(context.isSuccessful(), is(true));
+    assertTrue(context.isThroughputAchieved());
+    assertTrue(context.isSuccessful());
   }
 
   @Test
@@ -148,8 +226,8 @@ public class EvaluationContextTest extends BaseTest {
     when(statisticsMock.getEvaluationCount()).thenReturn(10L);
     initialiseContext();
     context.runValidation();
-    assertThat(context.isThroughputAchieved(), is(false));
-    assertThat(context.isSuccessful(), is(false));
+    assertFalse(context.isThroughputAchieved());
+    assertFalse(context.isSuccessful());
   }
 
   @Test
@@ -159,15 +237,15 @@ public class EvaluationContextTest extends BaseTest {
     when(perfTestAnnotation.warmUpMs()).thenReturn(5);
     initialiseContext();
     context.runValidation();
-    assertThat(context.getThroughputQps(), is(10526L));
+    assertEquals(10526L, context.getThroughputQps());
   }
 
   @Test
   public void whenRunningEvaluation_thenAllowedErrorsRequirementsShouldBeChecked() {
     initialiseContext();
     context.runValidation();
-    assertThat(context.isErrorThresholdAchieved(), is(true));
-    assertThat(context.isSuccessful(), is(true));
+    assertTrue(context.isErrorThresholdAchieved());
+    assertTrue(context.isSuccessful());
   }
 
   @Test
@@ -175,8 +253,8 @@ public class EvaluationContextTest extends BaseTest {
     when(statisticsMock.getErrorPercentage()).thenReturn(60F);
     initialiseContext();
     context.runValidation();
-    assertThat(context.isErrorThresholdAchieved(), is(false));
-    assertThat(context.isSuccessful(), is(false));
+    assertFalse(context.isErrorThresholdAchieved());
+    assertFalse(context.isSuccessful());
   }
 
   @Test
@@ -184,7 +262,7 @@ public class EvaluationContextTest extends BaseTest {
     Map<Integer, Boolean> validationResults = ImmutableMap.of(90, true, 95, true);
     initialiseContext();
     context.runValidation();
-    assertThat(context.getPercentileResults(), is(validationResults));
+    assertEquals(validationResults, context.getPercentileResults());
   }
 
   @Test
@@ -193,15 +271,15 @@ public class EvaluationContextTest extends BaseTest {
     Map<Integer, Boolean> validationResults = ImmutableMap.of(90, false, 95, true);
     initialiseContext();
     context.runValidation();
-    assertThat(context.getPercentileResults(), is(validationResults));
-    assertThat(context.isSuccessful(), is(false));
+    assertEquals(validationResults, context.getPercentileResults());
+    assertFalse(context.isSuccessful());
   }
 
   @Test
   public void whenRunningEvaluation_andAllThresholdsAreMet_thenIsSuccessfulShouldBeTrue() {
     initialiseContext();
     context.runValidation();
-    assertThat(context.isSuccessful(), is(true));
+    assertTrue(context.isSuccessful());
   }
 
   @Test
@@ -209,10 +287,10 @@ public class EvaluationContextTest extends BaseTest {
     context.loadConfiguration(perfTestAnnotation);
     context.setStatistics(statisticsMock);
     context.runValidation();
-    assertThat(context.isSuccessful(), is(true));
-    assertThat(context.isErrorThresholdAchieved(), is(true));
-    assertThat(context.isThroughputAchieved(), is(true));
-    assertThat(context.getPercentileResults(), is(anEmptyMap()));
+    assertTrue(context.isSuccessful());
+    assertTrue(context.isErrorThresholdAchieved());
+    assertTrue(context.isThroughputAchieved());
+    assertEquals(emptyMap(), context.getPercentileResults());
   }
 
   @Test
@@ -248,15 +326,15 @@ public class EvaluationContextTest extends BaseTest {
     context.runValidation();
     long expected = (long)(statisticsMock.getEvaluationCount() / (float)(perfTestAnnotation.durationMs() - perfTestAnnotation
       .warmUpMs())) * 1000;
-    assertThat(context.getThroughputQps(), is(expected));
+    assertEquals(expected, context.getThroughputQps());
   }
 
   @Test
   public void whenRunningEvaluation_thenMinLatencyRequirementsShouldBeChecked() {
     initialiseContext();
     context.runValidation();
-    assertThat(context.isMinLatencyAchieved(), is(true));
-    assertThat(context.isSuccessful(), is(true));
+    assertTrue(context.isMinLatencyAchieved());
+    assertTrue(context.isSuccessful());
   }
 
   @Test
@@ -264,16 +342,16 @@ public class EvaluationContextTest extends BaseTest {
     when(statisticsMock.getMinLatency(MILLISECONDS)).thenReturn(60.9F);
     initialiseContext();
     context.runValidation();
-    assertThat(context.isMinLatencyAchieved(), is(false));
-    assertThat(context.isSuccessful(), is(false));
+    assertFalse(context.isMinLatencyAchieved());
+    assertFalse(context.isSuccessful());
   }
 
   @Test
   public void whenRunningEvaluation_thenMaxLatencyRequirementsShouldBeChecked() {
     initialiseContext();
     context.runValidation();
-    assertThat(context.isMaxLatencyAchieved(), is(true));
-    assertThat(context.isSuccessful(), is(true));
+    assertTrue(context.isMaxLatencyAchieved());
+    assertTrue(context.isSuccessful());
   }
 
   @Test
@@ -281,16 +359,16 @@ public class EvaluationContextTest extends BaseTest {
     when(statisticsMock.getMaxLatency(MILLISECONDS)).thenReturn(190.9F);
     initialiseContext();
     context.runValidation();
-    assertThat(context.isMaxLatencyAchieved(), is(false));
-    assertThat(context.isSuccessful(), is(false));
+    assertFalse(context.isMaxLatencyAchieved());
+    assertFalse(context.isSuccessful());
   }
 
   @Test
   public void whenRunningEvaluation_thenMeanLatencyRequirementsShouldBeChecked() {
     initialiseContext();
     context.runValidation();
-    assertThat(context.isMeanLatencyAchieved(), is(true));
-    assertThat(context.isSuccessful(), is(true));
+    assertTrue(context.isMeanLatencyAchieved());
+    assertTrue(context.isSuccessful());
   }
 
   @Test
@@ -298,26 +376,36 @@ public class EvaluationContextTest extends BaseTest {
     when(statisticsMock.getMeanLatency(MILLISECONDS)).thenReturn(10.9F);
     initialiseContext();
     context.runValidation();
-    assertThat(context.isMeanLatencyAchieved(), is(false));
-    assertThat(context.isSuccessful(), is(false));
+    assertFalse(context.isMeanLatencyAchieved());
+    assertFalse(context.isSuccessful());
   }
 
   @Test
   public void whenSupplyingANanosecondStartTime_thenTheStartTimeShouldBeSet() {
     long now = nanoTime();
     context = new EvaluationContext(TEST_NAME, now);
-    assertThat(context.getStartTimeNs(), is(now));
+    assertEquals(now, context.getStartTimeNs());
   }
 
   @Test
   public void whenCreatingDefaultContext_thenIsAsyncShouldBeFalse() {
-    assertThat(context.isAsyncEvaluation(), is(false));
+    assertFalse(context.isAsyncEvaluation());
   }
 
   @Test
   public void whenSpecifyingAsyncFlag_thenIsAsyncShouldBeTrue() {
     context = new EvaluationContext(TEST_NAME, nanoTime(), true);
-    assertThat(context.isAsyncEvaluation(), is(true));
+    assertTrue(context.isAsyncEvaluation());
+  }
+
+  @Test
+  public void whenDurationIsValid_thenDurationShouldBeFormatted() {
+    when(perfTestAnnotation.durationMs()).thenReturn(100_000_000);
+    context.loadConfiguration(perfTestAnnotation);
+    assertEquals("1d:3h:46m:40s", context.getTestDurationFormatted());
+    when(perfTestAnnotation.durationMs()).thenReturn(300);
+    context.loadConfiguration(perfTestAnnotation);
+    assertEquals("300ms", context.getTestDurationFormatted());
   }
 
   private void initialiseContext() {
@@ -356,7 +444,7 @@ public class EvaluationContextTest extends BaseTest {
 
   private void loadPercentilesAndAssertParsedCorrectly(String percentiles, Map<Integer, Float> expected) {
     loadPercentiles(percentiles);
-    assertThat(context.getRequiredPercentiles(), is(expected));
+    assertEquals(expected, context.getRequiredPercentiles());
   }
 
   private void loadPercentiles(String percentiles) {
@@ -369,7 +457,7 @@ public class EvaluationContextTest extends BaseTest {
       context.loadConfiguration(perfTestAnnotation);
       fail("Expected validation Exception");
     } catch (IllegalStateException e) {
-      assertThat(e.getMessage(), startsWith(expectedMessage));
+      assertTrue(e.getMessage().startsWith(expectedMessage));
     }
   }
 
@@ -378,7 +466,7 @@ public class EvaluationContextTest extends BaseTest {
       context.loadRequirements(perfTestRequirement);
       fail("Expected requirements validation Exception");
     } catch (Exception e) {
-      assertThat(e.getMessage(), startsWith(expectedMessage));
+      assertTrue(e.getMessage().startsWith(expectedMessage));
     }
   }
 
