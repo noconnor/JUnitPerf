@@ -218,8 +218,10 @@ More information on statistic calculations can be found [here](#statistics)
 
 These configuration parameters can be overridden at runtime by specifying a VM args of the form: `-Djunitperf.<param>=X`
 
-i.e. To set a test duration of 10 mins at runtime, specify `-Djunitperf.durationMs=600_000`.
+i.e. To set a test duration of 10 mins at runtime, specify `-Djunitperf.durationMs=600000`.
 This will override the `durationMs` set in the `@JUnitPerfTest` annotation.
+
+**NOTE:** Do not use "_" when defining runtime integer or long override values, i.e. use `600000` and not `600_000`
 
 <br />
 
