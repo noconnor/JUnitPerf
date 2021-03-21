@@ -1,10 +1,15 @@
 package com.github.noconnor.junitperf;
 
+import com.github.noconnor.junitperf.statements.BeforeAfterStatement;
+import com.github.noconnor.junitperf.statements.GeneralStatement;
+import com.github.noconnor.junitperf.statements.TestStatement;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import org.junit.internal.runners.statements.RunAfters;
+import org.junit.internal.runners.statements.RunBefores;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -13,7 +18,6 @@ import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
-import com.github.noconnor.junitperf.statements.TestStatement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
 
@@ -65,8 +69,9 @@ public class JUnitPerfRule implements TestRule {
       ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), new LinkedHashSet<>());
       ACTIVE_CONTEXTS.get(description.getTestClass()).add(context);
 
-      @SuppressWarnings("Convert2MethodRef")
-      TestStatement test = perEvalBuilder.baseStatement(() -> base.evaluate())
+      TestStatement wrapper = decorateTestStatement(base);
+
+      PerformanceEvaluationStatement parallelExecution = perEvalBuilder.baseStatement(wrapper)
         .statistics(statisticsCalculator)
         .context(context)
         .listener(complete -> updateReport(description.getTestClass()))
@@ -75,7 +80,7 @@ public class JUnitPerfRule implements TestRule {
       activeStatement = new Statement() {
         @Override
         public void evaluate() throws Throwable {
-          test.evaluate();
+          parallelExecution.runParallelEvaluation();
         }
       };
     }
@@ -90,6 +95,18 @@ public class JUnitPerfRule implements TestRule {
     reporters.forEach(r -> {
       r.generateReport(ACTIVE_CONTEXTS.get(testClass));
     });
+  }
+
+  private TestStatement decorateTestStatement(Statement base) {
+    TestStatement wrapper;
+    if (base instanceof RunAfters) {
+      wrapper = new BeforeAfterStatement( (RunAfters) base);
+    } else if (base instanceof RunBefores) {
+      wrapper = new BeforeAfterStatement( (RunBefores) base);
+    } else {
+      wrapper = new GeneralStatement(base);
+    }
+    return wrapper;
   }
 
 }

@@ -101,14 +101,14 @@ public class JUnitPerfRuleTest {
     mockJunitPerfTestRequirementAnnotationNotPresent();
     Statement statement = perfRule.apply(statementMock, descriptionMock);
     statement.evaluate();
-    verify(perfEvalStatement).evaluate();
+    verify(perfEvalStatement).runParallelEvaluation();
   }
 
   @Test
   public void whenExecutingApply_andJunitPerfTestAnnotationIsPresent_thenThePerformanceEvaluationStatementShouldBeWrapped() throws Throwable {
     Statement statement = perfRule.apply(statementMock, descriptionMock);
     statement.evaluate();
-    verify(perfEvalStatement).evaluate();
+    verify(perfEvalStatement).runParallelEvaluation();
   }
 
   @Test
