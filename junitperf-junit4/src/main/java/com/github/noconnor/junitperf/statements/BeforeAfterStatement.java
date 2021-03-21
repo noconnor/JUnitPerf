@@ -13,7 +13,6 @@ public class BeforeAfterStatement implements TestStatement {
     private final RunBefores befores;
     private final RunAfters afters;
 
-
     public BeforeAfterStatement(RunBefores befores) {
         try {
             Statement statement = captureStatement(befores);
@@ -34,17 +33,14 @@ public class BeforeAfterStatement implements TestStatement {
 
     public BeforeAfterStatement(RunAfters afters) {
         try {
-            Field nextField = RunAfters.class.getDeclaredField("next");
-            nextField.setAccessible(true);
-            Statement statement = (Statement) nextField.get(afters);
-
+            Statement statement = captureStatement(afters);
             this.afters = captureAfters(afters);
             if (statement instanceof RunBefores) {
                 this.befores = captureBefores((RunBefores) statement);
                 this.statement = captureStatement((RunBefores) statement);
             } else {
                 this.befores = null;
-                this.statement = (Statement) nextField.get(afters);
+                this.statement = statement;
             }
 
         } catch (Exception e) {
