@@ -67,7 +67,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   @Test
   public void whenEvaluatingABaseStatement_thenTheCorrectNumberOfThreadsShouldBeStarted() throws Throwable {
     when(contextMock.getConfiguredThreads()).thenReturn(10);
-    statement.evaluate();
+    statement.runParallelEvaluation();
     verify(threadFactoryMock, times(10)).newThread(any(EvaluationTask.class));
     verify(threadMock, times(10)).start();
   }
@@ -76,7 +76,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   public void whenEvaluatingABaseStatement_thenTheTestShouldEndWhenTheTestDurationExpires() throws Throwable {
     when(contextMock.getConfiguredDuration()).thenReturn(100);
     long starTimeNs = currentTimeMillis();
-    statement.evaluate();
+    statement.runParallelEvaluation();
     assertThat((currentTimeMillis() - starTimeNs), is(greaterThan(95L)));
     assertThat((currentTimeMillis() - starTimeNs), is(lessThan(3 * 100L)));
     verify(threadMock, times(1)).interrupt();
@@ -84,19 +84,19 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
 
   @Test
   public void whenEvaluationCompletes_thenTheContextShouldBeUpdatedWithStatistics() throws Throwable {
-    statement.evaluate();
+    statement.runParallelEvaluation();
     verify(contextMock).setStatistics(any(StatisticsCalculator.class));
   }
 
   @Test
   public void whenEvaluationCompletes_thenTheContextValidationShouldBeTriggered() throws Throwable {
-    statement.evaluate();
+    statement.runParallelEvaluation();
     verify(contextMock).runValidation();
   }
 
   @Test
   public void whenEvaluationCompletes_thenTheListenerShouldBeNotified() throws Throwable {
-    statement.evaluate();
+    statement.runParallelEvaluation();
     verify(listenerMock).accept(null);
   }
 
@@ -104,7 +104,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   public void whenEvaluationCompletes_andValidationFails_thenTheListenerShouldStillBeNotified() throws Throwable {
     when(contextMock.isThroughputAchieved()).thenReturn(false);
     try {
-      statement.evaluate();
+      statement.runParallelEvaluation();
       fail("Assertion expected during validation");
     } catch (Error e) {
       assertThat(e.getMessage(), startsWith("Test throughput threshold not achieved"));
@@ -116,7 +116,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   public void whenEvaluationCompletes_andThroughputValidationFails_thenAssertionShouldBeGenerated() throws Throwable {
     when(contextMock.isThroughputAchieved()).thenReturn(false);
     try {
-      statement.evaluate();
+      statement.runParallelEvaluation();
       fail("Assertion expected during validation");
     } catch (Error e) {
       assertThat(e.getMessage(), startsWith("Test throughput threshold not achieved"));
@@ -127,7 +127,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   public void whenEvaluationCompletes_andMinLatencyValidationFails_thenAssertionShouldBeGenerated() throws Throwable {
     when(contextMock.isMinLatencyAchieved()).thenReturn(false);
     try {
-      statement.evaluate();
+      statement.runParallelEvaluation();
       fail("Assertion expected during validation");
     } catch (Error e) {
       assertThat(e.getMessage(), startsWith("Test min latency threshold not achieved"));
@@ -138,7 +138,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   public void whenEvaluationCompletes_andMeanLatencyValidationFails_thenAssertionShouldBeGenerated() throws Throwable {
     when(contextMock.isMeanLatencyAchieved()).thenReturn(false);
     try {
-      statement.evaluate();
+      statement.runParallelEvaluation();
       fail("Assertion expected during validation");
     } catch (Error e) {
       assertThat(e.getMessage(), startsWith("Test mean latency threshold not achieved"));
@@ -149,7 +149,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   public void whenEvaluationCompletes_andMaxLatencyValidationFails_thenAssertionShouldBeGenerated() throws Throwable {
     when(contextMock.isMaxLatencyAchieved()).thenReturn(false);
     try {
-      statement.evaluate();
+      statement.runParallelEvaluation();
       fail("Assertion expected during validation");
     } catch (Error e) {
       assertThat(e.getMessage(), startsWith("Test max latency threshold not achieved"));
@@ -160,7 +160,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   public void whenEvaluationCompletes_andErrorValidationFails_thenAssertionShouldBeGenerated() throws Throwable {
     when(contextMock.isErrorThresholdAchieved()).thenReturn(false);
     try {
-      statement.evaluate();
+      statement.runParallelEvaluation();
       fail("Assertion expected during validation");
     } catch (Error e) {
       assertThat(e.getMessage(), startsWith("Error threshold not achieved"));
@@ -171,7 +171,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   public void whenEvaluationCompletes_andPercentileLatencyValidationFails_thenAssertionShouldBeGenerated() throws Throwable {
     when(contextMock.getPercentileResults()).thenReturn(ImmutableMap.of(90, true, 95, false));
     try {
-      statement.evaluate();
+      statement.runParallelEvaluation();
       fail("Assertion expected during validation");
     } catch (Error e) {
       assertThat(e.getMessage(), startsWith("95th Percentile has not achieved required threshold"));
@@ -180,14 +180,14 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
 
   @Test
   public void whenCreatingEvaluationTasks_thenIsAsyncEvaluationShouldBeChecked() throws Throwable {
-    statement.evaluate();
+    statement.runParallelEvaluation();
     verify(contextMock).isAsyncEvaluation();
   }
 
   @Test
   public void whenCreatingEvaluationTasks_andIsAsyncEvaluationIsTrue_thenTaskThreadShouldBeCreated() throws Throwable {
     when(contextMock.isAsyncEvaluation()).thenReturn(true);
-    statement.evaluate();
+    statement.runParallelEvaluation();
     verify(threadFactoryMock).newThread(any(EvaluationTask.class));
   }
 
