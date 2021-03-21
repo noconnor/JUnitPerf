@@ -1,29 +1,25 @@
 package com.github.noconnor.junitperf;
 
-import com.github.noconnor.junitperf.statements.BeforeAfterStatement;
-import com.github.noconnor.junitperf.statements.GeneralStatement;
-import com.github.noconnor.junitperf.statements.TestStatement;
+import static java.lang.System.nanoTime;
+import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toSet;
+
+import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.reporting.ReportGenerator;
+import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
+import com.github.noconnor.junitperf.statements.MeasurableStatement;
+import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
+import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
+import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import org.junit.internal.runners.statements.RunAfters;
-import org.junit.internal.runners.statements.RunBefores;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import com.github.noconnor.junitperf.data.EvaluationContext;
-import com.github.noconnor.junitperf.reporting.ReportGenerator;
-import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
-import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
-import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
-import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
-import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
-
-import static java.lang.System.nanoTime;
-import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toSet;
 
 @SuppressWarnings("WeakerAccess")
 public class JUnitPerfRule implements TestRule {
@@ -69,9 +65,7 @@ public class JUnitPerfRule implements TestRule {
       ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), new LinkedHashSet<>());
       ACTIVE_CONTEXTS.get(description.getTestClass()).add(context);
 
-      TestStatement wrapper = decorateTestStatement(base);
-
-      PerformanceEvaluationStatement parallelExecution = perEvalBuilder.baseStatement(wrapper)
+      PerformanceEvaluationStatement parallelExecution = perEvalBuilder.baseStatement(new MeasurableStatement(base))
         .statistics(statisticsCalculator)
         .context(context)
         .listener(complete -> updateReport(description.getTestClass()))
@@ -95,18 +89,6 @@ public class JUnitPerfRule implements TestRule {
     reporters.forEach(r -> {
       r.generateReport(ACTIVE_CONTEXTS.get(testClass));
     });
-  }
-
-  private TestStatement decorateTestStatement(Statement base) {
-    TestStatement wrapper;
-    if (base instanceof RunAfters) {
-      wrapper = new BeforeAfterStatement( (RunAfters) base);
-    } else if (base instanceof RunBefores) {
-      wrapper = new BeforeAfterStatement( (RunBefores) base);
-    } else {
-      wrapper = new GeneralStatement(base);
-    }
-    return wrapper;
   }
 
 }

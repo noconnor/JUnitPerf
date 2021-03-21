@@ -1,5 +1,7 @@
 package com.github.noconnor.junitperf.statements;
 
+import static java.util.Objects.nonNull;
+
 import java.lang.reflect.Field;
 import java.util.List;
 import org.junit.internal.runners.statements.RunAfters;
@@ -7,19 +9,49 @@ import org.junit.internal.runners.statements.RunBefores;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
-public class BeforeAfterStatement implements TestStatement {
+public class MeasurableStatement implements TestStatement {
 
-    private final Statement statement;
-    private final RunBefores befores;
-    private final RunAfters afters;
+    private RunBefores befores;
+    private Statement statement;
+    private RunAfters afters;
 
-    public BeforeAfterStatement(RunBefores befores) {
+    public MeasurableStatement(Statement statement) {
+        if (statement instanceof RunAfters) {
+            decompose((RunAfters) statement);
+        } else if (statement instanceof RunBefores) {
+            decompose((RunBefores) statement);
+        } else {
+            this.befores = null;
+            this.statement = statement;
+            this.afters = null;
+        }
+    }
+
+    @Override
+    public void runBefores() throws Throwable {
+        if (nonNull(befores)) {
+            befores.evaluate();
+        }
+    }
+
+    @Override
+    public void evaluate() throws Throwable {
+        statement.evaluate();
+    }
+
+    @Override
+    public void runAfters() throws Throwable {
+        if (nonNull(afters)) {
+            afters.evaluate();
+        }
+    }
+
+    private void decompose(RunBefores befores) {
         try {
             Statement statement = captureStatement(befores);
-
-            this.befores = captureBefores(befores);
+            this.befores = decomposeBefores(befores);
             if (statement instanceof RunAfters) {
-                this.afters = captureAfters((RunAfters) statement);
+                this.afters = decomposeAfters((RunAfters) statement);
                 this.statement = captureStatement((RunAfters) statement);
             } else {
                 this.afters = null;
@@ -30,13 +62,12 @@ public class BeforeAfterStatement implements TestStatement {
         }
     }
 
-
-    public BeforeAfterStatement(RunAfters afters) {
+    private void decompose(RunAfters afters) {
         try {
             Statement statement = captureStatement(afters);
-            this.afters = captureAfters(afters);
+            this.afters = decomposeAfters(afters);
             if (statement instanceof RunBefores) {
-                this.befores = captureBefores((RunBefores) statement);
+                this.befores = decomposeBefores((RunBefores) statement);
                 this.statement = captureStatement((RunBefores) statement);
             } else {
                 this.befores = null;
@@ -48,31 +79,8 @@ public class BeforeAfterStatement implements TestStatement {
         }
     }
 
-    @Override
-    public void runBefores() throws Throwable {
-        befores.evaluate();
-    }
-
-    @Override
-    public void evaluate() throws Throwable {
-        statement.evaluate();
-    }
-
-    @Override
-    public void runAfters() throws Throwable {
-        afters.evaluate();
-    }
-
-    private static class EmptyStatement extends Statement {
-
-        @Override
-        public void evaluate() throws Throwable {
-            // do nothing
-        }
-    }
-
     @SuppressWarnings("unchecked")
-    private RunBefores captureBefores(RunBefores befores) throws NoSuchFieldException, IllegalAccessException {
+    private RunBefores decomposeBefores(RunBefores befores) throws NoSuchFieldException, IllegalAccessException {
         Field beforesField = RunBefores.class.getDeclaredField("befores");
         Field targetField = RunBefores.class.getDeclaredField("target");
         beforesField.setAccessible(true);
@@ -85,7 +93,7 @@ public class BeforeAfterStatement implements TestStatement {
     }
 
     @SuppressWarnings("unchecked")
-    private RunAfters captureAfters(RunAfters afters) throws NoSuchFieldException, IllegalAccessException {
+    private RunAfters decomposeAfters(RunAfters afters) throws NoSuchFieldException, IllegalAccessException {
         Field aftersField = RunAfters.class.getDeclaredField("afters");
         Field targetField = RunAfters.class.getDeclaredField("target");
         aftersField.setAccessible(true);
@@ -108,5 +116,5 @@ public class BeforeAfterStatement implements TestStatement {
         nextField.setAccessible(true);
         return (Statement) nextField.get(befores);
     }
-
+    
 }
