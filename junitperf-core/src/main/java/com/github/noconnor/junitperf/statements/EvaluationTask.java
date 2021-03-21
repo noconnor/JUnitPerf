@@ -49,7 +49,9 @@ final class EvaluationTask implements Runnable {
   private void evaluateStatement(long startMeasurements) {
     if (nanoTime() < startMeasurements) {
       try {
+        statement.runBefores();
         statement.evaluate();
+        statement.runAfters();
       } catch (Throwable throwable) {
         // IGNORE
       }
