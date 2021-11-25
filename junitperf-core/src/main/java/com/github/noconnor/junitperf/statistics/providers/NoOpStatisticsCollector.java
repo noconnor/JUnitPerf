@@ -1,7 +1,6 @@
 package com.github.noconnor.junitperf.statistics.providers;
 
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
-
 import java.util.concurrent.TimeUnit;
 
 public class NoOpStatisticsCollector implements StatisticsCalculator {
@@ -53,5 +52,10 @@ public class NoOpStatisticsCollector implements StatisticsCalculator {
   @Override
   public float getErrorPercentage() {
     return 0;
+  }
+
+  @Override
+  public void reset() {
+
   }
 }

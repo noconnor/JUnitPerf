@@ -191,6 +191,14 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
     verify(threadFactoryMock).newThread(any(EvaluationTask.class));
   }
 
+  @Test
+  public void whenRunningEvaluation_thenStatisticsShouldBeReset() throws Throwable {
+    statement.evaluate();
+    statement.evaluate();
+    statement.evaluate();
+    verify(statisticsCalculatorMock, times(3)).reset();
+  }
+
   private void initialiseThreadFactoryMock() {
     when(threadFactoryMock.newThread(any(EvaluationTask.class))).thenReturn(threadMock);
   }

@@ -24,4 +24,6 @@ public interface StatisticsCalculator {
 
   float getErrorPercentage();
 
+  void reset();
+
 }
