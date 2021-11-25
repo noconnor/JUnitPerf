@@ -46,6 +46,7 @@ public class PerformanceEvaluationStatement implements TestStatement {
 
   @Override
   public void evaluate() throws Throwable {
+    statistics.reset();
     List<Thread> threads = newArrayList();
     try {
       for (int i = 0; i < context.getConfiguredThreads(); i++) {

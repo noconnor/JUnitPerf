@@ -140,4 +140,9 @@ public class DescriptiveStatisticsCalculatorTest extends BaseTest {
     evaluator = new DescriptiveStatisticsCalculator(10);
   }
 
+  @Test
+  public void whenResettingStatsCollector_thenStatsShouldBeCleared() {
+    evaluator.reset();
+    verify(statsMock).clear();
+  }
 }

@@ -82,4 +82,8 @@ public class DescriptiveStatisticsCalculator implements StatisticsCalculator {
     return evalCount > 0 ? (errCount / evalCount) * 100 : 0;
   }
 
+  @Override
+  public void reset() {
+    statistics.clear();
+  }
 }
