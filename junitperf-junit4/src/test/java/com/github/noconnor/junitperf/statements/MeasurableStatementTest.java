@@ -5,22 +5,15 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.internal.runners.statements.RunAfters;
 import org.junit.internal.runners.statements.RunBefores;
-import org.junit.rules.ExpectedException;
 import org.junit.runners.model.FrameworkMethod;
 
 public class MeasurableStatementTest {
 
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     private ExampleTestClass exampleTestClass;
-
 
     @Before
     public void setup() {
