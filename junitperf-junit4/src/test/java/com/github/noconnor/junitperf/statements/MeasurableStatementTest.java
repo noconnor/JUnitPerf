@@ -39,6 +39,22 @@ public class MeasurableStatementTest {
     }
 
     @Test
+    public void whenMeasurableStatementIsCreated_andThereAreNoAfters_thenTestStatementBeforesShouldBeDecomposed() throws Throwable {
+        FrameworkMethod before = new FrameworkMethod(ExampleTestClass.class.getMethod("setup"));
+        FrameworkMethod test1 = new FrameworkMethod(ExampleTestClass.class.getMethod("test1"));
+
+        InvokeMethod invokeTest = new InvokeMethod(test1, exampleTestClass);
+        RunBefores befores = new RunBefores(invokeTest, singletonList(before), exampleTestClass);
+
+        MeasurableStatement measurableStatement = new MeasurableStatement(befores);
+
+        measurableStatement.runBefores();
+        assertEquals(1, exampleTestClass.beforeExecutedCount);
+        assertEquals(0, exampleTestClass.testStatementsExecutedCount);
+        assertEquals(0, exampleTestClass.afterExecutedCount);
+    }
+
+    @Test
     public void whenMeasurableStatementIsCreated_andStatementHasMultipleBefores_thenTestStatementBeforesShouldBeDecomposed() throws Throwable {
         FrameworkMethod before = new FrameworkMethod(ExampleTestClass.class.getMethod("setup"));
         FrameworkMethod after = new FrameworkMethod(ExampleTestClass.class.getMethod("teardown"));
