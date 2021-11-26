@@ -10,9 +10,11 @@ import com.github.noconnor.junitperf.BaseTest;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.util.concurrent.RateLimiter;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -113,6 +115,52 @@ public class EvaluationTaskTest extends BaseTest {
     verify(statsMock, times(9995)).incrementEvaluationCount();
     verify(statsMock, times(9995)).addLatencyMeasurement(anyLong());
     verify(statsMock, never()).incrementErrorCount();
+  }
+
+  @Test
+  public void whenRunning_andRunBeforesThrowsAnException_thenExceptionShouldBeThrown() throws Throwable {
+    setExecutionCount(1);
+    doThrow(new RuntimeException("test")).when(statementMock).runBefores();
+
+    try {
+      task.run();
+      fail("Expected exception");
+    } catch (IllegalStateException e){
+      // expected
+    } finally {
+      verify(statementMock, never()).evaluate();
+    }
+  }
+
+  @Test
+  public void whenRunning_andRunBeforesThrowsAnInterruptedException_thenNoExceptionShouldBeThrown() throws Throwable {
+    setExecutionCount(1);
+    doThrow(new InterruptedException("test")).when(statementMock).runBefores();
+    task.run();
+    verify(statementMock).evaluate();
+  }
+
+  @Test
+  public void whenRunning_andRunAftersThrowsAnInterruptedException_thenNoExceptionShouldBeThrown() throws Throwable {
+    setExecutionCount(1);
+    doThrow(new InterruptedException("test")).when(statementMock).runAfters();
+    task.run();
+    verify(statementMock).evaluate();
+  }
+
+  @Test
+  public void whenRunning_andRunAftersThrowsAnException_thenExceptionShouldBeThrown() throws Throwable {
+    setExecutionCount(1);
+    doThrow(new RuntimeException("test")).when(statementMock).runAfters();
+
+    try {
+      task.run();
+      fail("Expected exception");
+    } catch (IllegalStateException e){
+      // expected
+    } finally {
+      verify(statementMock).evaluate();
+    }
   }
 
   private void mockEvaluationFailures(int desiredFailureCount) throws Throwable {
