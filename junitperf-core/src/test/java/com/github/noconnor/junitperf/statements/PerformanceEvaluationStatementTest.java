@@ -193,9 +193,9 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
 
   @Test
   public void whenRunningEvaluation_thenStatisticsShouldBeReset() throws Throwable {
-    statement.evaluate();
-    statement.evaluate();
-    statement.evaluate();
+    statement.runParallelEvaluation();
+    statement.runParallelEvaluation();
+    statement.runParallelEvaluation();
     verify(statisticsCalculatorMock, times(3)).reset();
   }
 

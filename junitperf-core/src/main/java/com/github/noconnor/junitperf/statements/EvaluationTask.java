@@ -59,8 +59,8 @@ final class EvaluationTask implements Runnable {
 
       try {
         statement.runBefores();
-      } catch (InterruptedException e) { // NOSONAR
-          // IGNORE - no metrics
+      } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
       } catch (Throwable throwable) {
         throw new IllegalStateException("Before method failed", throwable);
       }
@@ -70,8 +70,8 @@ final class EvaluationTask implements Runnable {
         statement.evaluate();
         stats.addLatencyMeasurement(nanoTime() - startTimeNs);
         stats.incrementEvaluationCount();
-      } catch (InterruptedException e) { // NOSONAR
-        // IGNORE - no metrics
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
       } catch (Throwable throwable) {
         stats.incrementEvaluationCount();
         stats.incrementErrorCount();
@@ -80,8 +80,8 @@ final class EvaluationTask implements Runnable {
 
       try {
         statement.runAfters();
-      } catch (InterruptedException e) { // NOSONAR
-        // IGNORE - no metrics
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
       } catch (Throwable throwable) {
         throw new IllegalStateException("After method failed", throwable);
       }
