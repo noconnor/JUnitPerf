@@ -85,5 +85,7 @@ public class DescriptiveStatisticsCalculator implements StatisticsCalculator {
   @Override
   public void reset() {
     statistics.clear();
+    evaluationCount.set(0);
+    errorCount.set(0);
   }
 }

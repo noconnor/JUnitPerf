@@ -9,6 +9,7 @@ import org.mockito.Spy;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 
@@ -142,7 +143,13 @@ public class DescriptiveStatisticsCalculatorTest extends BaseTest {
 
   @Test
   public void whenResettingStatsCollector_thenStatsShouldBeCleared() {
+    evaluator.incrementErrorCount();
+    evaluator.incrementEvaluationCount();
+    assertEquals(1, evaluator.getErrorCount());
+    assertEquals(1, evaluator.getEvaluationCount());
     evaluator.reset();
     verify(statsMock).clear();
+    assertEquals(0, evaluator.getErrorCount());
+    assertEquals(0, evaluator.getEvaluationCount());
   }
 }
