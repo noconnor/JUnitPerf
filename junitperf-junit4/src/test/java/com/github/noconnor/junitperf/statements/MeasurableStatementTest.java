@@ -126,6 +126,20 @@ public class MeasurableStatementTest {
         assertEquals(0, exampleTestClass.afterExecutedCount);
     }
 
+    @Test
+    public void whenMeasurableStatementIsCreated_andStatementHasNoBeforeOrAfters_thenTestStatementShouldBeDecomposed() throws Throwable {
+        FrameworkMethod test1 = new FrameworkMethod(ExampleTestClass.class.getMethod("test1"));
+        InvokeMethod invokeTest = new InvokeMethod(test1, exampleTestClass);
+        MeasurableStatement measurableStatement = new MeasurableStatement(invokeTest);
+
+        measurableStatement.runBefores();
+        measurableStatement.evaluate();
+        measurableStatement.runAfters();
+        assertEquals(0, exampleTestClass.beforeExecutedCount);
+        assertEquals(1, exampleTestClass.testStatementsExecutedCount);
+        assertEquals(0, exampleTestClass.afterExecutedCount);
+    }
+
 
     public static class ExampleTestClass {
 
