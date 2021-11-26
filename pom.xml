@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.noconnor</groupId>
     <artifactId>junitperf-parent</artifactId>
-    <version>1.19.1-SNAPSHOT</version>
+    <version>1.19.1</version>
     <packaging>pom</packaging>
 
     <name>junitperf</name>
@@ -208,7 +208,7 @@
         <connection>scm:git:ssh://git@github.com:noconnor/JUnitPerf.git</connection>
         <developerConnection>scm:git:ssh://git@github.com:noconnor/JUnitPerf.git</developerConnection>
         <url>git@github.com:noconnor/JUnitPerf.git</url>
-        <tag>1.17.1</tag>
+        <tag>1.19.1</tag>
     </scm>
 
     <licenses>

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>junitperf-parent</artifactId>
         <groupId>com.github.noconnor</groupId>
-        <version>1.19.1-SNAPSHOT</version>
+        <version>1.19.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>junitperf-core</artifactId>
