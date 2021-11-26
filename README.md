@@ -208,13 +208,14 @@ More information on statistic calculations can be found [here](#statistics)
 
 `@JUnitPerfTest` has the following configuration parameters:
 
-| Property               | Definition                                                                                                                        | Default value  |
-| ---------------------: |:---------------------------------------------------------------------------------------------------------------------------------:| --------------:|
-| threads                | The total number of threads to use during test execution                                                                          |        1       |
-| durationMs             | Total time to run the test in millisecs (ms) (includes warmup period)                                                             |      60,000    |
-| warmUpMs               | Warm up period in ms, test logic will be executed during warm up, but results will not be considered during statistics evaluation |        0       |
-| maxExecutionsPerSecond | Sets the maximum number of iteration per second (disabled by default)                                                             |       -1       |
-| rampUpPeriodMs         | Framework ramps up its executions per second smoothly over the duration of this period (disabled by default)                      |        0       |
+| Property                   | Definition                                                                                                                        | Default value  |
+| -------------------------: |:---------------------------------------------------------------------------------------------------------------------------------:| --------------:|
+| threads                    | The total number of threads to use during test execution                                                                          |        1       |
+| durationMs                 | Total time to run the test in millisecs (ms) (includes warmup period)                                                             |      60,000    |
+| warmUpMs                   | Warm up period in ms, test logic will be executed during warm up, but results will not be considered during statistics evaluation |        0       |
+| maxExecutionsPerSecond     | Sets the maximum number of iteration per second (disabled by default)                                                             |       -1       |
+| rampUpPeriodMs             | Framework ramps up its executions per second smoothly over the duration of this period (disabled by default)                      |        0       |
+| measureBeforeAndAfterSteps | Include `@Before` & `@After` in statistic measurements                                                                            |      true      |
 
 These configuration parameters can be overridden at runtime by specifying a VM args of the form: `-Djunitperf.<param>=X`
 

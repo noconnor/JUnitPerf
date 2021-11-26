@@ -22,8 +22,11 @@ public @interface JUnitPerfTest {
   // Default value is no limit
   int maxExecutionsPerSecond() default -1;
 
-  // the duration of the period where the framework ramps up its executions per second,
+  // The duration of the period where the framework ramps up its executions per second,
   // before reaching its stable (maxExecutionsPerSecond) rate
   // If maxExecutionsPerSecond is not set, this attribute will have no effect
   int rampUpPeriodMs() default 0;
+
+  // Include @Before and @After methods in test statistics
+  boolean measureBeforeAndAfterSteps() default true;
 }

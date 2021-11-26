@@ -7,9 +7,11 @@ import static java.util.stream.Collectors.toSet;
 import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
+import com.github.noconnor.junitperf.statements.DefaultStatement;
 import com.github.noconnor.junitperf.statements.MeasurableStatement;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
+import com.github.noconnor.junitperf.statements.TestStatement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
 import java.util.Arrays;
@@ -65,7 +67,9 @@ public class JUnitPerfRule implements TestRule {
       ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), new LinkedHashSet<>());
       ACTIVE_CONTEXTS.get(description.getTestClass()).add(context);
 
-      PerformanceEvaluationStatement parallelExecution = perEvalBuilder.baseStatement(new MeasurableStatement(base))
+      TestStatement testStatement = perfTestAnnotation.measureBeforeAndAfterSteps() ? new DefaultStatement(base) : new MeasurableStatement(base);
+
+      PerformanceEvaluationStatement parallelExecution = perEvalBuilder.baseStatement(testStatement)
         .statistics(statisticsCalculator)
         .context(context)
         .listener(complete -> updateReport(description.getTestClass()))
