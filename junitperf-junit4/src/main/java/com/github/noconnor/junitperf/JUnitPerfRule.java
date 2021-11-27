@@ -32,23 +32,41 @@ public class JUnitPerfRule implements TestRule {
 
   StatisticsCalculator statisticsCalculator;
   PerformanceEvaluationStatementBuilder perEvalBuilder;
+  boolean excludeBeforeAndAfters;
 
   public JUnitPerfRule() {
-    this(new DescriptiveStatisticsCalculator(), new HtmlReportGenerator());
+    this(false);
+  }
+
+  public JUnitPerfRule(boolean excludeBeforeAndAfters) {
+    this(excludeBeforeAndAfters, new DescriptiveStatisticsCalculator(), new HtmlReportGenerator());
   }
 
   public JUnitPerfRule(ReportGenerator... reportGenerator) {
-    this(new DescriptiveStatisticsCalculator(), reportGenerator);
+    this(false, reportGenerator);
+  }
+
+  public JUnitPerfRule(boolean excludeBeforeAndAfters, ReportGenerator... reportGenerator) {
+    this(excludeBeforeAndAfters, new DescriptiveStatisticsCalculator(), reportGenerator);
   }
 
   public JUnitPerfRule(StatisticsCalculator statisticsCalculator) {
-    this(statisticsCalculator, new HtmlReportGenerator());
+    this(false, statisticsCalculator);
+  }
+
+  public JUnitPerfRule(boolean excludeBeforeAndAfters, StatisticsCalculator statisticsCalculator) {
+    this(excludeBeforeAndAfters, statisticsCalculator, new HtmlReportGenerator());
   }
 
   public JUnitPerfRule(StatisticsCalculator statisticsCalculator, ReportGenerator... reportGenerator) {
+    this(false, statisticsCalculator, reportGenerator);
+  }
+
+  public JUnitPerfRule(boolean excludeBeforeAndAfters, StatisticsCalculator statisticsCalculator, ReportGenerator... reportGenerator) {
     this.perEvalBuilder = PerformanceEvaluationStatement.builder();
     this.statisticsCalculator = statisticsCalculator;
     this.reporters = Arrays.stream(reportGenerator).collect(toSet());
+    this.excludeBeforeAndAfters = excludeBeforeAndAfters;
   }
 
   @Override
@@ -67,7 +85,7 @@ public class JUnitPerfRule implements TestRule {
       ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), new LinkedHashSet<>());
       ACTIVE_CONTEXTS.get(description.getTestClass()).add(context);
 
-      TestStatement testStatement = perfTestAnnotation.measureBeforeAndAfterSteps() ? new DefaultStatement(base) : new MeasurableStatement(base);
+      TestStatement testStatement = excludeBeforeAndAfters ? new MeasurableStatement(base) : new DefaultStatement(base);
 
       PerformanceEvaluationStatement parallelExecution = perEvalBuilder.baseStatement(testStatement)
         .statistics(statisticsCalculator)

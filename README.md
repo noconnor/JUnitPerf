@@ -40,7 +40,7 @@ This library interface was heavily influenced by the interface in the deprecated
 <dependency>
   <groupId>com.github.noconnor</groupId>
   <artifactId>junitperf</artifactId>
-  <version>1.17.0</version>
+  <version>1.20.0</version>
 </dependency>
 ```
 
@@ -107,11 +107,19 @@ This example test also contains a requirement that the execution error rate be n
 An error is an uncaught exception thrown during unittest execution. 
 If the specified `allowedErrorPercentage` is not met then the test will fail.
 
-Finally the example sets a number of latency thresholds on the 90th, 95th, 98th and 99th percentiles (i.e. if the 
+Finally, the example sets a number of latency thresholds on the 90th, 95th, 98th and 99th percentiles (i.e. if the 
 99th percentile latency is *greater* than 8ms then the test will fail). 
 The latency is a measurement of the time taken to execute one loop (not including statistics measurement calculations) 
 
 More information on statistic calculations can be found [here](#statistics)
+
+**NOTE:** By default statistic calculations (including latency measurements) include any methods marked as `@Before` or `@After`. 
+To exclude methods annotated with `@Before` or `@After`, create the JunitPerfRule as follows:
+
+```
+@Rule
+public JUnitPerfRule perfTestRule = new JUnitPerfRule(true);
+```
 
 <br />
 
@@ -215,7 +223,6 @@ More information on statistic calculations can be found [here](#statistics)
 | warmUpMs                   | Warm up period in ms, test logic will be executed during warm up, but results will not be considered during statistics evaluation |        0       |
 | maxExecutionsPerSecond     | Sets the maximum number of iteration per second (disabled by default)                                                             |       -1       |
 | rampUpPeriodMs             | Framework ramps up its executions per second smoothly over the duration of this period (disabled by default)                      |        0       |
-| measureBeforeAndAfterSteps | Include `@Before` & `@After` in statistic measurements                                                                            |      true      |
 
 These configuration parameters can be overridden at runtime by specifying a VM args of the form: `-Djunitperf.<param>=X`
 

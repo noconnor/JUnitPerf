@@ -27,6 +27,4 @@ public @interface JUnitPerfTest {
   // If maxExecutionsPerSecond is not set, this attribute will have no effect
   int rampUpPeriodMs() default 0;
 
-  // Include @Before and @After methods in test statistics
-  boolean measureBeforeAndAfterSteps() default true;
 }

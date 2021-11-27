@@ -15,7 +15,7 @@ import static com.github.noconnor.junitperf.examples.utils.ReportingUtils.newHtm
 public class ExampleSuccessTests {
 
   @Rule
-  public JUnitPerfRule perfRule = new JUnitPerfRule(newHtmlReporter("success.html"));
+  public JUnitPerfRule perfRule = new JUnitPerfRule( true, newHtmlReporter("success.html"));
 
   @Before
   public void setup() throws InterruptedException {
@@ -30,14 +30,6 @@ public class ExampleSuccessTests {
   @Test
   @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000, maxExecutionsPerSecond = 100)
   public void whenNoRequirementsArePresent_thenTestShouldAlwaysPass() throws IOException {
-    try (Socket socket = new Socket()) {
-      socket.connect(new InetSocketAddress("www.google.com", 80), 1000);
-    }
-  }
-
-  @Test
-  @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000, maxExecutionsPerSecond = 100, measureBeforeAndAfterSteps = false)
-  public void whenMeasureBeforeAndAfterStepsIsFalse_thenBeforeAndAfterLatencyShouldBeExcludedFromTheResult() throws IOException {
     try (Socket socket = new Socket()) {
       socket.connect(new InetSocketAddress("www.google.com", 80), 1000);
     }
