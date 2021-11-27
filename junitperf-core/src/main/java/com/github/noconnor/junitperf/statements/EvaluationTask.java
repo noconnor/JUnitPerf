@@ -1,15 +1,14 @@
 package com.github.noconnor.junitperf.statements;
 
-import lombok.Builder;
-
-import java.util.function.Supplier;
-import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
-import com.google.common.util.concurrent.RateLimiter;
-
 import static java.lang.System.nanoTime;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
+import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+import com.google.common.util.concurrent.RateLimiter;
+import java.util.function.Supplier;
+import lombok.Builder;
 
 final class EvaluationTask implements Runnable {
 
@@ -50,23 +49,43 @@ final class EvaluationTask implements Runnable {
   private void evaluateStatement(long startMeasurements) {
     if (nanoTime() < startMeasurements) {
       try {
+        statement.runBefores();
         statement.evaluate();
+        statement.runAfters();
       } catch (Throwable throwable) {
         // IGNORE
       }
     } else {
+
+      try {
+        statement.runBefores();
+      } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+      } catch (Throwable throwable) {
+        throw new IllegalStateException("Before method failed", throwable);
+      }
+
       long startTimeNs = nanoTime();
       try {
         statement.evaluate();
         stats.addLatencyMeasurement(nanoTime() - startTimeNs);
         stats.incrementEvaluationCount();
-      } catch (InterruptedException e) { // NOSONAR
-        // IGNORE - no metrics
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
       } catch (Throwable throwable) {
         stats.incrementEvaluationCount();
         stats.incrementErrorCount();
         stats.addLatencyMeasurement(nanoTime() - startTimeNs);
       }
+
+      try {
+        statement.runAfters();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      } catch (Throwable throwable) {
+        throw new IllegalStateException("After method failed", throwable);
+      }
+
     }
   }
 

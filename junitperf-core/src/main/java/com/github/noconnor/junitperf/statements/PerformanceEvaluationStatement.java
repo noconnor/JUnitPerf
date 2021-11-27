@@ -17,7 +17,7 @@ import static java.lang.String.format;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class PerformanceEvaluationStatement implements TestStatement {
+public class PerformanceEvaluationStatement {
 
   private static final String THREAD_NAME_PATTERN = "perf-eval-thread-%d";
   private static final ThreadFactory FACTORY = new ThreadFactoryBuilder().setNameFormat(THREAD_NAME_PATTERN).build();
@@ -44,8 +44,7 @@ public class PerformanceEvaluationStatement implements TestStatement {
     this.listener = listener;
   }
 
-  @Override
-  public void evaluate() throws Throwable {
+  public void runParallelEvaluation() throws Throwable {
     statistics.reset();
     List<Thread> threads = newArrayList();
     try {

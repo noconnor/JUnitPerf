@@ -1,5 +1,19 @@
 package com.github.noconnor.junitperf;
 
+import static java.lang.System.nanoTime;
+import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toSet;
+
+import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.reporting.ReportGenerator;
+import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
+import com.github.noconnor.junitperf.statements.DefaultStatement;
+import com.github.noconnor.junitperf.statements.MeasurableStatement;
+import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
+import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
+import com.github.noconnor.junitperf.statements.TestStatement;
+import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -8,18 +22,6 @@ import java.util.Set;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import com.github.noconnor.junitperf.data.EvaluationContext;
-import com.github.noconnor.junitperf.reporting.ReportGenerator;
-import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
-import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
-import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
-import com.github.noconnor.junitperf.statements.TestStatement;
-import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
-import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
-
-import static java.lang.System.nanoTime;
-import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toSet;
 
 @SuppressWarnings("WeakerAccess")
 public class JUnitPerfRule implements TestRule {
@@ -30,23 +32,41 @@ public class JUnitPerfRule implements TestRule {
 
   StatisticsCalculator statisticsCalculator;
   PerformanceEvaluationStatementBuilder perEvalBuilder;
+  boolean excludeBeforeAndAfters;
 
   public JUnitPerfRule() {
-    this(new DescriptiveStatisticsCalculator(), new HtmlReportGenerator());
+    this(false);
+  }
+
+  public JUnitPerfRule(boolean excludeBeforeAndAfters) {
+    this(excludeBeforeAndAfters, new DescriptiveStatisticsCalculator(), new HtmlReportGenerator());
   }
 
   public JUnitPerfRule(ReportGenerator... reportGenerator) {
-    this(new DescriptiveStatisticsCalculator(), reportGenerator);
+    this(false, reportGenerator);
+  }
+
+  public JUnitPerfRule(boolean excludeBeforeAndAfters, ReportGenerator... reportGenerator) {
+    this(excludeBeforeAndAfters, new DescriptiveStatisticsCalculator(), reportGenerator);
   }
 
   public JUnitPerfRule(StatisticsCalculator statisticsCalculator) {
-    this(statisticsCalculator, new HtmlReportGenerator());
+    this(false, statisticsCalculator);
+  }
+
+  public JUnitPerfRule(boolean excludeBeforeAndAfters, StatisticsCalculator statisticsCalculator) {
+    this(excludeBeforeAndAfters, statisticsCalculator, new HtmlReportGenerator());
   }
 
   public JUnitPerfRule(StatisticsCalculator statisticsCalculator, ReportGenerator... reportGenerator) {
+    this(false, statisticsCalculator, reportGenerator);
+  }
+
+  public JUnitPerfRule(boolean excludeBeforeAndAfters, StatisticsCalculator statisticsCalculator, ReportGenerator... reportGenerator) {
     this.perEvalBuilder = PerformanceEvaluationStatement.builder();
     this.statisticsCalculator = statisticsCalculator;
     this.reporters = Arrays.stream(reportGenerator).collect(toSet());
+    this.excludeBeforeAndAfters = excludeBeforeAndAfters;
   }
 
   @Override
@@ -65,8 +85,9 @@ public class JUnitPerfRule implements TestRule {
       ACTIVE_CONTEXTS.putIfAbsent(description.getTestClass(), new LinkedHashSet<>());
       ACTIVE_CONTEXTS.get(description.getTestClass()).add(context);
 
-      @SuppressWarnings("Convert2MethodRef")
-      TestStatement test = perEvalBuilder.baseStatement(() -> base.evaluate())
+      TestStatement testStatement = excludeBeforeAndAfters ? new MeasurableStatement(base) : new DefaultStatement(base);
+
+      PerformanceEvaluationStatement parallelExecution = perEvalBuilder.baseStatement(testStatement)
         .statistics(statisticsCalculator)
         .context(context)
         .listener(complete -> updateReport(description.getTestClass()))
@@ -75,7 +96,7 @@ public class JUnitPerfRule implements TestRule {
       activeStatement = new Statement() {
         @Override
         public void evaluate() throws Throwable {
-          test.evaluate();
+          parallelExecution.runParallelEvaluation();
         }
       };
     }

@@ -1,5 +1,24 @@
 package com.github.noconnor.junitperf;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Answers.RETURNS_SELF;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.reporting.ReportGenerator;
+import com.github.noconnor.junitperf.statements.DefaultStatement;
+import com.github.noconnor.junitperf.statements.MeasurableStatement;
+import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
+import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
+import com.github.noconnor.junitperf.statements.TestStatement;
+import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import java.util.LinkedHashSet;
 import java.util.function.Consumer;
 import org.junit.After;
@@ -11,21 +30,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import com.github.noconnor.junitperf.data.EvaluationContext;
-import com.github.noconnor.junitperf.reporting.ReportGenerator;
-import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
-import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
-import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Answers.RETURNS_SELF;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 
 public class JUnitPerfRuleTest {
@@ -101,14 +105,14 @@ public class JUnitPerfRuleTest {
     mockJunitPerfTestRequirementAnnotationNotPresent();
     Statement statement = perfRule.apply(statementMock, descriptionMock);
     statement.evaluate();
-    verify(perfEvalStatement).evaluate();
+    verify(perfEvalStatement).runParallelEvaluation();
   }
 
   @Test
   public void whenExecutingApply_andJunitPerfTestAnnotationIsPresent_thenThePerformanceEvaluationStatementShouldBeWrapped() throws Throwable {
     Statement statement = perfRule.apply(statementMock, descriptionMock);
     statement.evaluate();
-    verify(perfEvalStatement).evaluate();
+    verify(perfEvalStatement).runParallelEvaluation();
   }
 
   @Test
@@ -121,6 +125,24 @@ public class JUnitPerfRuleTest {
     verify(perfEvalBuilderMock).listener(any(Consumer.class));
     verify(perfEvalBuilderMock).build();
     verifyNoMoreInteractions(perfEvalBuilderMock);
+  }
+
+  @Test
+  public void whenExecutingApply_andExcludeBeforeAfterIsFalse_thenDefaultTestStatementShouldBeUsed() {
+    perfRule.apply(statementMock, descriptionMock);
+    ArgumentCaptor<TestStatement> captor = ArgumentCaptor.forClass(TestStatement.class);
+    verify(perfEvalBuilderMock).baseStatement(captor.capture());
+    assertTrue((captor.getValue() instanceof DefaultStatement));
+  }
+
+  @Test
+  public void whenExecutingApply_andExcludeBeforeAfterIsTrue_thenMeasurableTestStatementShouldBeUsed() {
+    perfRule = new JUnitPerfRule(true, statisticsCalculatorMock, csvReporterMock, htmlReporterMock);
+    perfRule.perEvalBuilder = perfEvalBuilderMock;
+    perfRule.apply(statementMock, descriptionMock);
+    ArgumentCaptor<TestStatement> captor = ArgumentCaptor.forClass(TestStatement.class);
+    verify(perfEvalBuilderMock).baseStatement(captor.capture());
+    assertTrue((captor.getValue() instanceof MeasurableStatement));
   }
 
   @Test
