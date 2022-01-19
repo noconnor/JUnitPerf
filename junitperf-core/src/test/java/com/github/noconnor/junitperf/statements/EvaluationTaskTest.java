@@ -1,5 +1,6 @@
 package com.github.noconnor.junitperf.statements;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import org.junit.Before;
@@ -109,11 +110,23 @@ public class EvaluationTaskTest extends BaseTest {
   @Test
   public void whenAnInterruptExceptionIsThrown_thenNoErrorsMetricsShouldBeCaptured() throws Throwable {
     setExecutionCount(10000);
-    mockInterruptEvaluationFailures(5);
+    mockInterruptAfter(9995);
     task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 0);
     task.run();
     verify(statsMock, times(9995)).incrementEvaluationCount();
     verify(statsMock, times(9995)).addLatencyMeasurement(anyLong());
+    verify(statsMock, never()).incrementErrorCount();
+  }
+
+  @Test
+  public void whenTerminationFlagIsSet_thenNoMoreExecutionsShouldBeEvaluated() throws Throwable {
+    setExecutionCount(10000);
+    mockTerminateAfter(9990);
+    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 0);
+    task.run();
+    // termination flag will still finish executing current loop
+    verify(statsMock, times(9991)).incrementEvaluationCount();
+    verify(statsMock, times(9991)).addLatencyMeasurement(anyLong());
     verify(statsMock, never()).incrementErrorCount();
   }
 
@@ -174,15 +187,24 @@ public class EvaluationTaskTest extends BaseTest {
 
   }
 
-  private void mockInterruptEvaluationFailures(int desiredFailureCount) throws Throwable {
+  private void mockInterruptAfter(int desiredSuccessfulInvocations) throws Throwable {
     AtomicInteger executions = new AtomicInteger();
     doAnswer(invocation -> {
-      if (executions.getAndIncrement() < desiredFailureCount) {
+      if (executions.getAndIncrement() >= desiredSuccessfulInvocations) {
         throw new InterruptedException("mock exception");
       }
       return null;
     }).when(statementMock).evaluate();
+  }
 
+  private void mockTerminateAfter(int desiredSuccessfulInvocations) throws Throwable {
+    AtomicInteger executions = new AtomicInteger();
+    doAnswer(invocation -> {
+      if (executions.getAndIncrement() >= desiredSuccessfulInvocations) {
+        when(terminatorMock.get()).thenReturn(true);
+      }
+      return null;
+    }).when(statementMock).evaluate();
   }
 
   private void initialiseRateLimiterMock() {
