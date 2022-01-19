@@ -124,6 +124,7 @@ public class EvaluationTaskTest extends BaseTest {
     mockTerminateAfter(9990);
     task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 0);
     task.run();
+    // termination flag will still finish executing current loop
     verify(statsMock, times(9991)).incrementEvaluationCount();
     verify(statsMock, times(9991)).addLatencyMeasurement(anyLong());
     verify(statsMock, never()).incrementErrorCount();
