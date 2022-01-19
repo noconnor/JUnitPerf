@@ -19,8 +19,8 @@ final class EvaluationTask implements Runnable {
   private final long warmUpPeriodNs;
 
   @Builder
-  EvaluationTask(TestStatement statement, RateLimiter rateLimiter, StatisticsCalculator stats, int warmUpPeriodMs) {
-    this(statement, rateLimiter, () -> Thread.currentThread().isInterrupted(), stats, warmUpPeriodMs);
+  EvaluationTask(TestStatement statement, RateLimiter rateLimiter, StatisticsCalculator stats, Supplier<Boolean> terminator,  int warmUpPeriodMs) {
+    this(statement, rateLimiter, terminator, stats, warmUpPeriodMs);
   }
 
   // Test only
@@ -40,7 +40,7 @@ final class EvaluationTask implements Runnable {
   public void run() {
     long startTimeNs = nanoTime();
     long startMeasurements = startTimeNs + warmUpPeriodNs;
-    while (!terminator.get()) {
+    while (!terminator.get() && !Thread.currentThread().isInterrupted()) {
       waitForPermit();
       evaluateStatement(startMeasurements);
     }
@@ -52,6 +52,8 @@ final class EvaluationTask implements Runnable {
         statement.runBefores();
         statement.evaluate();
         statement.runAfters();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
       } catch (Throwable throwable) {
         // IGNORE
       }

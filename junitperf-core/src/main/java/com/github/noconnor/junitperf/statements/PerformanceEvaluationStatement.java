@@ -1,5 +1,6 @@
 package com.github.noconnor.junitperf.statements;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Builder;
 
 import java.util.List;
@@ -47,14 +48,16 @@ public class PerformanceEvaluationStatement {
   public void runParallelEvaluation() throws Throwable {
     statistics.reset();
     List<Thread> threads = newArrayList();
+    AtomicBoolean stopSignal = new AtomicBoolean();
     try {
       for (int i = 0; i < context.getConfiguredThreads(); i++) {
-        Thread t = threadFactory.newThread(createTask());
+        Thread t = threadFactory.newThread(createTask(stopSignal));
         threads.add(t);
         t.start();
       }
       Thread.sleep(context.getConfiguredDuration());
     } finally {
+      stopSignal.set(true);
       threads.forEach(Thread::interrupt);
     }
     context.setStatistics(statistics);
@@ -63,12 +66,13 @@ public class PerformanceEvaluationStatement {
     assertThresholdsMet();
   }
 
-  private EvaluationTask createTask() {
+  private EvaluationTask createTask(AtomicBoolean stopSignal) {
     StatisticsCalculator stats = context.isAsyncEvaluation() ? NoOpStatisticsCollector.INSTANCE : statistics;
     return EvaluationTask.builder()
       .statement(baseStatement)
       .rateLimiter(rateLimiter)
       .stats(stats)
+      .terminator(stopSignal::get)
       .warmUpPeriodMs(context.getConfiguredWarmUp())
       .build();
   }
