@@ -258,6 +258,8 @@ This will override the `durationMs` set in the `@JUnitPerfTest` annotation.
 
 [Multiple Reports](#multiple-reports)
 
+[Grouping Reports](#grouping-reports)
+
 <br />
 
 #### HTML Reports
@@ -368,6 +370,43 @@ public JUnitPerfRule perfTestRule = new JUnitPerfRule(new CsvReportGenerator(), 
 
 With this configuration a HTML report **AND** a CSV report will be generated
 
+
+<br />
+
+#### Grouping Reports
+
+It is possible to generate a report that groups the results of many test classes into one report. This is helpful if you want to generate for example just one report for each project or if you want to group them for topics or something similar.
+
+In order to to this a shared reporter should be created (like this):
+
+```
+public class ReportingUtils {
+    public static final HtmlReportGenerator htmlReporter = new HtmlReportGenerator("src/test/resources/reports/performance_report.html");
+}
+```
+
+Then the shared reporter can be used inside the tests classes:
+
+```
+public class SomeTestClass {
+
+    @Rule 
+    public JUnitPerfRule perfTestRule = new JUnitPerfRule(ReportingUtils.htmlReporter);
+   
+    // ... some test code ...
+}
+
+public class SomeOtherTestClass {
+
+    @Rule 
+    public JUnitPerfRule perfTestRule = new JUnitPerfRule(ReportingUtils.htmlReporter);
+   
+    // ... some other test code ...
+
+}
+```
+
+With this configuration it is possible to aggregate the results into a single report.
 
 <br />
 
