@@ -375,19 +375,16 @@ With this configuration a HTML report **AND** a CSV report will be generated
 
 #### Grouping Reports
 
-It is possible to generate a report that groups the results of many test classes into one report. This is helpful if you want to generate for example just one report for each project or if you want to group them for topics or something similar.
+It is possible to generate a report that groups the results of many test classes into one report. 
+This is helpful if you want to generate for example just one report for each project or if you want to group them for topics or something similar.
 
-In order to to this a shared reporter should be created (like this):
+In order to do this, a single reporter can be created and shared across JUnitPerfRule instances. For example:
 
 ```
 public class ReportingUtils {
     public static final HtmlReportGenerator htmlReporter = new HtmlReportGenerator("src/test/resources/reports/performance_report.html");
 }
-```
 
-Then the shared reporter can be used inside the tests classes:
-
-```
 public class SomeTestClass {
 
     @Rule 
