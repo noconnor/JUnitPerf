@@ -9,6 +9,10 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>junitperf</artifactId>
 
+    <properties>
+        <junit.version>4.13.2</junit.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.github.noconnor</groupId>
