@@ -9,35 +9,50 @@ import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsC
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
+import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
 import static java.lang.System.nanoTime;
 import static java.util.Objects.nonNull;
 
-public class JUnitPerfInterceptor implements InvocationInterceptor {
+public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstancePostProcessor {
 
     // TODO:
     // * Figure out is static ACTIVE_CONTEXTS is required (shouldn't be required)
-    // * Figure out how to pass collection of "Reporter" instances when using @ExtendsWith (a configuration annotation??)
-    // * Figure out how to inject "StatisticsCollector" class when using @ExtendsWith (a configuration annotation??)
-    // * Maybe have a "default" console reporter that is used as a fallback when no reporters are configured
+    // * Figure out how to pass collection of "Reporter" instances when using
+    // @ExtendsWith (a configuration annotation??)
+    // * Figure out how to inject "StatisticsCollector" class when using
+    // @ExtendsWith (a configuration annotation??)
+    // * Maybe have a "default" console reporter that is used as a fallback when no
+    // reporters are configured
 
-    private static final Map<Class<?>, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = new HashMap<>();
+    private final Map<Class<?>, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = new HashMap<>();
     private final Set<ReportGenerator> reporters = new HashSet<>();
 
-    public JUnitPerfInterceptor() {
-        reporters.add(new ConsoleReportGenerator()); // TODO: remove this hardcoding
+    @Override
+    public void postProcessTestInstance(Object testInstance, ExtensionContext arg1) throws Exception {
+        for (Field field : testInstance.getClass().getDeclaredFields()) {
+            if (field.isAnnotationPresent(Reporter.class)) {
+                field.setAccessible(true);
+                reporters.add((ReportGenerator) field.get(testInstance));
+            }
+        }
+        if (reporters.isEmpty()) {
+            reporters.add(new ConsoleReportGenerator());
+        }
     }
 
     @Override
     public void interceptTestMethod(Invocation<Void> invocation,
-                                    ReflectiveInvocationContext<Method> invocationContext,
-                                    ExtensionContext extensionContext) throws Throwable {
+            ReflectiveInvocationContext<Method> invocationContext,
+            ExtensionContext extensionContext) throws Throwable {
 
         JUnitPerfTest perfTestAnnotation = extensionContext.getRequiredTestMethod().getAnnotation(JUnitPerfTest.class);
-        JUnitPerfTestRequirement requirementsAnnotation = extensionContext.getRequiredTestMethod().getAnnotation(JUnitPerfTestRequirement.class);
+        JUnitPerfTestRequirement requirementsAnnotation = extensionContext.getRequiredTestMethod()
+                .getAnnotation(JUnitPerfTestRequirement.class);
 
         if (nonNull(perfTestAnnotation)) {
             EvaluationContext context = createEvaluationContext(extensionContext.getRequiredTestMethod());
@@ -45,8 +60,8 @@ public class JUnitPerfInterceptor implements InvocationInterceptor {
             context.loadRequirements(requirementsAnnotation);
 
             // Group test contexts by test class
-            ACTIVE_CONTEXTS.putIfAbsent(extensionContext.getTestClass().get(), new LinkedHashSet<>());
-            ACTIVE_CONTEXTS.get(extensionContext.getTestClass().get()).add(context);
+            ACTIVE_CONTEXTS.putIfAbsent(extensionContext.getRequiredTestClass(), new LinkedHashSet<>());
+            ACTIVE_CONTEXTS.get(extensionContext.getRequiredTestClass()).add(context);
 
             // TODO: Move to outer class or move to junit-core
             TestStatement testStatement = new TestStatement() {
