@@ -12,8 +12,8 @@ import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsC
 @ExtendWith(JUnitPerfInterceptor.class)
 public class JUnitPerfInterceptorIntegrationTest {
 
-    @JUnitPerfReporingConfig
-    private ReportingConfig config = ReportingConfig.builder()
+    @JUnitPerfTestActiveConfig
+    private JUnitPerfTestConfig config = JUnitPerfTestConfig.builder()
             .reportGenerator(new ConsoleReportGenerator())
             .reportGenerator(new HtmlReportGenerator())
             .statisticsCalculator(new DescriptiveStatisticsCalculator())

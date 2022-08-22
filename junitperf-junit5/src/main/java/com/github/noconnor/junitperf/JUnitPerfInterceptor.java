@@ -44,9 +44,9 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     public void postProcessTestInstance(Object testInstance, ExtensionContext arg1) throws Exception {
 
         for (Field field : testInstance.getClass().getDeclaredFields()) {
-            if (field.isAnnotationPresent(JUnitPerfReporingConfig.class)) {
+            if (field.isAnnotationPresent(JUnitPerfTestActiveConfig.class)) {
                 field.setAccessible(true);
-                ReportingConfig reportingConfig = (ReportingConfig) field.get(testInstance);
+                JUnitPerfTestConfig reportingConfig = (JUnitPerfTestConfig) field.get(testInstance);
                 reporters.addAll(reportingConfig.getReportGenerators());
                 statisticsCalculator = reportingConfig.getStatisticsCalculator();
             }

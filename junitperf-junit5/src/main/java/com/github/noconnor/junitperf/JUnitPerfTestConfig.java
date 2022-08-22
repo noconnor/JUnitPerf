@@ -11,7 +11,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class ReportingConfig {
+public class JUnitPerfTestConfig {
     @Singular
     Collection<ReportGenerator> reportGenerators;
     StatisticsCalculator statisticsCalculator;
