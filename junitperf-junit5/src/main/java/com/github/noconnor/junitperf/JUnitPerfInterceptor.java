@@ -27,34 +27,31 @@ import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsC
 
 public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstancePostProcessor {
 
-    private final Map<Class<?>, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = new HashMap<>();
-    private final Set<ReportGenerator> reporters = new HashSet<>();
-    private StatisticsCalculator statisticsCalculator;
+    private final Map<Class<?>, LinkedHashSet<EvaluationContext>> activeContexts = new HashMap<>();
+    private final Set<ReportGenerator> activeReporters = new HashSet<>();
+    private StatisticsCalculator activeStatisticsCalculator;
 
     @Override
-    public void postProcessTestInstance(Object testInstance, ExtensionContext arg1) throws Exception {
-
+    public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
         for (Field field : testInstance.getClass().getDeclaredFields()) {
             if (field.isAnnotationPresent(JUnitPerfTestActiveConfig.class)) {
                 field.setAccessible(true);
                 JUnitPerfTestConfig reportingConfig = (JUnitPerfTestConfig) field.get(testInstance);
-                reporters.addAll(reportingConfig.getReportGenerators());
-                statisticsCalculator = reportingConfig.getStatisticsCalculator();
+                activeReporters.addAll(reportingConfig.getReportGenerators());
+                activeStatisticsCalculator = reportingConfig.getStatisticsCalculator();
             }
-
         }
         // Defaults if no overrides provided
-        if (reporters.isEmpty()) {
-            reporters.add(new ConsoleReportGenerator());
+        if (activeReporters.isEmpty()) {
+            activeReporters.add(new ConsoleReportGenerator());
         }
-        if (isNull(statisticsCalculator)) {
-            statisticsCalculator = new DescriptiveStatisticsCalculator();
+        if (isNull(activeStatisticsCalculator)) {
+            activeStatisticsCalculator = new DescriptiveStatisticsCalculator();
         }
     }
 
     @Override
-    public void interceptTestMethod(Invocation<Void> invocation,
-            ReflectiveInvocationContext<Method> invocationContext,
+    public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
             ExtensionContext extensionContext) throws Throwable {
 
         Method method = extensionContext.getRequiredTestMethod();
@@ -66,13 +63,13 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
             context.loadConfiguration(perfTestAnnotation);
             context.loadRequirements(requirementsAnnotation);
 
-            ACTIVE_CONTEXTS.putIfAbsent(extensionContext.getRequiredTestClass(), new LinkedHashSet<>());
-            ACTIVE_CONTEXTS.get(extensionContext.getRequiredTestClass()).add(context);
+            activeContexts.putIfAbsent(extensionContext.getRequiredTestClass(), new LinkedHashSet<>());
+            activeContexts.get(extensionContext.getRequiredTestClass()).add(context);
 
             SimpleTestStatement testStatement = () -> method.invoke(extensionContext.getRequiredTestInstance());
             PerformanceEvaluationStatement parallelExecution = PerformanceEvaluationStatement.builder()
                     .baseStatement(testStatement)
-                    .statistics(statisticsCalculator)
+                    .statistics(activeStatisticsCalculator)
                     .context(context)
                     .listener(complete -> updateReport(method.getDeclaringClass()))
                     .build();
@@ -87,8 +84,8 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     }
 
     private synchronized void updateReport(Class<?> clazz) {
-        reporters.forEach(r -> {
-            r.generateReport(ACTIVE_CONTEXTS.get(clazz));
+        activeReporters.forEach(r -> {
+            r.generateReport(activeContexts.get(clazz));
         });
     }
 
