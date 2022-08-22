@@ -1,22 +1,29 @@
 package com.github.noconnor.junitperf;
 
-import com.github.noconnor.junitperf.data.EvaluationContext;
-import com.github.noconnor.junitperf.reporting.ReportGenerator;
-import com.github.noconnor.junitperf.reporting.providers.ConsoleReportGenerator;
-import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
-import com.github.noconnor.junitperf.statements.TestStatement;
-import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
+import static java.lang.System.nanoTime;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.*;
-
-import static java.lang.System.nanoTime;
-import static java.util.Objects.nonNull;
+import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.reporting.ReportGenerator;
+import com.github.noconnor.junitperf.reporting.providers.ConsoleReportGenerator;
+import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
+import com.github.noconnor.junitperf.statements.SimpleTestStatement;
+import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
 
 public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstancePostProcessor {
 
@@ -31,17 +38,26 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
     private final Map<Class<?>, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = new HashMap<>();
     private final Set<ReportGenerator> reporters = new HashSet<>();
+    private StatisticsCalculator statisticsCalculator;
 
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext arg1) throws Exception {
         for (Field field : testInstance.getClass().getDeclaredFields()) {
-            if (field.isAnnotationPresent(Reporter.class)) {
+            if (field.isAnnotationPresent(ActiveReporter.class)) {
                 field.setAccessible(true);
                 reporters.add((ReportGenerator) field.get(testInstance));
             }
+            if (field.isAnnotationPresent(ActiveStatisticsCollector.class)) {
+                field.setAccessible(true);
+                statisticsCalculator = (StatisticsCalculator) field.get(testInstance);
+            }
         }
+
         if (reporters.isEmpty()) {
             reporters.add(new ConsoleReportGenerator());
+        }
+        if (isNull(statisticsCalculator)) {
+            statisticsCalculator = new DescriptiveStatisticsCalculator();
         }
     }
 
@@ -50,47 +66,27 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
             ReflectiveInvocationContext<Method> invocationContext,
             ExtensionContext extensionContext) throws Throwable {
 
-        JUnitPerfTest perfTestAnnotation = extensionContext.getRequiredTestMethod().getAnnotation(JUnitPerfTest.class);
-        JUnitPerfTestRequirement requirementsAnnotation = extensionContext.getRequiredTestMethod()
-                .getAnnotation(JUnitPerfTestRequirement.class);
+        Method method = extensionContext.getRequiredTestMethod();
+        JUnitPerfTest perfTestAnnotation = method.getAnnotation(JUnitPerfTest.class);
+        JUnitPerfTestRequirement requirementsAnnotation = method.getAnnotation(JUnitPerfTestRequirement.class);
 
         if (nonNull(perfTestAnnotation)) {
-            EvaluationContext context = createEvaluationContext(extensionContext.getRequiredTestMethod());
+            EvaluationContext context = createEvaluationContext(method);
             context.loadConfiguration(perfTestAnnotation);
             context.loadRequirements(requirementsAnnotation);
 
-            // Group test contexts by test class
             ACTIVE_CONTEXTS.putIfAbsent(extensionContext.getRequiredTestClass(), new LinkedHashSet<>());
             ACTIVE_CONTEXTS.get(extensionContext.getRequiredTestClass()).add(context);
 
-            // TODO: Move to outer class or move to junit-core
-            TestStatement testStatement = new TestStatement() {
-                @Override
-                public void runBefores() throws Throwable {
-                    // do nothing
-                }
-
-                @Override
-                public void evaluate() throws Throwable {
-                    extensionContext.getRequiredTestMethod().invoke(extensionContext.getRequiredTestInstance());
-                }
-
-                @Override
-                public void runAfters() throws Throwable {
-                    // do nothing
-                }
-            };
-
+            SimpleTestStatement testStatement = () -> method.invoke(extensionContext.getRequiredTestInstance());
             PerformanceEvaluationStatement parallelExecution = PerformanceEvaluationStatement.builder()
                     .baseStatement(testStatement)
-                    .statistics(new DescriptiveStatisticsCalculator()) // TODO: remove this hardcoding
+                    .statistics(statisticsCalculator)
                     .context(context)
-                    .listener(complete -> updateReport(extensionContext.getRequiredTestMethod().getDeclaringClass()))
+                    .listener(complete -> updateReport(method.getDeclaringClass()))
                     .build();
 
             parallelExecution.runParallelEvaluation();
-        } else {
-            System.out.println("No annotation, calling test once");
         }
         invocation.proceed();
     }
