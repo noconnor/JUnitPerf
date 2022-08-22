@@ -7,5 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD })
-public @interface ActiveReporter {
+public @interface JUnitPerfReporingConfig {
+    // Marker interface for ReportingConfig instance
 }

@@ -42,17 +42,17 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext arg1) throws Exception {
-        for (Field field : testInstance.getClass().getDeclaredFields()) {
-            if (field.isAnnotationPresent(ActiveReporter.class)) {
-                field.setAccessible(true);
-                reporters.add((ReportGenerator) field.get(testInstance));
-            }
-            if (field.isAnnotationPresent(ActiveStatisticsCollector.class)) {
-                field.setAccessible(true);
-                statisticsCalculator = (StatisticsCalculator) field.get(testInstance);
-            }
-        }
 
+        for (Field field : testInstance.getClass().getDeclaredFields()) {
+            if (field.isAnnotationPresent(JUnitPerfReporingConfig.class)) {
+                field.setAccessible(true);
+                ReportingConfig reportingConfig = (ReportingConfig) field.get(testInstance);
+                reporters.addAll(reportingConfig.getReportGenerators());
+                statisticsCalculator = reportingConfig.getStatisticsCalculator();
+            }
+
+        }
+        // Defaults if no overrides provided
         if (reporters.isEmpty()) {
             reporters.add(new ConsoleReportGenerator());
         }
