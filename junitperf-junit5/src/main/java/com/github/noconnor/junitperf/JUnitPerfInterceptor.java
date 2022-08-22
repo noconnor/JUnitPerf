@@ -27,15 +27,6 @@ import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsC
 
 public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstancePostProcessor {
 
-    // TODO:
-    // * Figure out is static ACTIVE_CONTEXTS is required (shouldn't be required)
-    // * Figure out how to pass collection of "Reporter" instances when using
-    // @ExtendsWith (a configuration annotation??)
-    // * Figure out how to inject "StatisticsCollector" class when using
-    // @ExtendsWith (a configuration annotation??)
-    // * Maybe have a "default" console reporter that is used as a fallback when no
-    // reporters are configured
-
     private final Map<Class<?>, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = new HashMap<>();
     private final Set<ReportGenerator> reporters = new HashSet<>();
     private StatisticsCalculator statisticsCalculator;
