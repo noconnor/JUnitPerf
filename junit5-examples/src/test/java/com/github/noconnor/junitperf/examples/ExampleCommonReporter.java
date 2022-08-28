@@ -14,7 +14,7 @@ import java.net.Socket;
 import static com.github.noconnor.junitperf.examples.utils.ReportingUtils.newHtmlReporter;
 import static org.junit.Assert.assertTrue;
 
-// Suite tests require junit-platform-suite-engine
+// Suite tests require the junit-platform-suite-engine dependency (see pom file)
 @Suite
 @SelectClasses({
         ExampleCommonReporter.TestClassOne.class,
@@ -28,6 +28,7 @@ public class ExampleCommonReporter {
     @ExtendWith(JUnitPerfInterceptor.class)
     public static class TestClassOne {
 
+        // Should be static or new instance will be created for each @Test method
         @JUnitPerfTestActiveConfig
         private static final JUnitPerfReportingConfig PERF_CONFIG = JUnitPerfReportingConfig.builder()
                 .reportGenerator(REPORTER)
@@ -46,6 +47,7 @@ public class ExampleCommonReporter {
     @ExtendWith(JUnitPerfInterceptor.class)
     public static class TestClassTwo {
 
+        // Should be static or new instance will be created for each @Test method
         @JUnitPerfTestActiveConfig
         private static final JUnitPerfReportingConfig PERF_CONFIG = JUnitPerfReportingConfig.builder()
                 .reportGenerator(REPORTER)
