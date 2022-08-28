@@ -1,6 +1,8 @@
 package com.github.noconnor.junitperf;
 
 import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.data.NoOpTestContext;
+import com.github.noconnor.junitperf.data.TestContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.github.noconnor.junitperf.reporting.providers.ConsoleReportGenerator;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
@@ -8,26 +10,26 @@ import com.github.noconnor.junitperf.statements.SimpleTestStatement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.InvocationInterceptor;
-import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
-import org.junit.jupiter.api.extension.TestInstancePostProcessor;
+import org.junit.jupiter.api.extension.*;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.lang.System.currentTimeMillis;
 import static java.lang.System.nanoTime;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Slf4j
-public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstancePostProcessor {
+public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstancePostProcessor, ParameterResolver {
 
     private static final ReportGenerator DEFAULT_REPORTER = new ConsoleReportGenerator();
     private static final Map<Class<?>, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = new ConcurrentHashMap<>();
@@ -68,14 +70,24 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         JUnitPerfTestRequirement requirementsAnnotation = method.getAnnotation(JUnitPerfTestRequirement.class);
 
         if (nonNull(perfTestAnnotation)) {
-            EvaluationContext context = createEvaluationContext(method);
+            TestInvoker testInvoker = new TestInvoker(
+                    method,
+                    invocationContext.getArguments(),
+                    perfTestAnnotation.warmUpMs()
+            );
+
+            EvaluationContext context = createEvaluationContext(method, testInvoker.isAsyncTest());
             context.loadConfiguration(perfTestAnnotation);
             context.loadRequirements(requirementsAnnotation);
 
             ACTIVE_CONTEXTS.putIfAbsent(extensionContext.getRequiredTestClass(), new LinkedHashSet<>());
             ACTIVE_CONTEXTS.get(extensionContext.getRequiredTestClass()).add(context);
 
-            SimpleTestStatement testStatement = () -> method.invoke(extensionContext.getRequiredTestInstance());
+            SimpleTestStatement testStatement = () -> testInvoker.invoke(
+                    extensionContext.getRequiredTestInstance(),
+                    activeStatisticsCalculator
+            );
+
             PerformanceEvaluationStatement parallelExecution = PerformanceEvaluationStatement.builder()
                     .baseStatement(testStatement)
                     // new instance for each call to @Test
@@ -94,9 +106,20 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         }
     }
 
-    EvaluationContext createEvaluationContext(Method method) {
-        return new EvaluationContext(method.getName(), nanoTime());
+    @Override
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        return parameterContext.getParameter().getType() == TestContext.class;
     }
+
+    @Override
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        return NoOpTestContext.INSTANCE;
+    }
+
+    EvaluationContext createEvaluationContext(Method method, boolean isAsync) {
+        return new EvaluationContext(method.getName(), nanoTime(), isAsync);
+    }
+
 
     private synchronized void updateReport(Class<?> clazz) {
         activeReporters.forEach(r -> {
@@ -109,5 +132,40 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         if (!isStatic) {
             log.warn("Warning: JUnitPerfTestConfig should be static or a new instance will be created for each @Test method");
         }
+    }
+
+    private static class TestInvoker {
+        private final Object[] args;
+        private final Method method;
+        private final long measurementsStartTimeMs;
+        private int asyncArgIndex = -1;
+
+        public TestInvoker(Method method, List<Object> args) {
+            this(method, args, 0);
+        }
+
+        public TestInvoker(Method method, List<Object> args, int warmUpMs) {
+            for (int i = 0; i < args.size(); i++) {
+                if (args.get(i) instanceof TestContext) {
+                    asyncArgIndex = i;
+                    break;
+                }
+            }
+            this.args = args.toArray();
+            this.method = method;
+            this.measurementsStartTimeMs = currentTimeMillis() + warmUpMs;
+        }
+
+        public boolean isAsyncTest() {
+            return asyncArgIndex >= 0;
+        }
+
+        public void invoke(Object testInstance, StatisticsCalculator activeStatisticsCalculator) throws InvocationTargetException, IllegalAccessException {
+            if (isAsyncTest() && currentTimeMillis() >= measurementsStartTimeMs) {
+                args[asyncArgIndex] = new TestContext(activeStatisticsCalculator);
+            }
+            method.invoke(testInstance, args);
+        }
+
     }
 }
