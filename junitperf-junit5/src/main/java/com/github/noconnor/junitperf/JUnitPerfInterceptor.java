@@ -9,6 +9,7 @@ import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.github.noconnor.junitperf.statements.SimpleTestStatement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.*;
 
@@ -70,11 +71,9 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         JUnitPerfTestRequirement requirementsAnnotation = method.getAnnotation(JUnitPerfTestRequirement.class);
 
         if (nonNull(perfTestAnnotation)) {
-            TestInvoker testInvoker = new TestInvoker(
-                    method,
-                    invocationContext.getArguments(),
-                    perfTestAnnotation.warmUpMs()
-            );
+            TestInvoker testInvoker = new TestInvoker(method,invocationContext.getArguments());
+            testInvoker.setStatsCalculator(activeStatisticsCalculator);
+            testInvoker.setMeasurementsStartTimeMs(currentTimeMillis() + perfTestAnnotation.warmUpMs());
 
             EvaluationContext context = createEvaluationContext(method, testInvoker.isAsyncTest());
             context.loadConfiguration(perfTestAnnotation);
@@ -83,10 +82,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
             ACTIVE_CONTEXTS.putIfAbsent(extensionContext.getRequiredTestClass(), new LinkedHashSet<>());
             ACTIVE_CONTEXTS.get(extensionContext.getRequiredTestClass()).add(context);
 
-            SimpleTestStatement testStatement = () -> testInvoker.invoke(
-                    extensionContext.getRequiredTestInstance(),
-                    activeStatisticsCalculator
-            );
+            SimpleTestStatement testStatement = () -> testInvoker.invoke(extensionContext.getRequiredTestInstance());
 
             PerformanceEvaluationStatement parallelExecution = PerformanceEvaluationStatement.builder()
                     .baseStatement(testStatement)
@@ -137,14 +133,13 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     private static class TestInvoker {
         private final Object[] args;
         private final Method method;
-        private final long measurementsStartTimeMs;
+        @Setter
+        private long measurementsStartTimeMs;
+        @Setter
+        private StatisticsCalculator statsCalculator;
         private int asyncArgIndex = -1;
 
         public TestInvoker(Method method, List<Object> args) {
-            this(method, args, 0);
-        }
-
-        public TestInvoker(Method method, List<Object> args, int warmUpMs) {
             for (int i = 0; i < args.size(); i++) {
                 if (args.get(i) instanceof TestContext) {
                     asyncArgIndex = i;
@@ -153,18 +148,21 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
             }
             this.args = args.toArray();
             this.method = method;
-            this.measurementsStartTimeMs = currentTimeMillis() + warmUpMs;
         }
 
         public boolean isAsyncTest() {
             return asyncArgIndex >= 0;
         }
 
-        public void invoke(Object testInstance, StatisticsCalculator activeStatisticsCalculator) throws InvocationTargetException, IllegalAccessException {
-            if (isAsyncTest() && currentTimeMillis() >= measurementsStartTimeMs) {
-                args[asyncArgIndex] = new TestContext(activeStatisticsCalculator);
+        public void invoke(Object testInstance) throws InvocationTargetException, IllegalAccessException {
+            if (isAsyncTest() && hasMeasurementStarted() && nonNull(statsCalculator)) {
+                args[asyncArgIndex] = new TestContext(statsCalculator);
             }
             method.invoke(testInstance, args);
+        }
+
+        private boolean hasMeasurementStarted() {
+            return currentTimeMillis() >= measurementsStartTimeMs;
         }
 
     }
