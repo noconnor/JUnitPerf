@@ -9,17 +9,14 @@ import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.github.noconnor.junitperf.statements.SimpleTestStatement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.*;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -71,7 +68,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         JUnitPerfTestRequirement requirementsAnnotation = method.getAnnotation(JUnitPerfTestRequirement.class);
 
         if (nonNull(perfTestAnnotation)) {
-            TestInvoker testInvoker = new TestInvoker(method,invocationContext.getArguments());
+            TestInvoker testInvoker = new TestInvoker(method, invocationContext.getArguments());
             testInvoker.setStatsCalculator(activeStatisticsCalculator);
             testInvoker.setMeasurementsStartTimeMs(currentTimeMillis() + perfTestAnnotation.warmUpMs());
 
@@ -130,40 +127,4 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         }
     }
 
-    private static class TestInvoker {
-        private final Object[] args;
-        private final Method method;
-        @Setter
-        private long measurementsStartTimeMs;
-        @Setter
-        private StatisticsCalculator statsCalculator;
-        private int asyncArgIndex = -1;
-
-        public TestInvoker(Method method, List<Object> args) {
-            for (int i = 0; i < args.size(); i++) {
-                if (args.get(i) instanceof TestContext) {
-                    asyncArgIndex = i;
-                    break;
-                }
-            }
-            this.args = args.toArray();
-            this.method = method;
-        }
-
-        public boolean isAsyncTest() {
-            return asyncArgIndex >= 0;
-        }
-
-        public void invoke(Object testInstance) throws InvocationTargetException, IllegalAccessException {
-            if (isAsyncTest() && hasMeasurementStarted() && nonNull(statsCalculator)) {
-                args[asyncArgIndex] = new TestContext(statsCalculator);
-            }
-            method.invoke(testInstance, args);
-        }
-
-        private boolean hasMeasurementStarted() {
-            return currentTimeMillis() >= measurementsStartTimeMs;
-        }
-
-    }
 }

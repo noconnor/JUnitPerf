@@ -5,9 +5,9 @@ Back to [index](../README.md) page.
 
 [Install Instructions](#install-instructions)
 
-[Synchronous Usage](#synchronous-usage)
+[Synchronous Usage](#junit4-synchronous-usage)
 
-[Asynchronous Usage](#asynchronous-usage)
+[Asynchronous Usage](#junit4-asynchronous-usage)
 
 [Reporter Binding Examples](#reporter-binding-examples)
 
@@ -23,7 +23,7 @@ Back to [index](../README.md) page.
 <dependency>
   <groupId>com.github.noconnor</groupId>
   <artifactId>junitperf</artifactId>
-  <version>1.20.0</version>
+  <version>VERSION</version>
 </dependency>
 ```
 
@@ -87,7 +87,7 @@ Finally, the example sets a number of latency thresholds on the 90th, 95th, 98th
 99th percentile latency is *greater* than 8ms then the test will fail).
 The latency is a measurement of the time taken to execute one loop (not including statistics measurement calculations)
 
-More information on statistic calculations can be found [here](#statistics)
+More information on statistic calculations can be found [here](../README.md#statistics)
 
 **NOTE:** By default statistic calculations (including latency measurements) include any methods marked as `@Before` or `@After`.
 To exclude methods annotated with `@Before` or `@After`, create the JunitPerfRule as follows:
@@ -100,9 +100,6 @@ public JUnitPerfRule perfTestRule = new JUnitPerfRule(true);
 <br />
 
 ### Junit4 Asynchronous Usage
-
-
-
 
 This section contains details for usage of the `JUnitPerf` library in *asynchronous* mode.
 To see example test cases browse to the [ExampleAsyncTests.java](junit4-examples/src/test/java/com/github/noconnor/junitperf/examples/ExampleAsyncTests.java).
@@ -180,7 +177,7 @@ Finally the example sets a number of latency thresholds on the 90th, 95th, 98th 
 99th percentile latency is *greater* than 8ms then the test will fail).
 The latency is a measurement of the time taken to execute one loop (not including statistics measurement calculations)
 
-More information on statistic calculations can be found [here](#statistics)
+More information on statistic calculations can be found [here](../README.md#statistics)
 
 
 ### Reporter Binding Examples
