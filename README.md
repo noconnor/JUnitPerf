@@ -26,10 +26,6 @@ This library interface was heavily influenced by the interface in the deprecated
 
 <br />
 
-
-
-<br />
-
 ## Usage Instructions
 
 JunitPerf library supports both junit4 and junit5 bindings. 
