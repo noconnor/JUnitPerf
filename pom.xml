@@ -19,7 +19,7 @@
         <hamcrest.version>2.0.0.0</hamcrest.version>
         <lombok.version>1.18.18</lombok.version>
         <commons.lang3.version>3.11</commons.lang3.version>
-        <logback.classic.version>1.2.3</logback.classic.version>
+        <logback.classic.version>1.4.0</logback.classic.version>
         <guava.version>30.1-jre</guava.version>
         <commons.collection.version>3.2.2</commons.collection.version>
         <commons.math3.version>3.6.1</commons.math3.version>

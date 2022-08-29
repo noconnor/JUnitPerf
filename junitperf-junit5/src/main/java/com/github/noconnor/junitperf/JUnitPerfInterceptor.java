@@ -88,7 +88,6 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
             PerformanceEvaluationStatement parallelExecution = statementBuilder
                     .baseStatement(testStatement)
-                    // new instance for each call to @Test
                     .statistics(activeStatisticsCalculator)
                     .context(context)
                     .listener(complete -> updateReport(method.getDeclaringClass()))
@@ -114,7 +113,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         return new TestContextSupplier(measurementsStartTimeMs, activeStatisticsCalculator);
     }
 
-    EvaluationContext createEvaluationContext(Method method, boolean isAsync) {
+    private EvaluationContext createEvaluationContext(Method method, boolean isAsync) {
         return new EvaluationContext(method.getName(), nanoTime(), isAsync);
     }
 
