@@ -29,6 +29,7 @@
 
     <modules>
         <module>junit4-examples</module>
+        <module>junit5-examples</module>
         <module>junitperf-core</module>
         <module>junitperf-junit4</module>
         <module>junitperf-junit5</module>
