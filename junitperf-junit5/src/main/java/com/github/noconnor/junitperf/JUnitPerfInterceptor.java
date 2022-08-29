@@ -4,6 +4,7 @@ import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.github.noconnor.junitperf.reporting.providers.ConsoleReportGenerator;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
+import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
 import com.github.noconnor.junitperf.statements.SimpleTestStatement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
@@ -27,12 +28,13 @@ import static java.util.Objects.nonNull;
 @Slf4j
 public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstancePostProcessor, ParameterResolver {
 
-    private static final ReportGenerator DEFAULT_REPORTER = new ConsoleReportGenerator();
-    private static final Map<Class<?>, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = new ConcurrentHashMap<>();
+    protected static final ReportGenerator DEFAULT_REPORTER = new ConsoleReportGenerator();
+    protected static final Map<Class<?>, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = new ConcurrentHashMap<>();
 
-    private Collection<ReportGenerator> activeReporters;
-    private StatisticsCalculator activeStatisticsCalculator;
-    private long measurementsStartTimeMs;
+    protected Collection<ReportGenerator> activeReporters;
+    protected StatisticsCalculator activeStatisticsCalculator;
+    protected long measurementsStartTimeMs;
+    protected PerformanceEvaluationStatementBuilder statementBuilder;
 
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
@@ -54,10 +56,12 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         if (isNull(activeStatisticsCalculator)) {
             activeStatisticsCalculator = new DescriptiveStatisticsCalculator();
         }
+        statementBuilder = PerformanceEvaluationStatement.builder();
     }
 
     @Override
-    public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
+    public void interceptTestMethod(Invocation<Void> invocation,
+                                    ReflectiveInvocationContext<Method> invocationContext,
                                     ExtensionContext extensionContext) throws Throwable {
         // Will be called for every instance of @Test
 
@@ -82,7 +86,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
                     invocationContext.getArguments().toArray()
             );
 
-            PerformanceEvaluationStatement parallelExecution = PerformanceEvaluationStatement.builder()
+            PerformanceEvaluationStatement parallelExecution = statementBuilder
                     .baseStatement(testStatement)
                     // new instance for each call to @Test
                     .statistics(activeStatisticsCalculator)
@@ -113,7 +117,6 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     EvaluationContext createEvaluationContext(Method method, boolean isAsync) {
         return new EvaluationContext(method.getName(), nanoTime(), isAsync);
     }
-
 
     private synchronized void updateReport(Class<?> clazz) {
         activeReporters.forEach(r -> {
