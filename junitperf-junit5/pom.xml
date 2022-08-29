@@ -11,6 +11,7 @@
 
     <properties>
         <junit.jupiter.version>5.6.0</junit.jupiter.version>
+        <mockito.junit.version>3.6.28</mockito.junit.version>
     </properties>
 
     <dependencies>
@@ -23,6 +24,12 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>${junit.jupiter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.junit.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
