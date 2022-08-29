@@ -3,6 +3,8 @@ package com.github.noconnor.junitperf.statements;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -42,6 +44,12 @@ public class EvaluationTaskTest extends BaseTest {
   public void setup() {
     initialiseRateLimiterMock();
     task = new EvaluationTask(statementMock, rateLimiterMock, terminatorMock, statsMock, 0);
+  }
+
+  @After
+  public void teardown() {
+    // clear thread interrupt
+    Thread.interrupted();
   }
 
   @Test
