@@ -1,9 +1,6 @@
 package com.github.noconnor.junitperf.examples;
 
-import com.github.noconnor.junitperf.JUnitPerfInterceptor;
-import com.github.noconnor.junitperf.JUnitPerfReportingConfig;
-import com.github.noconnor.junitperf.JUnitPerfTest;
-import com.github.noconnor.junitperf.JUnitPerfTestActiveConfig;
+import com.github.noconnor.junitperf.*;
 import com.github.noconnor.junitperf.data.TestContext;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -38,12 +35,16 @@ public class ExampleAsyncTests {
 
     @Test
     @JUnitPerfTest(durationMs = 10_000, warmUpMs = 1_000, maxExecutionsPerSecond = 100)
-    public void whenTestExecutesAsynchronously_thenMeasurementsCanStillBeCaptured(TestContext context) {
+    public void whenTestExecutesAsynchronously_thenMeasurementsCanStillBeCaptured(TestContextSupplier supplier) {
+        // Starts the task timer
+        TestContext context = supplier.startMeasurement();
         pool.submit(() -> {
             someProcessingDelay();
             if (isSuccessful()) {
+                // marks task as successful and stops the task time measurement
                 context.success();
             } else {
+                // marks task as failure and stops the task time measurement
                 context.fail();
             }
         });

@@ -125,7 +125,8 @@ specify a test parameter of type `TestContext`
 ```
 @Test
 @JUnitPerfTest(durationMs = 125_000, rampUpPeriodMs = 2_000, warmUpMs = 10_000, maxExecutionsPerSecond = 1000)
-public void whenExecuting1Kqps_thenApiShouldNotCrash(TestContext context){
+public void whenExecuting1Kqps_thenApiShouldNotCrash(TestContextSupplier contextSupplier){
+   TestContext context = supplier.startMeasurement();
    threadPool.submit( () -> {
       ... EXECUTE ASYNC TASK ...
       ... THEN NOTIFY FRAMEWORK OF SUCCESS/FAILURE...
@@ -159,10 +160,13 @@ If thresholds are not met, test will fail.
 @Test
 @JUnitPerfTest(durationMs = 125_000, warmUpMs = 10_000, maxExecutionsPerSecond = 1000)
 @JUnitPerfTestRequirement(percentiles = "90:7,95:7,98:7,99:8", executionsPerSec = 1000, allowedErrorPercentage = 0.10)
-public void whenExecuting1Kqps_thenApiShouldNotCrash(TestContext context){
+public void whenExecuting1Kqps_thenApiShouldNotCrash(TestContextSupplier contextSupplier){
+   // Starts the task timer
+   TestContext context = supplier.startMeasurement();
    threadPool.submit( () -> {
       ... EXECUTE ASYNC TASK ...
       ... THEN NOTIFY FRAMEWORK OF SUCCESS/FAILURE...
+      // Stops the task timer and marks task as a success or failure
       context.success();
       // OR
       context.Fail();
@@ -202,7 +206,7 @@ private final static JUnitPerfReportingConfig PERF_CONFIG = JUnitPerfReportingCo
         .build();
 ```
 
-**NOTE:** the `JUnitPerfReportingConfig` should be a **static** field instance to prevent a new/difference instance being created for each `@Test`
+**NOTE:** the `JUnitPerfReportingConfig` should be a **static** field instance to prevent a new/different instance being created for each `@Test`
 instance
 
 To generate an **CSV report**

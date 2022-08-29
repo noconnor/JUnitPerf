@@ -1,8 +1,6 @@
 package com.github.noconnor.junitperf;
 
 import com.github.noconnor.junitperf.data.EvaluationContext;
-import com.github.noconnor.junitperf.data.NoOpTestContext;
-import com.github.noconnor.junitperf.data.TestContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.github.noconnor.junitperf.reporting.providers.ConsoleReportGenerator;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
@@ -34,6 +32,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
     private Collection<ReportGenerator> activeReporters;
     private StatisticsCalculator activeStatisticsCalculator;
+    private long measurementsStartTimeMs;
 
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
@@ -68,18 +67,20 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         JUnitPerfTestRequirement requirementsAnnotation = method.getAnnotation(JUnitPerfTestRequirement.class);
 
         if (nonNull(perfTestAnnotation)) {
-            TestInvoker testInvoker = new TestInvoker(method, invocationContext.getArguments());
-            testInvoker.setStatsCalculator(activeStatisticsCalculator);
-            testInvoker.setMeasurementsStartTimeMs(currentTimeMillis() + perfTestAnnotation.warmUpMs());
+            measurementsStartTimeMs = currentTimeMillis() + perfTestAnnotation.warmUpMs();
+            boolean isAsync = invocationContext.getArguments().stream().anyMatch(arg -> arg instanceof TestContextSupplier);
 
-            EvaluationContext context = createEvaluationContext(method, testInvoker.isAsyncTest());
+            EvaluationContext context = createEvaluationContext(method, isAsync);
             context.loadConfiguration(perfTestAnnotation);
             context.loadRequirements(requirementsAnnotation);
 
             ACTIVE_CONTEXTS.putIfAbsent(extensionContext.getRequiredTestClass(), new LinkedHashSet<>());
             ACTIVE_CONTEXTS.get(extensionContext.getRequiredTestClass()).add(context);
 
-            SimpleTestStatement testStatement = () -> testInvoker.invoke(extensionContext.getRequiredTestInstance());
+            SimpleTestStatement testStatement = () -> method.invoke(
+                    extensionContext.getRequiredTestInstance(),
+                    invocationContext.getArguments().toArray()
+            );
 
             PerformanceEvaluationStatement parallelExecution = PerformanceEvaluationStatement.builder()
                     .baseStatement(testStatement)
@@ -101,12 +102,12 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return parameterContext.getParameter().getType() == TestContext.class;
+        return parameterContext.getParameter().getType() == TestContextSupplier.class;
     }
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return NoOpTestContext.INSTANCE;
+        return new TestContextSupplier(measurementsStartTimeMs, activeStatisticsCalculator);
     }
 
     EvaluationContext createEvaluationContext(Method method, boolean isAsync) {
