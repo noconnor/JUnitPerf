@@ -22,7 +22,9 @@ jobs:
           git config user.name "noconnor"
           git config user.email "noconnorie@pm.me"
       - name: Publish package
-        run: mvn -DskipTests -DprojectVersionPolicyId=SemVerVersionPolicy release:prepare release:perform
+        run: |
+          mvn -DprojectVersionPolicyId=SemVerVersionPolicy release:prepare 
+          mvn release:perform
         env:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
