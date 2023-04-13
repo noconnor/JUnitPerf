@@ -19,11 +19,13 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
       - name: Setup git config
         run: |
-          git config user.name "noconnor"
-          git config user.email "noconnorie@pm.me"
+          git config user.name "github-actions[release]"
+          git config user.email "github-actions[release]@users.noreply.github.com"
       - name: Publish package
-        run: mvn -DskipTests -DprojectVersionPolicyId=SemVerVersionPolicy release:prepare release:perform
+        run: mvn -B -DprojectVersionPolicyId=SemVerVersionPolicy release:prepare release:perform
         env:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Push Pom Version Updates
+        run: git push # see docs on actions/checkout
