@@ -106,7 +106,7 @@
                 <version>1.6.8</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <serverId>junit-perf-ossrh</serverId>
+                    <serverId>ossrh</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
@@ -222,6 +222,10 @@
     </licenses>
 
     <distributionManagement>
+        <snapshotRepository>
+            <id>junit-perf-ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
         <repository>
             <id>junit-perf-ossrh</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/
