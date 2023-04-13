@@ -223,7 +223,7 @@
 
     <distributionManagement>
         <repository>
-            <id>junit-perf-ossrh</id>
+            <id>ossrh</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/
             </url>
         </repository>
