@@ -19,7 +19,9 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Publish package
-        run: mvn --batch-mode deploy
+        run: |
+          mvn -DskipTests=true -DprojectVersionPolicyId=SemVerVersionPolicy -Darguments=-Dgpg.passphrase=${MAVEN_GPG_PASSPHRASE} release:prepare
+          mvn -DskipTests=true -Dserver.password=${MAVEN_CENTRAL_PASSWORD} release:perform
         env:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
