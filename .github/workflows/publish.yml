@@ -17,11 +17,12 @@ jobs:
           server-password: MAVEN_CENTRAL_PASSWORD
           gpg-private-key: ${{ secrets.GPG_SIGNING_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
-
-      - name: Publish package
+      - name: Setup git config
         run: |
-          mvn -DskipTests=true -DprojectVersionPolicyId=SemVerVersionPolicy -Darguments=-Dgpg.passphrase=${MAVEN_GPG_PASSPHRASE} release:prepare
-          mvn -DskipTests=true -Dserver.password=${MAVEN_CENTRAL_PASSWORD} release:perform
+          git config user.name "noconnor"
+          git config user.email "noconnorie@pm.me"
+      - name: Publish package
+        run: mvn -DprojectVersionPolicyId=SemVerVersionPolicy -DskipTests --batch-mode deploy
         env:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
