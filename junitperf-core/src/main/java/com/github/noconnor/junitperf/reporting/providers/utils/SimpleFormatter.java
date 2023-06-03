@@ -1,22 +1,28 @@
 package com.github.noconnor.junitperf.reporting.providers.utils;
 
-import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
-import com.github.noconnor.junitperf.data.EvaluationContext;
-import com.github.noconnor.junitperf.reporting.providers.utils.SimpleFormatter.ContextHtmlFormat.RequiredPercentilesData;
-import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
+import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.reporting.providers.utils.SimpleFormatter.ContextHtmlFormat.RequiredPercentilesData;
+import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
 
 public class SimpleFormatter {
 
@@ -45,7 +51,7 @@ public class SimpleFormatter {
 
         public static String populatePercentilesOverview(ContextHtmlFormat htmlContext, String template) throws IllegalAccessException {
             StringBuilder result = new StringBuilder();
-            for ( RequiredPercentilesData data : htmlContext.requiredPercentiles) {
+            for (RequiredPercentilesData data : htmlContext.requiredPercentiles) {
                 String temp = populateTemplate(data, "context.percentiles", template);
                 result.append(temp).append("\n");
             };
@@ -142,8 +148,6 @@ public class SimpleFormatter {
         }
 
         private String number_format(float value, int decimalPlaces, String thousandSeparator) {
-            // DecimalFormat df = (DecimalFormat) NumberFormat.getNumberInstance(Locale.getDefault());
-            // return df.format(value);
             return String.format("%" + thousandSeparator + "." + decimalPlaces + "f", value);
         }
 
@@ -151,7 +155,6 @@ public class SimpleFormatter {
 
     public static Map<String, StringBuilder> parseTemplateBlocks() {
         InputStream templateString = SimpleFormatter.class.getResourceAsStream("/templates/report.twig");
-        Scanner scanner = new Scanner(templateString);
 
         Map<String, StringBuilder> contextBlocks = new HashMap<>();
 
@@ -166,25 +169,27 @@ public class SimpleFormatter {
         expectedBlocks.add("{% DETAILED_BLOCK %}");
         expectedBlocks.add("{% PERCENTILES_BLOCK %}");
 
-        while(scanner.hasNext()) {
-            String line = scanner.nextLine();
-            String trimmed = line.trim();
+        try (Scanner scanner = new Scanner(templateString)) {
+            while(scanner.hasNext()) {
+                String line = scanner.nextLine();
+                String trimmed = line.trim();
 
-            if (expectedBlocks.contains(trimmed)) {
+                if (expectedBlocks.contains(trimmed)) {
 
-                // Keep the marker
-                stack.getFirst().append(line).append("\n");
+                    // Keep the marker
+                    stack.getFirst().append(line).append("\n");
 
-                StringBuilder newBlock = new StringBuilder();
+                    StringBuilder newBlock = new StringBuilder();
 
-                contextBlocks.put(trimmed, newBlock);
-                stack.push(newBlock);
+                    contextBlocks.put(trimmed, newBlock);
+                    stack.push(newBlock);
 
-            } else if (trimmed.equals("{% END %}")) {
-                stack.pop();
+                } else if (trimmed.equals("{% END %}")) {
+                    stack.pop();
 
-            } else {
-                stack.getFirst().append(line).append("\n");
+                } else {
+                    stack.getFirst().append(line).append("\n");
+                }
             }
         }
         return contextBlocks;
@@ -197,6 +202,8 @@ public class SimpleFormatter {
 
         List<EvaluationContext> contexts = new ArrayList<>();
 
+        System.setProperty("junitperf.durationMs", "100");
+        
         for (int i = 0; i< 3; i++ ){
             EvaluationContext context = new EvaluationContext("Dummy test " + i, System.nanoTime());
             context.loadRequirements(newRequirements());
@@ -235,7 +242,13 @@ public class SimpleFormatter {
     private static DescriptiveStatisticsCalculator newStatistics() {
         DescriptiveStatisticsCalculator statistics = new DescriptiveStatisticsCalculator();
         IntStream.range(0, 1_000).forEach( i -> {
-            statistics.addLatencyMeasurement(ThreadLocalRandom.current().nextInt(1_000_000, 3_000_000));
+            statistics.addLatencyMeasurement(ThreadLocalRandom.current().nextInt(500_000, 1_000_000));
+            statistics.incrementEvaluationCount();
+            try {
+                Thread.sleep(1);
+            } catch (Exception e) {
+                // ignore
+            }
         });
         return statistics;
     }
@@ -274,7 +287,7 @@ public class SimpleFormatter {
 
             @Override
             public float meanLatency() {
-                return 0.67F;
+                return 0.99F;
             }
         };
     }
