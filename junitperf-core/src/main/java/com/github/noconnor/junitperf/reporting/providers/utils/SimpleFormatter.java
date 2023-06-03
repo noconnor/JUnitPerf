@@ -19,6 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
 import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.providers.utils.SimpleFormatter.ContextHtmlFormat.RequiredPercentilesData;
@@ -201,12 +202,11 @@ public class SimpleFormatter {
         Map<String, StringBuilder> blocks = parseTemplateBlocks();
 
         List<EvaluationContext> contexts = new ArrayList<>();
-
-        System.setProperty("junitperf.durationMs", "100");
         
         for (int i = 0; i< 3; i++ ){
             EvaluationContext context = new EvaluationContext("Dummy test " + i, System.nanoTime());
             context.loadRequirements(newRequirements());
+            context.loadConfiguration(newConfiguration());
             context.setStatistics(newStatistics());
             context.runValidation();
             contexts.add(context);
@@ -239,16 +239,29 @@ public class SimpleFormatter {
         Files.write(Paths.get("test.html"), root.getBytes());
     }
 
+    private static JUnitPerfTest newConfiguration() {
+        return new JUnitPerfTest() {
+            @Override
+            public Class<? extends Annotation> annotationType() { return JUnitPerfTest.class; }
+            @Override
+            public int threads() { return 10; }
+            @Override
+            public int durationMs() { return 100; }
+            @Override
+            public int warmUpMs() { return 0; }
+            @Override
+            public int maxExecutionsPerSecond() { return 10_000; }
+            @Override
+            public int rampUpPeriodMs() { return 0; }
+        };
+    }
+
+
     private static DescriptiveStatisticsCalculator newStatistics() {
         DescriptiveStatisticsCalculator statistics = new DescriptiveStatisticsCalculator();
         IntStream.range(0, 1_000).forEach( i -> {
             statistics.addLatencyMeasurement(ThreadLocalRandom.current().nextInt(500_000, 1_000_000));
             statistics.incrementEvaluationCount();
-            try {
-                Thread.sleep(1);
-            } catch (Exception e) {
-                // ignore
-            }
         });
         return statistics;
     }
