@@ -2,6 +2,7 @@ package com.github.noconnor.junitperf.reporting.providers.utils;
 
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
 import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.reporting.providers.utils.SimpleFormatter.ContextHtmlFormat.RequiredPercentilesData;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
 
 import java.io.IOException;
@@ -25,28 +26,29 @@ public class SimpleFormatter {
 
     public static class ReportGenerator {
 
+
         public static String populateTemplate(ContextHtmlFormat htmlContext, String template) throws IllegalAccessException {
-            String overview = template;
-            Field[] fields = htmlContext.getClass().getDeclaredFields();
-            for(Field f : fields){
-                f.setAccessible(true);
-                String target = "\\{\\{ context." + f.getName() + " \\}\\}";
-                Object value = f.get(htmlContext);
-                overview = overview.replaceAll(target, value.toString());
-            }
-            return overview;
+            return populateTemplate(htmlContext, "context", template);
         }
 
-        public static String populatePercentilesOverview(ContextHtmlFormat htmlContext, String template) {
+        public static String populateTemplate(Object obj, String prefix, String template) throws IllegalAccessException {
+            String temp = template;
+            Field[] fields = obj.getClass().getDeclaredFields();
+            for(Field f : fields){
+                f.setAccessible(true);
+                String target = "\\{\\{ " + prefix + "." + f.getName() + " \\}\\}";
+                Object value = f.get(obj);
+                temp = temp.replaceAll(target, value.toString());
+            }
+            return temp;
+        }
+
+        public static String populatePercentilesOverview(ContextHtmlFormat htmlContext, String template) throws IllegalAccessException {
             StringBuilder result = new StringBuilder();
-            htmlContext.requiredPercentiles.forEach( data -> {
-                String temp = template;
-                temp = temp.replaceAll("\\{\\{ context.percentileResultColour \\}\\}", data.percentileColour);
-                temp = temp.replaceAll("\\{\\{ context.percentile \\}\\}", data.percentile);
-                temp = temp.replaceAll("\\{\\{ context.percentileLatency \\}\\}", data.percentileLatency);
-                temp = temp.replaceAll("\\{\\{ context.percentileTarget \\}\\}", data.percentileTarget);
+            for ( RequiredPercentilesData data : htmlContext.requiredPercentiles) {
+                String temp = populateTemplate(data, "context.percentiles", template);
                 result.append(temp).append("\n");
-            });
+            };
             return result.toString();
         }
 
@@ -59,7 +61,6 @@ public class SimpleFormatter {
             private String percentileColour;
             private String percentileLatency;
             private String percentileTarget;
-
         }
 
         private final String testName;
@@ -118,11 +119,11 @@ public class SimpleFormatter {
             this.throughputQps = number_format(context.getThroughputQps(), 0, ",");
             this.requiredThroughput = number_format(context.getRequiredThroughput(), 0,  ",");
             this.minLatencyAchievedColour = context.isMinLatencyAchieved() ? SUCCESS_COLOUR : FAILED_COLOUR;
-            this.requiredMinLatency = (context.getRequiredMinLatency() < 0) ? "N/A" :number_format(context.getRequiredMinLatency(), 2,  " ");
+            this.requiredMinLatency = (context.getRequiredMinLatency() < 0) ? "N/A" :number_format(context.getRequiredMinLatency(), 2,  "");
             this.minLatency = number_format(context.getMinLatencyMs(), 2, " ");
             this.meanLatencyAchievedColour = context.isMeanLatencyAchieved() ? SUCCESS_COLOUR : FAILED_COLOUR;
             this.meanLatency = number_format(context.getMeanLatencyMs(), 2, " ");
-            this.requiredMeanLatency = (context.getRequiredMeanLatency() < 0) ? "N/A" :number_format(context.getRequiredMeanLatency(), 2, " ");
+            this.requiredMeanLatency = (context.getRequiredMeanLatency() < 0) ? "N/A" :number_format(context.getRequiredMeanLatency(), 2, "");
             this.maxLatencyAchievedColour = context.isMaxLatencyAchieved() ? SUCCESS_COLOUR : FAILED_COLOUR;
             this.maxLatency = number_format(context.getMaxLatencyMs(), 2, ",");
             this.requiredMaxLatency = (context.getRequiredMaxLatency() < 0) ? "N/A" :number_format(context.getRequiredMaxLatency(), 2,  "");
@@ -141,8 +142,9 @@ public class SimpleFormatter {
         }
 
         private String number_format(float value, int decimalPlaces, String thousandSeparator) {
-            DecimalFormat df = (DecimalFormat) NumberFormat.getNumberInstance(Locale.getDefault());
-            return df.format(value);
+            // DecimalFormat df = (DecimalFormat) NumberFormat.getNumberInstance(Locale.getDefault());
+            // return df.format(value);
+            return String.format("%" + thousandSeparator + "." + decimalPlaces + "f", value);
         }
 
     }
@@ -227,7 +229,7 @@ public class SimpleFormatter {
 
         System.out.println(root);
 
-        Files.write(Paths.get("/Users/noconnor/Desktop/test.html"), root.getBytes());
+        Files.write(Paths.get("test.html"), root.getBytes());
     }
 
     private static DescriptiveStatisticsCalculator newStatistics() {
