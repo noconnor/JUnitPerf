@@ -154,9 +154,9 @@
                         <tr>
                             <!-- HACK to get parameter passed to function -->
 
-                            <th align='right' valign='top'><b style='color:{{ context.percentileResultColour }}'>{{ context.percentile }}:</b></th>
-                            <td align='right'><b style='color:{{ context.percentileResultColour }};'>{{ context.percentileLatency }} ms</b></td>
-                            <td align='right'><b style='color:{{ context.percentileResultColour }}'>{{ context.percentileTarget }} ms</b></td>
+                            <th align='right' valign='top'><b style='color:{{ context.percentiles.percentileResultColour }}'>{{ context.percentiles.percentile }}:</b></th>
+                            <td align='right'><b style='color:{{ context.percentiles.percentileResultColour }};'>{{ context.percentiles.percentileLatency }} ms</b></td>
+                            <td align='right'><b style='color:{{ context.percentiles.percentileResultColour }}'>{{ context.percentiles.percentileTarget }} ms</b></td>
                         </tr>
                         {% END %}
                         <tr>
