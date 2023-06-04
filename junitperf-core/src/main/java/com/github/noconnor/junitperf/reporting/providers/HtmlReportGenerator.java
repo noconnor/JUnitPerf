@@ -1,20 +1,17 @@
 package com.github.noconnor.junitperf.reporting.providers;
 
+import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.github.noconnor.junitperf.reporting.providers.utils.SimpleFormatter;
 import com.github.noconnor.junitperf.reporting.providers.utils.SimpleFormatter.ContextHtmlFormat;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import org.jtwig.JtwigModel;
-import org.jtwig.JtwigTemplate;
-import com.github.noconnor.junitperf.data.EvaluationContext;
-import com.github.noconnor.junitperf.reporting.ReportGenerator;
 
 import static java.lang.System.getProperty;
 
@@ -65,8 +62,8 @@ public class HtmlReportGenerator implements ReportGenerator {
 
         detail = detail.replaceAll("\\{% PERCENTILES_BLOCK %\\}", percentileData);
 
-        overviews.append(overview);//.append("\n");
-        details.append(detail);//.append("\n");
+        overviews.append(overview).append("\n");
+        details.append(detail).append("\n");
       };
 
       root = root.replaceAll("\\{% OVERVIEW_BLOCK %\\}", overviews.toString());
@@ -77,16 +74,7 @@ public class HtmlReportGenerator implements ReportGenerator {
     } catch (Exception e) {
       throw new IllegalStateException(e);
     }
-
-//    JtwigTemplate template = JtwigTemplate.classpathTemplate(REPORT_TEMPLATE);
-//    JtwigModel model = JtwigModel.newModel().with("contextData", history);
-//    try {
-//      Files.createDirectories(outputPath.getParent());
-//      log.info("Rendering report to: " + outputPath);
-//      template.render(model, Files.newOutputStream(outputPath));
-//    } catch (IOException e) {
-//      throw new IllegalStateException(e);
-//    }
+    
   }
 
   @Override
