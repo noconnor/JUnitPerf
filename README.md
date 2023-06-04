@@ -97,9 +97,6 @@ Hovering over the datapoints on the percentile latency graph will provide latenc
 
 The HTML reporter will generate an HTML performance report under `${BUILD_DIR}/reports/junitperf_report.html`
 
-HTML reports are generated using the [jtwig library](http://jtwig.org/). The jtwig report template can be found under `src/main/resources/templates/report.twig`.
-It is possible to override this template by placing a customised `templates/report.twig` file on the classpath ahead of the default template.
-
 <br />
 
 #### Console Reporting
