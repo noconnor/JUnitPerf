@@ -24,6 +24,7 @@ import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
 import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.providers.utils.SimpleFormatter.ContextHtmlFormat.RequiredPercentilesData;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
+import lombok.Getter;
 
 public class SimpleFormatter {
 
@@ -61,11 +62,13 @@ public class SimpleFormatter {
 
     }
 
+    @Getter
     public static class ContextHtmlFormat {
 
+        @Getter
         public static final class RequiredPercentilesData {
             private String percentile;
-            private String percentileColour;
+            private String percentileResultColour;
             private String percentileLatency;
             private String percentileTarget;
         }
@@ -104,14 +107,14 @@ public class SimpleFormatter {
             this.chartData = IntStream.range(1, 100).mapToObj(i -> "[ " +
                     i + ", " +
                     context.getLatencyPercentileMs(i) + ", " +
-                    "\"" + i + "% of executions ≤ +" + number_format(context.getLatencyPercentileMs(i), 2, ",") + "ms\""
-                    + "]," + "\n"
-            ).collect(Collectors.joining("\n\t\t\t\t\t\t\t\t"));
+                    "\"" + i + "% of executions ≤ " + number_format(context.getLatencyPercentileMs(i), 2, ",") + "ms\""
+                    + "],"
+            ).collect(Collectors.joining("\n"));
             this.csvData = IntStream.range(1, 101).mapToObj(i -> "[ " +
                     i + ", " +
                     context.getLatencyPercentileMs(i)
-                    + " ]," + "\n"
-            ).collect(Collectors.joining("\n\t\t\t\t\t\t\t\t"));
+                    + " ],"
+            ).collect(Collectors.joining("\n"));
             this.startTime = context.getStartTime();
             this.totalInvocations = number_format(context.getEvaluationCount(), 0, ",");
             this.successfulInvocations = number_format(context.getEvaluationCount() - context.getErrorCount(), 0, ",");
@@ -141,7 +144,7 @@ public class SimpleFormatter {
                         Float target = entry.getValue();
                         RequiredPercentilesData data = new RequiredPercentilesData();
                         data.percentile = percentile.toString();
-                        data.percentileColour = context.getPercentileResults().get(percentile) ? SUCCESS_COLOUR : FAILED_COLOUR;
+                        data.percentileResultColour = context.getPercentileResults().get(percentile) ? SUCCESS_COLOUR : FAILED_COLOUR;
                         data.percentileLatency = number_format(context.getLatencyPercentileMs(percentile), 2, ",");
                         data.percentileTarget = number_format(target, 2, ",");
                         return data;
@@ -149,7 +152,7 @@ public class SimpleFormatter {
         }
 
         private String number_format(float value, int decimalPlaces, String thousandSeparator) {
-            return String.format("%" + thousandSeparator + "." + decimalPlaces + "f", value);
+            return String.format("%" + thousandSeparator + "." + decimalPlaces + "f", value).trim();
         }
 
     }

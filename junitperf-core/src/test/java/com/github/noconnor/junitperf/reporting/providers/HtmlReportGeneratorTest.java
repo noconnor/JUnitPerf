@@ -61,6 +61,7 @@ public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
   public void whenGeneratingAReport_andTestsContainsSomeFailures_thenAppropriateReportShouldBeGenerated() throws IOException {
     reportGenerator.generateReport(generateSomeFailuresContext());
     File expectedContents = getResourceFile("html/example_some_failures_report.html");
+    System.out.println(reportFile);
     assertEquals(readFileContents(expectedContents), readFileContents(reportFile));
   }
 

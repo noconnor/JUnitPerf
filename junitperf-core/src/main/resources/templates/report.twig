@@ -17,18 +17,21 @@
                 <th style='background-color:#ffffdd; color:#044e9b'>Tests</th>
             <tr>
 
-             {% OVERVIEW_BLOCK %}
+             
+        {% OVERVIEW_BLOCK %}
                 <tr>
                     <!-- Success: #2b67a4 failure: #d9534f -->
                     <td style='background-color:{{ context.testNameColour }};'>&nbsp;</td>
                     <td><a href='#{{ context.testName }}'>{{ context.testName }}</td>
                 <tr>
-             {% END %}
+             
+        {% END %}
         </table>
         <br/>
         <hr/>
 
 
+        
         {% DETAILED_BLOCK %}
         <a name='{{ context.testName }}'><h2 style='color:#2b67a4'>{{ context.testName }}</h2></a>
         <table width='970'>
@@ -44,7 +47,6 @@
 
                             var data = google.visualization.arrayToDataTable([
                                 ['Percentile', 'Latency', { role: "tooltip"} ],
-
                                 {{ context.chartData }}
                             ]);
 
@@ -74,7 +76,6 @@
                         function setCsvExportLink() {
                             var csvData = google.visualization.arrayToDataTable([
                                 ['Percentile', 'Latency'],
-
                                 {{ context.csvData }}
                             ]);
                             var csvFormattedDataTable = google.visualization.dataTableToCsv(csvData);
@@ -103,6 +104,7 @@
                             <td align='right'></td>
                         </tr>
                         <tr>
+                            
                             <th align='right' valign='top'><b style='color:{{ context.errorThresholdColour }}'>- Errors:</b></th>
                             <td align='right'><b style='color:{{ context.errorThresholdColour }}'>{{ context.errorCount }}</b></td>
                             <td align='right'><b style='color:{{ context.errorThresholdColour }};'>{{ context.errorPercentage }}%</b></td>
@@ -135,31 +137,37 @@
                             <td align='right'></td>
                         </tr>
                         <tr>
+                            
                             <th align='right' valign='top'><b style='color:{{ context.throughputAchievedColour }}'>Throughput:</b></th>
                             <td align='right'><b style='color:{{ context.throughputAchievedColour }};'>{{ context.throughputQps }} / s</b></td>
                             <td align='right'><b style='color:{{ context.throughputAchievedColour }};'>{{ context.requiredThroughput }} / s</b></td>
                         </tr>
                         <tr>
+                            
                             <th align='right' valign='top'><b style='color:{{ context.minLatencyAchievedColour }}'>Min latency:</b></th>
                             <td align='right'><b style='color:{{ context.minLatencyAchievedColour }}'>{{ context.minLatency }} ms</b></td>
                             <td align='right'><b style='color:{{ context.minLatencyAchievedColour }}'>{{ context.requiredMinLatency }} ms</b></td>
                         </tr>
                         <tr>
+                            
                             <th align='right' valign='top'><b style='color:{{ context.meanLatencyAchievedColour }}'>Average latency:</b></th>
                             <td align='right'><b style='color:{{ context.meanLatencyAchievedColour }}'>{{ context.meanLatency }} ms</b></td>
                             <td align='right'><b style='color:{{ context.meanLatencyAchievedColour }}'>{{ context.requiredMeanLatency }} ms</b></td>
                         </tr>
 
+                        
                         {% PERCENTILES_BLOCK %}
                         <tr>
-                            <!-- HACK to get parameter passed to function -->
-
+                             <!-- HACK to get parameter passed to function -->
+                            
                             <th align='right' valign='top'><b style='color:{{ context.percentiles.percentileResultColour }}'>{{ context.percentiles.percentile }}:</b></th>
                             <td align='right'><b style='color:{{ context.percentiles.percentileResultColour }};'>{{ context.percentiles.percentileLatency }} ms</b></td>
                             <td align='right'><b style='color:{{ context.percentiles.percentileResultColour }}'>{{ context.percentiles.percentileTarget }} ms</b></td>
+                            
                         </tr>
                         {% END %}
                         <tr>
+                            
                             <th align='right' valign='top'><b style='color:{{ context.maxLatencyAchievedColour }}'>Max latency:</b></th>
                             <td align='right'><b style='color:{{ context.maxLatencyAchievedColour }}'>{{ context.maxLatency }} ms</b></td>
                             <td align='right'><b style='color:{{ context.maxLatencyAchievedColour }}'>{{ context.requiredMaxLatency }} ms</b></td>
@@ -170,6 +178,7 @@
         </table>
         <br/>
         <br/><br/><br/>
+        
         {% END %}
         <hr/>
         <div style='color:#044e9b;'>Report created by <a href='https://github.com/noconnor/JUnitPerf'>JunitPerf</a> </div>
