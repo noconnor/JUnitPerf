@@ -1,7 +1,10 @@
 package com.github.noconnor.junitperf.reporting.providers.utils;
 
 import com.github.noconnor.junitperf.data.EvaluationContext;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,10 +13,13 @@ import java.util.stream.IntStream;
 @Getter
 public class ViewData {
 
-    private static final String SUCCESS_COLOUR = "#2b67a4";
-    private static final String FAILED_COLOUR = "#d9534f";
+    static final String SUCCESS_COLOUR = "#2b67a4";
+    static final String FAILED_COLOUR = "#d9534f";
 
     @Getter
+    @Setter
+    @ToString
+    @EqualsAndHashCode
     public static final class RequiredPercentilesData {
         private String percentile;
         private String percentileResultColour;
@@ -102,7 +108,7 @@ public class ViewData {
         ).collect(Collectors.joining("\n"));
     }
 
-    private String buildChartData(EvaluationContext context) {
+    private static String buildChartData(EvaluationContext context) {
         return IntStream.range(1, 100).mapToObj(i -> "[ " +
                 i + ", " +
                 context.getLatencyPercentileMs(i) + ", " +
@@ -111,7 +117,7 @@ public class ViewData {
         ).collect(Collectors.joining("\n"));
     }
 
-    private String number_format(float value, int decimalPlaces, String thousandSeparator) {
+    private static String number_format(float value, int decimalPlaces, String thousandSeparator) {
         return String.format("%" + thousandSeparator + "." + decimalPlaces + "f", value).trim();
     }
 
