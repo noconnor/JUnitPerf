@@ -157,9 +157,9 @@ The window size may be set to a fixed size as follows : `new DescriptiveStatisti
 
 ## Build Instructions
 
-To compile this project and run tests execute the following command from the root project directory: ` mvn clean test`
+To compile this project and run tests execute the following command from the root project directory: ` mvn clean test  -Dgpg.skip`
 
-To generate a library jar execute: `mvn clean package` 
+To generate a library jar execute: `mvn clean package -Dgpg.skip` 
 
 **Intellij 14 Setup**
 
