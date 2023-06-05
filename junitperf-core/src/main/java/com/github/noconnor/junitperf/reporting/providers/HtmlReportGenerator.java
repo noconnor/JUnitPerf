@@ -97,7 +97,7 @@ public class HtmlReportGenerator implements ReportGenerator {
     @UtilityClass
     public static class HtmlTemplateProcessor {
 
-        private static final String REPORT_TEMPLATE = "/templates/report.twig";
+        private static final String REPORT_TEMPLATE = "/templates/report.template";
 
         public static Map<String, StringBuilder> parseTemplateBlocks() {
             InputStream templateString = HtmlTemplateProcessor.class.getResourceAsStream(REPORT_TEMPLATE);
