@@ -61,27 +61,27 @@ public class ViewData {
         this.chartData = buildChartData(context);
         this.csvData = buildCsvData(context);
         this.startTime = context.getStartTime();
-        this.totalInvocations = number_format(context.getEvaluationCount(), 0, ",");
-        this.successfulInvocations = number_format(context.getEvaluationCount() - context.getErrorCount(), 0, ",");
+        this.totalInvocations = formatNumber(context.getEvaluationCount(), 0, ",");
+        this.successfulInvocations = formatNumber(context.getEvaluationCount() - context.getErrorCount(), 0, ",");
         this.errorThresholdColour = context.isErrorThresholdAchieved() ? SUCCESS_COLOUR : FAILED_COLOUR;
-        this.errorCount = number_format(context.getErrorCount(), 0, ",");
-        this.errorPercentage = number_format(context.getErrorPercentage(), 2, ",");
+        this.errorCount = formatNumber(context.getErrorCount(), 0, ",");
+        this.errorPercentage = formatNumber(context.getErrorPercentage(), 2, ",");
         this.configuredThreads = String.valueOf(context.getConfiguredThreads());
-        this.configuredWarmUp = number_format(context.getConfiguredWarmUp(), 0, ",");
-        this.configuredRampUpPeriodMs = number_format(context.getConfiguredRampUpPeriodMs(), 0, ",");
+        this.configuredWarmUp = formatNumber(context.getConfiguredWarmUp(), 0, ",");
+        this.configuredRampUpPeriodMs = formatNumber(context.getConfiguredRampUpPeriodMs(), 0, ",");
         this.testDurationFormatted = context.getTestDurationFormatted();
         this.throughputAchievedColour = context.isThroughputAchieved() ? SUCCESS_COLOUR : FAILED_COLOUR;
-        this.throughputQps = number_format(context.getThroughputQps(), 0, ",");
-        this.requiredThroughput = number_format(context.getRequiredThroughput(), 0, ",");
+        this.throughputQps = formatNumber(context.getThroughputQps(), 0, ",");
+        this.requiredThroughput = formatNumber(context.getRequiredThroughput(), 0, ",");
         this.minLatencyAchievedColour = context.isMinLatencyAchieved() ? SUCCESS_COLOUR : FAILED_COLOUR;
-        this.requiredMinLatency = (context.getRequiredMinLatency() < 0) ? "N/A" : number_format(context.getRequiredMinLatency(), 2, "");
-        this.minLatency = number_format(context.getMinLatencyMs(), 2, " ");
+        this.requiredMinLatency = (context.getRequiredMinLatency() < 0) ? "N/A" : formatNumber(context.getRequiredMinLatency(), 2, "");
+        this.minLatency = formatNumber(context.getMinLatencyMs(), 2, " ");
         this.meanLatencyAchievedColour = context.isMeanLatencyAchieved() ? SUCCESS_COLOUR : FAILED_COLOUR;
-        this.meanLatency = number_format(context.getMeanLatencyMs(), 2, " ");
-        this.requiredMeanLatency = (context.getRequiredMeanLatency() < 0) ? "N/A" : number_format(context.getRequiredMeanLatency(), 2, "");
+        this.meanLatency = formatNumber(context.getMeanLatencyMs(), 2, " ");
+        this.requiredMeanLatency = (context.getRequiredMeanLatency() < 0) ? "N/A" : formatNumber(context.getRequiredMeanLatency(), 2, "");
         this.maxLatencyAchievedColour = context.isMaxLatencyAchieved() ? SUCCESS_COLOUR : FAILED_COLOUR;
-        this.maxLatency = number_format(context.getMaxLatencyMs(), 2, ",");
-        this.requiredMaxLatency = (context.getRequiredMaxLatency() < 0) ? "N/A" : number_format(context.getRequiredMaxLatency(), 2, "");
+        this.maxLatency = formatNumber(context.getMaxLatencyMs(), 2, ",");
+        this.requiredMaxLatency = (context.getRequiredMaxLatency() < 0) ? "N/A" : formatNumber(context.getRequiredMaxLatency(), 2, "");
         this.requiredPercentiles = buildRequiredPercentileData(context);
     }
 
@@ -94,8 +94,8 @@ public class ViewData {
                     RequiredPercentilesData data = new RequiredPercentilesData();
                     data.percentile = percentile.toString();
                     data.percentileResultColour = context.getPercentileResults().get(percentile) ? SUCCESS_COLOUR : FAILED_COLOUR;
-                    data.percentileLatency = number_format(context.getLatencyPercentileMs(percentile), 2, ",");
-                    data.percentileTarget = number_format(target, 2, ",");
+                    data.percentileLatency = formatNumber(context.getLatencyPercentileMs(percentile), 2, ",");
+                    data.percentileTarget = formatNumber(target, 2, ",");
                     return data;
                 }).collect(Collectors.toList());
     }
@@ -112,12 +112,12 @@ public class ViewData {
         return IntStream.range(1, 100).mapToObj(i -> "[ " +
                 i + ", " +
                 context.getLatencyPercentileMs(i) + ", " +
-                "\"" + i + "% of executions ≤ " + number_format(context.getLatencyPercentileMs(i), 2, ",") + "ms\""
+                "\"" + i + "% of executions ≤ " + formatNumber(context.getLatencyPercentileMs(i), 2, ",") + "ms\""
                 + "],"
         ).collect(Collectors.joining("\n"));
     }
 
-    private static String number_format(float value, int decimalPlaces, String thousandSeparator) {
+    private static String formatNumber(float value, int decimalPlaces, String thousandSeparator) {
         return String.format("%" + thousandSeparator + "." + decimalPlaces + "f", value).trim();
     }
 
