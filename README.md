@@ -97,6 +97,8 @@ Hovering over the datapoints on the percentile latency graph will provide latenc
 
 The HTML reporter will generate an HTML performance report under `${BUILD_DIR}/reports/junitperf_report.html`
 
+It is possible to override the template by placing a customised src/main/resources/templates/report.template file on the classpath ahead of the default template.
+
 <br />
 
 #### Console Reporting
