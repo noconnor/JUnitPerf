@@ -1,8 +1,11 @@
 package com.github.noconnor.junitperf.reporting.providers.utils;
 
+import lombok.experimental.UtilityClass;
+
 import java.lang.reflect.Field;
 import java.util.List;
 
+@UtilityClass
 public class ViewProcessor {
 
     @SuppressWarnings("rawtypes")

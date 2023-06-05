@@ -4,6 +4,7 @@ import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.github.noconnor.junitperf.reporting.providers.utils.ViewData;
 import com.github.noconnor.junitperf.reporting.providers.utils.ViewProcessor;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
@@ -93,6 +94,7 @@ public class HtmlReportGenerator implements ReportGenerator {
         return reportPath;
     }
 
+    @UtilityClass
     public static class HtmlTemplateProcessor {
 
         private static final String REPORT_TEMPLATE = "/templates/report.twig";
