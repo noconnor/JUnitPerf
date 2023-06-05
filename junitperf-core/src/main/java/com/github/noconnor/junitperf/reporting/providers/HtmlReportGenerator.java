@@ -65,7 +65,7 @@ public class HtmlReportGenerator implements ReportGenerator {
 
                 String overview = ViewProcessor.populateTemplate(c, "context", blocks.get("{% OVERVIEW_BLOCK %}").toString());
                 String detail = ViewProcessor.populateTemplate(c, "context", blocks.get("{% DETAILED_BLOCK %}").toString());
-                String percentileData = ViewProcessor.populateTemplateFromCollection(
+                String percentileData = ViewProcessor.populateTemplate(
                         c.getRequiredPercentiles(),
                         "context.percentiles",
                         blocks.get("{% PERCENTILES_BLOCK %}").toString()
