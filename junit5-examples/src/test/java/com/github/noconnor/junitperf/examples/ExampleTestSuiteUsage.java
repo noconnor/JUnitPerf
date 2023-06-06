@@ -15,6 +15,14 @@ import java.util.Collections;
 
 import static com.github.noconnor.junitperf.examples.utils.ReportingUtils.newHtmlReporter;
 
+
+// 
+// Reference: https://www.baeldung.com/junit-5-extensions#1-automatic-extension-registration
+// Required: resources/META-INF/services/org.junit.jupiter.api.extension.Extension
+// Required: vm arg: -Djunit.jupiter.extensions.autodetection.enabled=true
+// Required: vm arg: -DskipTests=false
+// Example mvn command: mvn -Djunit.jupiter.extensions.autodetection.enabled=true -Dtest=ExampleTestSuiteUsage -DskipTests=false test
+//
 @Suite
 @SelectClasses({
         ExampleTestSuiteUsage.TestClassOne.class,
