@@ -80,7 +80,7 @@ public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
 
     @Test
     public void whenHtmlProcessorProcessBlocksIsCalled_thenTheCorrectBlocksShouldBeProcessed() {
-        Map<String, StringBuilder> blocks = HtmlReportGenerator.HtmlTemplateProcessor.parseTemplateBlocks();
+        Map<String, String> blocks = HtmlReportGenerator.HtmlTemplateProcessor.parseTemplateBlocks();
         assertEquals(4, blocks.size());
         assertTrue(blocks.containsKey("root"));
         assertTrue(blocks.containsKey("{% OVERVIEW_BLOCK %}"));

@@ -19,6 +19,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.System.getProperty;
 import static java.util.Objects.isNull;
@@ -27,6 +28,12 @@ import static java.util.Objects.isNull;
 public class HtmlReportGenerator implements ReportGenerator {
 
     private static final String DEFAULT_REPORT_PATH = getProperty("user.dir") + "/build/reports/junitperf_report.html";
+    private static final String REPORT_TEMPLATE = "/templates/report.template";
+
+    private static final String OVERVIEW_MARKER = "{% OVERVIEW_BLOCK %}";
+    private static final String DETAILS_MARKER = "{% DETAILED_BLOCK %}";
+    private static final String PERCENTILE_TARGETS_MARKER = "{% PERCENTILES_BLOCK %}";
+    
 
     private final String reportPath;
     private final Set<EvaluationContext> history;
@@ -47,6 +54,11 @@ public class HtmlReportGenerator implements ReportGenerator {
         renderTemplate();
     }
 
+    @Override
+    public String getReportPath() {
+        return reportPath;
+    }
+
     private void renderTemplate() {
         Path outputPath = Paths.get(reportPath);
 
@@ -54,9 +66,9 @@ public class HtmlReportGenerator implements ReportGenerator {
             Files.createDirectories(outputPath.getParent());
             log.info("Rendering report to: " + outputPath);
 
-            Map<String, StringBuilder> blocks = HtmlTemplateProcessor.parseTemplateBlocks();
+            Map<String, String> blocks = HtmlTemplateProcessor.parseTemplateBlocks();
 
-            String root = blocks.get("root").toString();
+            String root = blocks.get("root");
 
             StringBuilder overviews = new StringBuilder();
             StringBuilder details = new StringBuilder();
@@ -64,42 +76,39 @@ public class HtmlReportGenerator implements ReportGenerator {
             for (EvaluationContext context : history) {
                 ViewData c = new ViewData(context);
 
-                String overview = ViewProcessor.populateTemplate(c, "context", blocks.get("{% OVERVIEW_BLOCK %}").toString());
-                String detail = ViewProcessor.populateTemplate(c, "context", blocks.get("{% DETAILED_BLOCK %}").toString());
+                String overview = ViewProcessor.populateTemplate(c, "context", blocks.get(OVERVIEW_MARKER));
+                String detail = ViewProcessor.populateTemplate(c, "context", blocks.get(DETAILS_MARKER));
                 String percentileData = ViewProcessor.populateTemplate(
                         c.getRequiredPercentiles(),
                         "context.percentiles",
-                        blocks.get("{% PERCENTILES_BLOCK %}").toString()
+                        blocks.get(PERCENTILE_TARGETS_MARKER)
                 );
 
-                detail = detail.replaceAll("\\{% PERCENTILES_BLOCK %\\}", percentileData);
+                detail = detail.replaceAll(asRegex(PERCENTILE_TARGETS_MARKER), percentileData);
 
                 overviews.append(overview).append("\n");
                 details.append(detail).append("\n");
             }
 
-            root = root.replaceAll("\\{% OVERVIEW_BLOCK %\\}", overviews.toString());
-            root = root.replaceAll("\\{% DETAILED_BLOCK %\\}", details.toString());
+            root = root.replaceAll(asRegex(OVERVIEW_MARKER), overviews.toString());
+            root = root.replaceAll(asRegex(DETAILS_MARKER), details.toString());
 
             Files.write(outputPath, root.getBytes());
 
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-
     }
-
-    @Override
-    public String getReportPath() {
-        return reportPath;
+    
+    private String asRegex(String marker) {
+        return marker.replaceAll("\\{", "\\\\{").replaceAll("\\}", "\\\\}");
     }
-
+    
+    
     @UtilityClass
-    public static class HtmlTemplateProcessor {
-
-        private static final String REPORT_TEMPLATE = "/templates/report.template";
-
-        public static Map<String, StringBuilder> parseTemplateBlocks() {
+    public class HtmlTemplateProcessor {
+        
+        public static Map<String, String> parseTemplateBlocks() {
             InputStream templateString = HtmlTemplateProcessor.class.getResourceAsStream(REPORT_TEMPLATE);
             if (isNull(templateString)) {
                 throw new IllegalStateException("Report template is missing: " + REPORT_TEMPLATE);
@@ -113,9 +122,9 @@ public class HtmlReportGenerator implements ReportGenerator {
             contextBlocks.put("root", root);
 
             Set<String> expectedBlocks = new HashSet<>();
-            expectedBlocks.add("{% OVERVIEW_BLOCK %}");
-            expectedBlocks.add("{% DETAILED_BLOCK %}");
-            expectedBlocks.add("{% PERCENTILES_BLOCK %}");
+            expectedBlocks.add(OVERVIEW_MARKER);
+            expectedBlocks.add(DETAILS_MARKER);
+            expectedBlocks.add(PERCENTILE_TARGETS_MARKER);
 
             try (Scanner scanner = new Scanner(templateString)) {
                 while (scanner.hasNext()) {
@@ -136,7 +145,9 @@ public class HtmlReportGenerator implements ReportGenerator {
                     }
                 }
             }
-            return contextBlocks;
+            return contextBlocks.entrySet()
+                    .stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         }
 
     }
