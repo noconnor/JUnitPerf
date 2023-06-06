@@ -29,6 +29,12 @@ Back to [index](../README.md) page.
 
 For example test code, see [junit5 sample module](../junit5-examples)
 
+To run examples using maven:
+* From project root directory run: `mvn clean install -Dgpg.skip`
+* From `junit5-examples` directory run: `mvn clean test -DskipTests=false`
+
+**NOTE:** The example tests contain some example failure scenarios, so you should expect `mvn test` command to fail when running these examples. 
+
 
 ### Junit5 Synchronous Usage
 

@@ -17,19 +17,22 @@
                 <th style='background-color:#ffffdd; color:#044e9b'>Tests</th>
             <tr>
 
-             {% for context in contextData %}
+             
+        {% OVERVIEW_BLOCK %}
                 <tr>
                     <!-- Success: #2b67a4 failure: #d9534f -->
-                    <td style='background-color:{{ (context.isSuccessful) ? "#2b67a4" : "#d9534f" }};'>&nbsp;</td>
+                    <td style='background-color:{{ context.testNameColour }};'>&nbsp;</td>
                     <td><a href='#{{ context.testName }}'>{{ context.testName }}</td>
                 <tr>
-             {% endfor %}
+             
+        {% END %}
         </table>
         <br/>
         <hr/>
 
 
-        {% for context in contextData %}
+        
+        {% DETAILED_BLOCK %}
         <a name='{{ context.testName }}'><h2 style='color:#2b67a4'>{{ context.testName }}</h2></a>
         <table width='970'>
             <tr>
@@ -44,9 +47,7 @@
 
                             var data = google.visualization.arrayToDataTable([
                                 ['Percentile', 'Latency', { role: "tooltip"} ],
-                                {% for i in [1..99] %}
-                                [ {{ i }}, {{ context.getLatencyPercentileMs(i) }}, "{{ i }}% of executions ≤ {{ number_format(context.getLatencyPercentileMs(i), 2, '.', ',') }}ms"],
-                                {% endfor %}
+                                {{ context.chartData }}
                             ]);
 
                             var options = {
@@ -75,9 +76,7 @@
                         function setCsvExportLink() {
                             var csvData = google.visualization.arrayToDataTable([
                                 ['Percentile', 'Latency'],
-                                {% for i in [1..100] %}
-                                [ {{ i }}, {{ context.getLatencyPercentileMs(i) }} ],
-                                {% endfor %}
+                                {{ context.csvData }}
                             ]);
                             var csvFormattedDataTable = google.visualization.dataTableToCsv(csvData);
                             var encodedUri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csvFormattedDataTable);
@@ -96,19 +95,19 @@
                         <tr><th>Started at:</th><td colspan='2'><b>{{ context.startTime }}</b></td></tr>
                         <tr>
                             <th align='right' valign='top'>Invocations:</th>
-                            <td align='right'>{{ number_format(context.evaluationCount, 0, ".", ",") }}</td>
+                            <td align='right'>{{ context.totalInvocations }}</td>
                             <td align='right'></td>
                         </tr>
                         <tr>
                             <th align='right' valign='top'>- Success:</th>
-                            <td align='right'>{{ number_format(context.evaluationCount - context.errorCount, 0, ".", ",") }}</td>
+                            <td align='right'>{{ context.successfulInvocations }}</td>
                             <td align='right'></td>
                         </tr>
                         <tr>
-                            {% set colour = (context.isErrorThresholdAchieved) ? "#2b67a4" : "#d9534f" %}
-                            <th align='right' valign='top'><b style='color:{{ colour }}'>- Errors:</b></th>
-                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.errorCount, 0, ".", ",") }}</b></td>
-                            <td align='right'><b style='color:{{ colour }};'>{{ number_format(context.errorPercentage, 2, ".", ",") }}%</b></td>
+                            
+                            <th align='right' valign='top'><b style='color:{{ context.errorThresholdColour }}'>- Errors:</b></th>
+                            <td align='right'><b style='color:{{ context.errorThresholdColour }}'>{{ context.errorCount }}</b></td>
+                            <td align='right'><b style='color:{{ context.errorThresholdColour }};'>{{ context.errorPercentage }}%</b></td>
                         </tr>
                         <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
                         <tr>
@@ -118,12 +117,12 @@
                         </tr>
                         <tr>
                             <th align='right' valign='top'>Warm up:</th>
-                            <td align='right'>{{ number_format(context.configuredWarmUp, 0, ".", ",") }} ms</td>
+                            <td align='right'>{{ context.configuredWarmUp }} ms</td>
                             <td align='right'></td>
                         </tr>
                         <tr>
                             <th align='right' valign='top'>Ramp up:</th>
-                            <td align='right'>{{ number_format(context.configuredRampUpPeriodMs, 0, ".", ",") }} ms</td>
+                            <td align='right'>{{ context.configuredRampUpPeriodMs }} ms</td>
                             <td align='right'></td>
                         </tr>
                         <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
@@ -134,46 +133,44 @@
                         </tr>
                         <tr>
                             <th align='right' valign='top'>Execution time:</th>
-                            <td align='right'>{{ context.getTestDurationFormatted() }}</td>
+                            <td align='right'>{{ context.testDurationFormatted }}</td>
                             <td align='right'></td>
                         </tr>
                         <tr>
-                            {% set colour = (context.isThroughputAchieved) ? "#2b67a4" : "#d9534f" %}
-                            <th align='right' valign='top'><b style='color:{{ colour }}'>Throughput:</b></th>
-                            <td align='right'><b style='color:{{ colour }};'>{{ number_format(context.getThroughputQps, 0, ".", ",") }} / s</b></td>
-                            <td align='right'><b style='color:{{ colour }};'>{{ number_format(context.requiredThroughput, 0, ".", ",") }} / s</b></td>
+                            
+                            <th align='right' valign='top'><b style='color:{{ context.throughputAchievedColour }}'>Throughput:</b></th>
+                            <td align='right'><b style='color:{{ context.throughputAchievedColour }};'>{{ context.throughputQps }} / s</b></td>
+                            <td align='right'><b style='color:{{ context.throughputAchievedColour }};'>{{ context.requiredThroughput }} / s</b></td>
                         </tr>
                         <tr>
-                            {% set colour = (context.isMinLatencyAchieved) ? "#2b67a4" : "#d9534f" %}
-                            <th align='right' valign='top'><b style='color:{{ colour }}'>Min latency:</b></th>
-                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.getMinLatencyMs(), 2, ".", " ") }} ms</b></td>
-                            {% set minLatency = (context.requiredMinLatency < 0) ? "N/A" :number_format(context.requiredMinLatency, 2, ".", " ") %}
-                            <td align='right'><b style='color:{{ colour }}'>{{ minLatency }} ms</b></td>
+                            
+                            <th align='right' valign='top'><b style='color:{{ context.minLatencyAchievedColour }}'>Min latency:</b></th>
+                            <td align='right'><b style='color:{{ context.minLatencyAchievedColour }}'>{{ context.minLatency }} ms</b></td>
+                            <td align='right'><b style='color:{{ context.minLatencyAchievedColour }}'>{{ context.requiredMinLatency }} ms</b></td>
                         </tr>
                         <tr>
-                            {% set colour = (context.isMeanLatencyAchieved) ? "#2b67a4" : "#d9534f" %}
-                            <th align='right' valign='top'><b style='color:{{ colour }}'>Average latency:</b></th>
-                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.getMeanLatencyMs(), 2, ".", " ") }} ms</b></td>
-                            {% set meanLatency = (context.requiredMeanLatency < 0) ? "N/A" :number_format(context.requiredMeanLatency, 2, ".", " ") %}
-                            <td align='right'><b style='color:{{ colour }}'>{{ meanLatency }} ms</b></td>
+                            
+                            <th align='right' valign='top'><b style='color:{{ context.meanLatencyAchievedColour }}'>Average latency:</b></th>
+                            <td align='right'><b style='color:{{ context.meanLatencyAchievedColour }}'>{{ context.meanLatency }} ms</b></td>
+                            <td align='right'><b style='color:{{ context.meanLatencyAchievedColour }}'>{{ context.requiredMeanLatency }} ms</b></td>
                         </tr>
 
-                        {% for percentile, target in context.requiredPercentiles %}
+                        
+                        {% PERCENTILES_BLOCK %}
                         <tr>
-                            {% for i in [percentile .. percentile] %} <!-- HACK to get parameter passed to function -->
-                            {% set colour = (context.getPercentileResults().get(i)) ? "#2b67a4" : "#d9534f" %}
-                            <th align='right' valign='top'><b style='color:{{ colour }}'>{{ percentile }}:</b></th>
-                            <td align='right'><b style='color:{{ colour }};'>{{ number_format(context.getLatencyPercentileMs(i), 2, ".", ",") }} ms</b></td>
-                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(target, 2, ".", ",") }} ms</b></td>
-                            {% endfor %}
+                             <!-- HACK to get parameter passed to function -->
+                            
+                            <th align='right' valign='top'><b style='color:{{ context.percentiles.percentileResultColour }}'>{{ context.percentiles.percentile }}:</b></th>
+                            <td align='right'><b style='color:{{ context.percentiles.percentileResultColour }};'>{{ context.percentiles.percentileLatency }} ms</b></td>
+                            <td align='right'><b style='color:{{ context.percentiles.percentileResultColour }}'>{{ context.percentiles.percentileTarget }} ms</b></td>
+                            
                         </tr>
-                        {% endfor %}
+                        {% END %}
                         <tr>
-                            {% set colour = (context.isMaxLatencyAchieved) ? "#2b67a4" : "#d9534f" %}
-                            <th align='right' valign='top'><b style='color:{{ colour }}'>Max latency:</b></th>
-                            <td align='right'><b style='color:{{ colour }}'>{{ number_format(context.getMaxLatencyMs(), 2, ".", ",") }} ms</b></td>
-                            {% set maxLatency = (context.requiredMaxLatency < 0) ? "N/A" :number_format(context.requiredMaxLatency, 2, ".", " ") %}
-                            <td align='right'><b style='color:{{ colour }}'>{{ maxLatency }} ms</b></td>
+                            
+                            <th align='right' valign='top'><b style='color:{{ context.maxLatencyAchievedColour }}'>Max latency:</b></th>
+                            <td align='right'><b style='color:{{ context.maxLatencyAchievedColour }}'>{{ context.maxLatency }} ms</b></td>
+                            <td align='right'><b style='color:{{ context.maxLatencyAchievedColour }}'>{{ context.requiredMaxLatency }} ms</b></td>
                         </tr>
                     </table>
                 </td>
@@ -181,7 +178,8 @@
         </table>
         <br/>
         <br/><br/><br/>
-        {% endfor %}
+        
+        {% END %}
         <hr/>
         <div style='color:#044e9b;'>Report created by <a href='https://github.com/noconnor/JUnitPerf'>JunitPerf</a> </div>
 </center>

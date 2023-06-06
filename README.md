@@ -97,8 +97,7 @@ Hovering over the datapoints on the percentile latency graph will provide latenc
 
 The HTML reporter will generate an HTML performance report under `${BUILD_DIR}/reports/junitperf_report.html`
 
-HTML reports are generated using the [jtwig library](http://jtwig.org/). The jtwig report template can be found under `src/main/resources/templates/report.twig`.
-It is possible to override this template by placing a customised `templates/report.twig` file on the classpath ahead of the default template.
+It is possible to override the template by placing a customised src/main/resources/templates/report.template file on the classpath ahead of the default template.
 
 <br />
 
@@ -160,9 +159,9 @@ The window size may be set to a fixed size as follows : `new DescriptiveStatisti
 
 ## Build Instructions
 
-To compile this project and run tests execute the following command from the root project directory: ` mvn clean test`
+To compile this project and run tests execute the following command from the root project directory: ` mvn clean test  -Dgpg.skip`
 
-To generate a library jar execute: `mvn clean package` 
+To generate a library jar execute: `mvn clean package -Dgpg.skip` 
 
 **Intellij 14 Setup**
 
