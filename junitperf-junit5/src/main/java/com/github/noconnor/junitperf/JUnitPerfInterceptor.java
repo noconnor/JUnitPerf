@@ -36,6 +36,11 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     protected long measurementsStartTimeMs;
     protected PerformanceEvaluationStatementBuilder statementBuilder;
 
+
+    protected JUnitPerfTest defaultPerfTestAnnotation;
+    protected JUnitPerfTestRequirement defaultRequirementsAnnotation;
+
+
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
         // Will be called for every instance of @Test
@@ -70,6 +75,9 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         JUnitPerfTest perfTestAnnotation = method.getAnnotation(JUnitPerfTest.class);
         JUnitPerfTestRequirement requirementsAnnotation = method.getAnnotation(JUnitPerfTestRequirement.class);
 
+        perfTestAnnotation = nonNull(perfTestAnnotation) ? perfTestAnnotation : defaultPerfTestAnnotation;
+        requirementsAnnotation = nonNull(requirementsAnnotation) ? requirementsAnnotation : defaultRequirementsAnnotation;
+        
         if (nonNull(perfTestAnnotation)) {
             measurementsStartTimeMs = currentTimeMillis() + perfTestAnnotation.warmUpMs();
             boolean isAsync = invocationContext.getArguments().stream().anyMatch(arg -> arg instanceof TestContextSupplier);
