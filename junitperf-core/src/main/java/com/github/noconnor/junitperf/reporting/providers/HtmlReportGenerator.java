@@ -68,9 +68,10 @@ public class HtmlReportGenerator implements ReportGenerator {
     }
 
     private void renderTemplate() {
-        Path outputPath = Paths.get(reportPath);
 
         try {
+            Path outputPath = Paths.get(reportPath);
+            
             Files.createDirectories(outputPath.getParent());
             log.info("Rendering report to: " + outputPath);
 
