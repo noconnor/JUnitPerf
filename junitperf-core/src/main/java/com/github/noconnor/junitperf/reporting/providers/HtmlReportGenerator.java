@@ -7,6 +7,7 @@ import com.github.noconnor.junitperf.reporting.providers.utils.ViewProcessor;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,7 +28,14 @@ import static java.util.Objects.isNull;
 @Slf4j
 public class HtmlReportGenerator implements ReportGenerator {
 
-    private static final String DEFAULT_REPORT_PATH = getProperty("user.dir") + "/build/reports/junitperf_report.html";
+    private static final String DEFAULT_REPORT_PATH = String.join(
+            File.separator, 
+            getProperty("user.dir") ,
+            "build", 
+            "reports",
+            "junitperf_report.html"
+    );
+    
     private static final String REPORT_TEMPLATE = "/templates/report.template";
 
     private static final String OVERVIEW_MARKER = "{% OVERVIEW_BLOCK %}";
