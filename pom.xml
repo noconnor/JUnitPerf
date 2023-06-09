@@ -23,7 +23,7 @@
         <guava.version>30.1-jre</guava.version>
         <commons.collection.version>3.2.2</commons.collection.version>
         <commons.math3.version>3.6.1</commons.math3.version>
-        <jacoco-plugin-version>0.8.5</jacoco-plugin-version>
+        <jacoco-plugin-version>0.8.10</jacoco-plugin-version>
     </properties>
 
     <modules>
