@@ -8,6 +8,7 @@ import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.P
 import com.github.noconnor.junitperf.statements.SimpleTestStatement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
+import com.github.noconnor.junitperf.suite.JunitPerfSuite;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.*;
 
@@ -36,15 +37,15 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     protected long measurementsStartTimeMs;
     protected PerformanceEvaluationStatementBuilder statementBuilder;
 
-
-    protected JUnitPerfTest defaultPerfTestAnnotation;
-    protected JUnitPerfTestRequirement defaultRequirementsAnnotation;
-
-
+    
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
         // Will be called for every instance of @Test
 
+        // Check for suite level reporters
+        activeReporters = JunitPerfSuite.getReporters(testInstance.getClass());
+
+        // Override suite reporter if JUnitPerfTestActiveConfig is available
         for (Field field : testInstance.getClass().getDeclaredFields()) {
             if (field.isAnnotationPresent(JUnitPerfTestActiveConfig.class)) {
                 warnIfNonStatic(field);
@@ -54,6 +55,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
                 activeStatisticsCalculator = reportingConfig.getStatisticsCalculatorSupplier().get();
             }
         }
+        
         // Defaults if no overrides provided
         if (isNull(activeReporters) || activeReporters.isEmpty()) {
             activeReporters = singletonList(DEFAULT_REPORTER);
@@ -72,11 +74,14 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
         Method method = extensionContext.getRequiredTestMethod();
 
+        JUnitPerfTest suitePerfTestAnnotation = JunitPerfSuite.getSuiteJUnitPerfTestData(invocationContext.getTargetClass());
+        JUnitPerfTestRequirement suiteRequirementsAnnotation = JunitPerfSuite.getSuiteJUnitPerfRequirements(invocationContext.getTargetClass());
+        
         JUnitPerfTest perfTestAnnotation = method.getAnnotation(JUnitPerfTest.class);
         JUnitPerfTestRequirement requirementsAnnotation = method.getAnnotation(JUnitPerfTestRequirement.class);
 
-        perfTestAnnotation = nonNull(perfTestAnnotation) ? perfTestAnnotation : defaultPerfTestAnnotation;
-        requirementsAnnotation = nonNull(requirementsAnnotation) ? requirementsAnnotation : defaultRequirementsAnnotation;
+        perfTestAnnotation = nonNull(perfTestAnnotation) ? perfTestAnnotation : suitePerfTestAnnotation;
+        requirementsAnnotation = nonNull(requirementsAnnotation) ? requirementsAnnotation : suiteRequirementsAnnotation;
         
         if (nonNull(perfTestAnnotation)) {
             measurementsStartTimeMs = currentTimeMillis() + perfTestAnnotation.warmUpMs();
