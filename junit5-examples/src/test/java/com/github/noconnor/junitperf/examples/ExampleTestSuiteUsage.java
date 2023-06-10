@@ -19,7 +19,7 @@ import static java.util.Collections.singletonList;
 
 
 //
-// To run suite: mvn -Djunit.jupiter.extensions.autodetection.enabled=true -Dtest=ExampleTestSuiteUsage -DskipTests=false test
+// To run suite: mvn -Dtest=ExampleTestSuiteUsage -DskipTests=false test
 //
 
 @Suite
@@ -38,11 +38,14 @@ import static java.util.Collections.singletonList;
 public class ExampleTestSuiteUsage {
     
     //
-    // Suite configuration must happen with @Test block
-    // This test must run before other tests in the suite to initialise the suite
+    // Workaround for lack of suite lifecycle hooks: suite configuration/setup must happen within @Test block &
+    // this setup must run before other tests in the suite to initialise the suite
     //
     @Test
     void suiteSetup() {
+        // This tells the framework to look at this class to:
+        // 1.) Identify suite level JUnitPerfTest & JUnitPerfTestRequirement annotations
+        // 2.) Identify all classes with the suite
         JunitPerfSuite.registerPerfTestSuite(
                 ExampleTestSuiteUsage.class,
                 singletonList(newHtmlReporter("suite_reporter.html"))
