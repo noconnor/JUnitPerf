@@ -1,113 +1,57 @@
 package com.github.noconnor.junitperf.examples;
 
-import com.github.noconnor.junitperf.JUnitPerfInterceptor;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
+import com.github.noconnor.junitperf.examples.existing.TestClassOne;
+import com.github.noconnor.junitperf.examples.existing.TestClassTwo;
 import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
-import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
+import com.github.noconnor.junitperf.suite.JunitPerfSuite;
+import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.platform.suite.api.ConfigurationParameter;
 import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
 
-import java.lang.annotation.Annotation;
 import java.util.Collections;
 
 import static com.github.noconnor.junitperf.examples.utils.ReportingUtils.newHtmlReporter;
+import static java.util.Collections.singletonList;
 
 
-// 
-// Reference: https://www.baeldung.com/junit-5-extensions#1-automatic-extension-registration
-// Required: resources/META-INF/services/org.junit.jupiter.api.extension.Extension
-// Required: vm arg: -Djunit.jupiter.extensions.autodetection.enabled=true
-// Required: vm arg: -DskipTests=false
-// Example mvn command: mvn -Djunit.jupiter.extensions.autodetection.enabled=true -Dtest=ExampleTestSuiteUsage -DskipTests=false test
 //
+// To run suite: mvn -Dtest=ExampleTestSuiteUsage -DskipTests=false test
+//
+
 @Suite
 @SelectClasses({
-        ExampleTestSuiteUsage.TestClassOne.class,
-        ExampleTestSuiteUsage.TestClassTwo.class
+        TestClassOne.class,
+        TestClassTwo.class
 })
+// Suite level Perf annotations 
+// * JUnitPerfTest & JUnitPerfTestRequirement -> will be applied to ALL tests in SelectClasses
+@JUnitPerfTest(durationMs = 1_000)
+@JUnitPerfTestRequirement(allowedErrorPercentage = 0.01F)
+// ConfigurationParameter: 
+// * Enables extensions listed is resources/META-INF/services/org.junit.jupiter.api.extension.Extension for ALL tests
+// * Reference: https://www.baeldung.com/junit-5-extensions#1-automatic-extension-registration
+@ConfigurationParameter(key = "junit.jupiter.extensions.autodetection.enabled", value = "true")
 public class ExampleTestSuiteUsage {
     
-    private static final HtmlReportGenerator REPORTER = newHtmlReporter("suite_reporter.html");
-    private static final DescriptiveStatisticsCalculator statisticsCalculator = new DescriptiveStatisticsCalculator();
-    
-    public static class JUnitPerfInterceptorSuite extends JUnitPerfInterceptor {
-
-        @Override
-        public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
-            // This method will be called once before every test
-            activeReporters = Collections.singletonList(REPORTER);
-            activeStatisticsCalculator = statisticsCalculator;
-            
-            // Targets
-            defaultRequirementsAnnotation = new JUnitPerfTestRequirement() {
-                @Override
-                public Class<? extends Annotation> annotationType() { return JUnitPerfTestRequirement.class; }
-                @Override
-                public String percentiles() { return ""; }
-                @Override
-                public int executionsPerSec() { return 100; }
-                @Override
-                public float allowedErrorPercentage() { return 0.1F; }
-                @Override
-                public float minLatency() { return -1; }
-                @Override
-                public float maxLatency() { return -1; }
-                @Override
-                public float meanLatency() { return -1; }
-            };
-            // Test set up
-            defaultPerfTestAnnotation = new JUnitPerfTest() {
-                @Override
-                public Class<? extends Annotation> annotationType() { return JUnitPerfTest.class; }
-                @Override
-                public int threads() { return 1; }
-                @Override
-                public int durationMs() { return 3_000; }
-                @Override
-                public int warmUpMs() { return 0; }
-                @Override
-                public int maxExecutionsPerSecond() { return 1000; }
-                @Override
-                public int rampUpPeriodMs() { return 0; }
-            };
-            super.postProcessTestInstance(testInstance, context);
-        }
-        
+    //
+    // Workaround for lack of suite lifecycle hooks: suite configuration/setup must happen within @Test block &
+    // this setup must run before other tests in the suite to initialise the suite
+    //
+    @Test
+    void suiteSetup() {
+        // This tells the framework to look at this class to:
+        // 1.) Identify suite level JUnitPerfTest & JUnitPerfTestRequirement annotations
+        // 2.) Identify all classes within the suite
+        // 3.) Use the provided report generator to create final report
+        JunitPerfSuite.registerPerfTestSuite(
+                ExampleTestSuiteUsage.class,
+                singletonList(newHtmlReporter("suite_reporter.html"))
+        );
     }
     
-    
-    public static class TestClassOne {
-        @Test
-        public void sample_test1_class1() throws InterruptedException {
-            Thread.sleep(5);
-        }
-        
-        @Test
-        public void sample_test2_class1() throws InterruptedException {
-            // Mock some processing logic
-            Thread.sleep(1);
-        }
-
-    }
-    
-    public static class TestClassTwo {
-
-        @Test
-        public void sample_test1_class2() throws InterruptedException {
-            // Mock some processing logic
-            Thread.sleep(1);
-        }
-    }
-
-    public static class NotPartOfSuite {
-        @Test
-        public void shouldNotRun() throws InterruptedException {
-            // Mock some processing logic
-            Thread.sleep(100);
-        }
-    }
-
 }
