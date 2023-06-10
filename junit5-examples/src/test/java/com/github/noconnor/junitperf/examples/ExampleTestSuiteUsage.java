@@ -24,6 +24,7 @@ import static java.util.Collections.singletonList;
 //
 
 @Suite
+//@SelectPackages( { "com.github.noconnor.junitperf.examples.existing" })
 @SelectClasses({
         TestClassOne.class,
         TestClassTwo.class
