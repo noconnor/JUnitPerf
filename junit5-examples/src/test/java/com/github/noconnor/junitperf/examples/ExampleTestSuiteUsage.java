@@ -30,7 +30,7 @@ import static java.util.Collections.singletonList;
 @ConfigurationParameter(key = "junit.jupiter.extensions.autodetection.enabled", value = "true")
 public class ExampleTestSuiteUsage {
 
-    @JUnitPerfSuiteSetup // must be a static public method
+    @JUnitPerfSuiteSetup // must annotate a static method
     static void suiteSetup() {
 
         JUnitPerfTest spec = JUnitPerfSuiteTestSpec.builder()
