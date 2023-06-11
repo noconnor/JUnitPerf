@@ -3,6 +3,7 @@ package com.github.noconnor.junitperf.suite;
 import com.github.noconnor.junitperf.JUnitPerfInterceptor;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
+import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.platform.commons.util.ClassFilter;
@@ -73,5 +74,12 @@ public class JUnitPerfSuiteInterceptor extends JUnitPerfInterceptor {
     @Override
     protected Collection<ReportGenerator> getActiveReporters(Method method) {
         return JUnitPerfSuite.getReporters(method.getDeclaringClass());
+    }
+
+    @Override
+    protected EvaluationContext createEvaluationContext(Method method, boolean isAsync) {
+        EvaluationContext ctxt =  super.createEvaluationContext(method, isAsync);
+        ctxt.setGroupName(method.getDeclaringClass().getSimpleName());
+        return ctxt;
     }
 }

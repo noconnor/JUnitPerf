@@ -104,6 +104,9 @@ public class EvaluationContext {
   private final String testName;
   @Getter
   private final String startTime;
+  @Getter
+  @Setter
+  private String groupName;
 
   public EvaluationContext(String testName, long startTimeNs) {
     this(testName, startTimeNs, false);

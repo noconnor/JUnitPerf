@@ -127,8 +127,8 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     protected Collection<ReportGenerator> getActiveReporters(Method method) {
         return activeReporters;
     }
-    
-    private EvaluationContext createEvaluationContext(Method method, boolean isAsync) {
+
+    protected EvaluationContext createEvaluationContext(Method method, boolean isAsync) {
         return new EvaluationContext(method.getName(), nanoTime(), isAsync);
     }
 

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Objects.nonNull;
+
 @Getter
 public class ViewData {
 
@@ -56,7 +58,7 @@ public class ViewData {
     private final List<RequiredPercentilesData> requiredPercentiles;
 
     public ViewData(EvaluationContext context) {
-        this.testName = context.getTestName();
+        this.testName = nonNull(context.getGroupName()) ? context.getGroupName() + " : " + context.getTestName() : context.getTestName();
         this.testNameColour = context.isSuccessful() ? SUCCESS_COLOUR : FAILED_COLOUR;
         this.chartData = buildChartData(context);
         this.csvData = buildCsvData(context);
