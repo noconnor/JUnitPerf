@@ -8,7 +8,6 @@ import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.P
 import com.github.noconnor.junitperf.statements.SimpleTestStatement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
-import com.github.noconnor.junitperf.suite.JunitPerfSuite;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.*;
 
@@ -40,11 +39,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
-        // Will be called for every instance of @Test
-
-        // Check for suite level reporters
-        activeReporters = JunitPerfSuite.getReporters(testInstance.getClass());
-
+        
         // Override suite reporter if JUnitPerfTestActiveConfig is available
         for (Field field : testInstance.getClass().getDeclaredFields()) {
             if (field.isAnnotationPresent(JUnitPerfTestActiveConfig.class)) {
@@ -74,15 +69,9 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
         Method method = extensionContext.getRequiredTestMethod();
 
-        JUnitPerfTest suitePerfTestAnnotation = JunitPerfSuite.getSuiteJUnitPerfTestData(invocationContext.getTargetClass());
-        JUnitPerfTestRequirement suiteRequirementsAnnotation = JunitPerfSuite.getSuiteJUnitPerfRequirements(invocationContext.getTargetClass());
-        
-        JUnitPerfTest perfTestAnnotation = method.getAnnotation(JUnitPerfTest.class);
-        JUnitPerfTestRequirement requirementsAnnotation = method.getAnnotation(JUnitPerfTestRequirement.class);
+        JUnitPerfTest perfTestAnnotation = getJUnitPerfTestDetails(method);
+        JUnitPerfTestRequirement requirementsAnnotation = getJUnitPerfTestRequirementDetails(method);
 
-        perfTestAnnotation = nonNull(perfTestAnnotation) ? perfTestAnnotation : suitePerfTestAnnotation;
-        requirementsAnnotation = nonNull(requirementsAnnotation) ? requirementsAnnotation : suiteRequirementsAnnotation;
-        
         if (nonNull(perfTestAnnotation)) {
             measurementsStartTimeMs = currentTimeMillis() + perfTestAnnotation.warmUpMs();
             boolean isAsync = invocationContext.getArguments().stream().anyMatch(arg -> arg instanceof TestContextSupplier);
@@ -103,7 +92,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
                     .baseStatement(testStatement)
                     .statistics(activeStatisticsCalculator)
                     .context(context)
-                    .listener(complete -> updateReport(method.getDeclaringClass()))
+                    .listener(complete -> updateReport(method))
                     .build();
 
             parallelExecution.runParallelEvaluation();
@@ -126,13 +115,26 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         return new TestContextSupplier(measurementsStartTimeMs, activeStatisticsCalculator);
     }
 
+
+    protected JUnitPerfTestRequirement getJUnitPerfTestRequirementDetails(Method method) {
+        return method.getAnnotation(JUnitPerfTestRequirement.class);
+    }
+
+    protected JUnitPerfTest getJUnitPerfTestDetails(Method method) {
+        return method.getAnnotation(JUnitPerfTest.class);
+    }
+
+    protected Collection<ReportGenerator> getActiveReporters(Method method) {
+        return activeReporters;
+    }
+    
     private EvaluationContext createEvaluationContext(Method method, boolean isAsync) {
         return new EvaluationContext(method.getName(), nanoTime(), isAsync);
     }
 
-    private synchronized void updateReport(Class<?> clazz) {
-        activeReporters.forEach(r -> {
-            r.generateReport(ACTIVE_CONTEXTS.get(clazz));
+    private synchronized void updateReport(Method method) {
+        getActiveReporters(method).forEach(r -> {
+            r.generateReport(ACTIVE_CONTEXTS.get(method.getDeclaringClass()));
         });
     }
 
@@ -142,5 +144,4 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
             log.warn("Warning: JUnitPerfTestConfig should be static or a new instance will be created for each @Test method");
         }
     }
-
 }

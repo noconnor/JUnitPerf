@@ -16,7 +16,7 @@ import java.util.Map;
 
 import static java.util.Objects.nonNull;
 
-public class JunitPerfSuite {
+public class JUnitPerfSuite {
 
     private static final Map<Class<?>, JUnitPerfTest> suitePerfTestAnnotations = new HashMap<>();
     private static final Map<Class<?>, JUnitPerfTestRequirement> suiteRequirementTestAnnotations = new HashMap<>();
