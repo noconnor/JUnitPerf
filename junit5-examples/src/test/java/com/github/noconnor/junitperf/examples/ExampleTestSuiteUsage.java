@@ -35,7 +35,7 @@ public class ExampleTestSuiteUsage {
 
         JUnitPerfTest spec = JUnitPerfSuiteTestSpec.builder()
                 .totalExecutions(100) // Run *each* test in suite 100 times
-                .durationMs(20_000)   // Run *each* test for a maximum duration of 10s (totalExecutions takes precedence over durationMs)
+                .durationMs(10_000)   // Run *each* test for a maximum duration of 10s or until totalExecutions is reached
                 .build();
 
         JUnitPerfTestRequirement requirements = JUnitPerfSuiteRequirements.builder()
