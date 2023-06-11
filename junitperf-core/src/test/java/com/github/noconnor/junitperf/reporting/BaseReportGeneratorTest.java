@@ -22,6 +22,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 import static java.lang.System.nanoTime;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -66,6 +67,7 @@ public class BaseReportGeneratorTest extends BaseTest {
 
   protected EvaluationContext createdFailedEvaluationContext(String name) {
     EvaluationContext context = new EvaluationContext(name, nanoTime());
+    context.setFinishTimeNs(nanoTime() + SECONDS.toNanos(10));
     context.loadConfiguration(perfTestAnnotationMock);
     context.loadRequirements(perfTestRequirementAnnotationMock);
     context.setStatistics(createAllFailureMock());
@@ -75,6 +77,7 @@ public class BaseReportGeneratorTest extends BaseTest {
 
   protected EvaluationContext createdSuccessfulEvaluationContext(String name) {
     EvaluationContext context = new EvaluationContext(name, nanoTime());
+    context.setFinishTimeNs(nanoTime() + SECONDS.toNanos(10));
     context.loadConfiguration(perfTestAnnotationMock);
     context.loadRequirements(perfTestRequirementAnnotationMock);
     context.setStatistics(createAllSuccessMock());
@@ -84,6 +87,7 @@ public class BaseReportGeneratorTest extends BaseTest {
 
   protected EvaluationContext createdSomeFailuresEvaluationContext(String name) {
     EvaluationContext context = new EvaluationContext(name, nanoTime());
+    context.setFinishTimeNs(nanoTime() + SECONDS.toNanos(10));
     context.loadConfiguration(perfTestAnnotationMock);
     context.loadRequirements(perfTestRequirementAnnotationMock);
     context.setStatistics(createSomeFailuresMock());

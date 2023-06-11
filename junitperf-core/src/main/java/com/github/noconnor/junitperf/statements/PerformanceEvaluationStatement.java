@@ -8,6 +8,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.Builder;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -15,6 +16,7 @@ import java.util.function.Consumer;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.util.concurrent.RateLimiter.create;
 import static java.lang.String.format;
+import static java.lang.System.nanoTime;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -49,33 +51,44 @@ public class PerformanceEvaluationStatement {
     statistics.reset();
     List<Thread> threads = newArrayList();
     AtomicBoolean stopSignal = new AtomicBoolean();
+    CountDownLatch latch = new CountDownLatch(context.getConfiguredThreads());
+
     try {
+      
       for (int i = 0; i < context.getConfiguredThreads(); i++) {
-        Thread t = threadFactory.newThread(createTask(stopSignal));
+        Thread t = threadFactory.newThread(createTask(stopSignal, latch));
         threads.add(t);
         t.start();
       }
-      Thread.sleep(context.getConfiguredDuration());
+
+      //noinspection ResultOfMethodCallIgnored
+      latch.await(context.getConfiguredDuration(), MILLISECONDS);
+      
     } finally {
       stopSignal.set(true);
       threads.forEach(Thread::interrupt);
     }
+    context.setFinishTimeNs(nanoTime());
     context.setStatistics(statistics);
     context.runValidation();
     listener.accept(null);
     assertThresholdsMet();
   }
 
-  private EvaluationTask createTask(AtomicBoolean stopSignal) {
+  private Runnable createTask(AtomicBoolean stopSignal, CountDownLatch latch) {
     StatisticsCalculator stats = context.isAsyncEvaluation() ? NoOpStatisticsCollector.INSTANCE : statistics;
-    return EvaluationTask.builder()
-      .statement(baseStatement)
-      .rateLimiter(rateLimiter)
-      .stats(stats)
-      .terminator(stopSignal::get)
-      .warmUpPeriodMs(context.getConfiguredWarmUp())
-      .executionTarget(context.getConfiguredExecutionTarget())
-      .build();
+    return () -> {
+      EvaluationTask.builder()
+              .statement(baseStatement)
+              .rateLimiter(rateLimiter)
+              .stats(stats)
+              .terminator(stopSignal::get)
+              .warmUpPeriodMs(context.getConfiguredWarmUp())
+              .executionTarget(context.getConfiguredExecutionTarget())
+              .build()
+              .run();
+      latch.countDown();
+    };
   }
 
   private void assertThresholdsMet() {

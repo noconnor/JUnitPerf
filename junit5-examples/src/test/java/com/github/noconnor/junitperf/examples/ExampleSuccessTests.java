@@ -35,8 +35,16 @@ public class ExampleSuccessTests {
     }
 
     @Test
-    @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000, maxExecutionsPerSecond = 100)
+    @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000)
     public void whenNoRequirementsArePresent_thenTestShouldAlwaysPass() throws IOException {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress("www.google.com", 80), 1000);
+        }
+    }
+
+    @Test
+    @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000, totalExecutions = 50)
+    public void whenTotalNumberOfExecutionsIsSet_thenTotalExecutionsShouldOverrideDurationMs() throws IOException {
         try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress("www.google.com", 80), 1000);
         }

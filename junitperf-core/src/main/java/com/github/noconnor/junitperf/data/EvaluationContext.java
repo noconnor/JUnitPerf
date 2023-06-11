@@ -6,6 +6,7 @@ import static com.google.common.collect.Maps.newTreeMap;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.stream.IntStream.range;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -16,6 +17,7 @@ import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,9 +47,12 @@ public class EvaluationContext {
   @Getter
   private int configuredExecutionTarget;
   @Getter
-  private long startTimeNs;
+  private final long startTimeNs;
   @Getter
-  private boolean isAsyncEvaluation;
+  @Setter
+  private long finishTimeNs;
+  @Getter
+  private final boolean isAsyncEvaluation;
 
   @Getter
   private Map<Integer, Float> requiredPercentiles = emptyMap();
@@ -81,7 +86,7 @@ public class EvaluationContext {
   private boolean isSuccessful;
 
   @Getter
-  private float[] percentiles = new float[101];
+  private final float[] percentiles = new float[101];
   @Getter
   private float minLatencyMs;
   @Getter
@@ -121,7 +126,8 @@ public class EvaluationContext {
   }
 
   public String getTestDurationFormatted() {
-    return DatetimeUtils.format(configuredDuration);
+    long timeTakenMs = MILLISECONDS.convert(finishTimeNs - startTimeNs, NANOSECONDS);
+    return DatetimeUtils.format((int) timeTakenMs);
   }
 
   public void loadConfiguration(JUnitPerfTest testSettings) {
