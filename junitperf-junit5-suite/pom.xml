@@ -24,11 +24,6 @@
             <artifactId>junit-platform-suite-engine</artifactId>
             <version>${junit.suite.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.junit.platform</groupId>-->
-<!--            <artifactId>junit-platform-suite-api</artifactId>-->
-<!--            <version>${junit.suite.version}</version>-->
-<!--        </dependency>-->
     </dependencies>
 
     <build>
