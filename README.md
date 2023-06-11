@@ -41,13 +41,14 @@ Usage documentation for each binding can be found here:
 
 `@JUnitPerfTest` has the following configuration parameters:
 
-| Property                   | Definition                                                                                                                        | Default value  |
-| -------------------------: |:---------------------------------------------------------------------------------------------------------------------------------:| --------------:|
-| threads                    | The total number of threads to use during test execution                                                                          |        1       |
-| durationMs                 | Total time to run the test in millisecs (ms) (includes warmup period)                                                             |      60,000    |
-| warmUpMs                   | Warm up period in ms, test logic will be executed during warm up, but results will not be considered during statistics evaluation |        0       |
-| maxExecutionsPerSecond     | Sets the maximum number of iteration per second (disabled by default)                                                             |       -1       |
-| rampUpPeriodMs             | Framework ramps up its executions per second smoothly over the duration of this period (disabled by default)                      |        0       |
+| Property                   | Definition                                                                                                                                                  | Default value  |
+|:---------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------:|
+| threads                    | The total number of threads to use during test execution                                                                                                    |       1        |
+| durationMs                 | Total time to run the test in millisecs (ms) (includes warmup period)                                                                                       |     60,000     |
+| warmUpMs                   | Warm up period in ms, test logic will be executed during warm up, but results will not be considered during statistics evaluation                           |       0        |
+| maxExecutionsPerSecond     | Sets the maximum number of iteration per second (disabled by default)                                                                                       |       -1       |
+| rampUpPeriodMs             | Framework ramps up its executions per second smoothly over the duration of this period (disabled by default)                                                |       0        |
+| totalExecutions            | A best effort target for the total number of times the test method should be executed, this setting takes precedence over durationMs (disabled by default)  |       -1       |
 
 These configuration parameters can be overridden at runtime by specifying a VM args of the form: `-Djunitperf.<param>=X`
 
@@ -60,14 +61,14 @@ This will override the `durationMs` set in the `@JUnitPerfTest` annotation.
 
 `@JUnitPerfTestRequirement` has the following configuration parameters:
 
-| Property               | Definition                                                                                                                  | Default value  |
-| ----------------------:|:---------------------------------------------------------------------------------------------------------------------------:| --------------:|
-| percentiles            | Comma separated list of ms percentile targets, format: percentile1:limit,percentile2:limit (ie. 90:3.3,99:6.8)                 |        ""      |
-| executionsPerSec       | Target executions per second                                                                                                |        1       |
-| allowedErrorPercentage | Allowed % of errors (uncaught exceptions) during test execution (value between 0 and 1, where 1 = 100% errors allowed)      |        0       |
-| minLatency             | Expected minimum latency in ms, if minimum latency is above this value, test will fail                                      |   disabled     |
-| maxLatency             | Expected maximum latency in ms, if maximum latency is above this value, test will fail                                      |   disabled     |
-| meanLatency            | Expected mean latency in ms, if mean latency is above this value, test will fail                                            |   disabled     |
+| Property               | Definition                                                                                                                    |  Default value  |
+|:-----------------------|:------------------------------------------------------------------------------------------------------------------------------|:---------------:|
+| percentiles            | Comma separated list of ms percentile targets, format: percentile1:limit,percentile2:limit (ie. 90:3.3,99:6.8)                |       ""        |
+| executionsPerSec       | Target executions per second                                                                                                  |        1        |
+| allowedErrorPercentage | Allowed % of errors (uncaught exceptions) during test execution (value between 0 and 1, where 1 = 100% errors allowed)        |        0        |
+| minLatency             | Expected minimum latency in ms, if minimum latency is above this value, test will fail                                        |    disabled     |
+| maxLatency             | Expected maximum latency in ms, if maximum latency is above this value, test will fail                                        |    disabled     |
+| meanLatency            | Expected mean latency in ms, if mean latency is above this value, test will fail                                              |    disabled     |
 
 <br />
 

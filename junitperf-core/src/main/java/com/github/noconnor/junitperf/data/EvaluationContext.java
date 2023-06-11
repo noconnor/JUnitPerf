@@ -15,10 +15,7 @@ import com.github.noconnor.junitperf.datetime.DatetimeUtils;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,6 +29,7 @@ public class EvaluationContext {
   static final String JUNITPERF_WARM_UP_MS = "junitperf.warmUpMs";
   static final String JUNITPERF_DURATION_MS = "junitperf.durationMs";
   static final String JUNITPERF_RAMP_UP_PERIOD_MS = "junitperf.rampUpPeriodMs";
+  static final String JUNITPERF_TOTAL_EXECUTIONS = "junitperf.totalExecutions";
   static final String JUNITPERF_MAX_EXECUTIONS_PER_SECOND = "junitperf.maxExecutionsPerSecond";
 
   @Getter
@@ -44,6 +42,8 @@ public class EvaluationContext {
   private int configuredRateLimit;
   @Getter
   private int configuredRampUpPeriodMs;
+  @Getter
+  private int configuredExecutionTarget;
   @Getter
   private long startTimeNs;
   @Getter
@@ -131,6 +131,7 @@ public class EvaluationContext {
     configuredWarmUp = checkForEnvOverride(JUNITPERF_WARM_UP_MS, testSettings.warmUpMs());
     configuredRateLimit = checkForEnvOverride(JUNITPERF_MAX_EXECUTIONS_PER_SECOND, testSettings.maxExecutionsPerSecond());
     configuredRampUpPeriodMs = checkForEnvOverride(JUNITPERF_RAMP_UP_PERIOD_MS, testSettings.rampUpPeriodMs());
+    configuredExecutionTarget = checkForEnvOverride(JUNITPERF_TOTAL_EXECUTIONS, testSettings.totalExecutions());
     validateTestSettings();
   }
 

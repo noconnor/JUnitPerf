@@ -1,16 +1,16 @@
 package com.github.noconnor.junitperf.statements;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import lombok.Builder;
-
-import java.util.List;
-import java.util.concurrent.ThreadFactory;
-import java.util.function.Consumer;
 import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.NoOpStatisticsCollector;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import lombok.Builder;
+
+import java.util.List;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.util.concurrent.RateLimiter.create;
@@ -74,6 +74,7 @@ public class PerformanceEvaluationStatement {
       .stats(stats)
       .terminator(stopSignal::get)
       .warmUpPeriodMs(context.getConfiguredWarmUp())
+      .executionTarget(context.getConfiguredExecutionTarget())
       .build();
   }
 

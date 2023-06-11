@@ -1,17 +1,17 @@
 package com.github.noconnor.junitperf.statements;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
-
+import com.github.noconnor.junitperf.BaseTest;
+import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
+import com.google.common.util.concurrent.RateLimiter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.stubbing.OngoingStubbing;
-import com.github.noconnor.junitperf.BaseTest;
-import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
-import com.google.common.util.concurrent.RateLimiter;
+
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.anyLong;
@@ -43,7 +43,7 @@ public class EvaluationTaskTest extends BaseTest {
   @Before
   public void setup() {
     initialiseRateLimiterMock();
-    task = new EvaluationTask(statementMock, rateLimiterMock, terminatorMock, statsMock, 0);
+    task = new EvaluationTask(statementMock, rateLimiterMock, terminatorMock, statsMock, 0, 0);
   }
 
   @After
@@ -93,15 +93,23 @@ public class EvaluationTaskTest extends BaseTest {
   @Test
   public void whenRateLimiterIsNull_thenRateLimitingShouldBeSkipped() throws Throwable {
     setExecutionCount(10);
-    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 0);
+    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 0, 0);
     task.run();
     verify(statementMock, times(10)).evaluate();
   }
 
   @Test
+  public void whenExecutionTargetIsReached_thenTestShouldFinishGracefully() throws Throwable {
+    setExecutionCount(100);
+    task = new EvaluationTask(statementMock, null, terminatorMock, new DescriptiveStatisticsCalculator(), 0, 9);
+    task.run();
+    verify(statementMock, times(9)).evaluate();
+  }
+
+  @Test
   public void whenWarmUpPeriodIsNonZero_thenNoMeasurementsShouldBeTaken() throws Throwable {
     setExecutionCount(10);
-    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 100);
+    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 100, 0);
     task.run();
     verifyZeroInteractions(statsMock);
   }
@@ -109,7 +117,7 @@ public class EvaluationTaskTest extends BaseTest {
   @Test
   public void whenWarmUpPeriodIsNonZero_andWarmupPeriodExpired_thenMeasurementsShouldBeTaken() throws Throwable {
     setExecutionCount(10000);
-    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 10);
+    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 10, 0);
     task.run();
     verify(statsMock, atLeastOnce()).incrementEvaluationCount();
     verify(statsMock, atLeastOnce()).addLatencyMeasurement(anyLong());
@@ -119,7 +127,7 @@ public class EvaluationTaskTest extends BaseTest {
   public void whenAnInterruptExceptionIsThrown_thenNoErrorsMetricsShouldBeCaptured() throws Throwable {
     setExecutionCount(10000);
     mockInterruptAfter(9995);
-    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 0);
+    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 0, 0);
     task.run();
     verify(statsMock, times(9995)).incrementEvaluationCount();
     verify(statsMock, times(9995)).addLatencyMeasurement(anyLong());
@@ -130,7 +138,7 @@ public class EvaluationTaskTest extends BaseTest {
   public void whenTerminationFlagIsSet_thenNoMoreExecutionsShouldBeEvaluated() throws Throwable {
     setExecutionCount(10000);
     mockTerminateAfter(9990);
-    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 0);
+    task = new EvaluationTask(statementMock, null, terminatorMock, statsMock, 0, 0);
     task.run();
     // termination flag will still finish executing current loop
     verify(statsMock, times(9991)).incrementEvaluationCount();
