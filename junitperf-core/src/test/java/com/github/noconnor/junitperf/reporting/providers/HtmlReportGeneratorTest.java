@@ -75,7 +75,14 @@ public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
     @Test
     public void whenCallingGetReportPath_andDefaultPathHasBeenSpecified_thenCorrectPathShouldBeReturned() {
         reportGenerator = new HtmlReportGenerator();
-        assertEquals(getProperty("user.dir") + "/build/reports/junitperf_report.html", reportGenerator.getReportPath());
+        String expected = String.join(
+                File.separator,
+                getProperty("user.dir") ,
+                "build",
+                "reports",
+                "junitperf_report.html"
+        );
+        assertEquals(expected, reportGenerator.getReportPath());
     }
 
     @Test
