@@ -7,14 +7,11 @@ import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.platform.commons.util.ClassFilter;
-import org.junit.platform.commons.util.ReflectionUtils;
 import org.junit.platform.suite.api.Suite;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.noconnor.junitperf.suite.JUnitPerfSuite.getSuiteJUnitPerfRequirements;
@@ -38,7 +35,7 @@ public class JUnitPerfSuiteInterceptor extends JUnitPerfInterceptor {
                         path.toUri(),
                         ClassFilter.of(clazz -> clazz.isAnnotationPresent(Suite.class))
                 ).forEach(clazz -> {
-                    findMethods(clazz, method -> method.isAnnotationPresent(JUnitPerfTestSetup.class))
+                    findMethods(clazz, method -> method.isAnnotationPresent(JUnitPerfSuiteSetup.class))
                             .forEach(method -> {
                                 if (!Modifier.isStatic(method.getModifiers())) {
                                     throw new IllegalStateException("JUnitPerfTestSetup method must be static: " + method.getName());

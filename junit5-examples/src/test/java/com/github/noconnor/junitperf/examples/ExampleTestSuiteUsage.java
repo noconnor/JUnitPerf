@@ -2,13 +2,9 @@ package com.github.noconnor.junitperf.examples;
 
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
-import com.github.noconnor.junitperf.examples.existing.TestClassOne;
-import com.github.noconnor.junitperf.examples.existing.TestClassTwo;
 import com.github.noconnor.junitperf.suite.JUnitPerfSuite;
-import com.github.noconnor.junitperf.suite.JUnitPerfTestSetup;
-import org.junit.jupiter.api.Test;
+import com.github.noconnor.junitperf.suite.JUnitPerfSuiteSetup;
 import org.junit.platform.suite.api.ConfigurationParameter;
-import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
 
@@ -38,7 +34,7 @@ import static java.util.Collections.singletonList;
 @ConfigurationParameter(key = "junit.jupiter.extensions.autodetection.enabled", value = "true")
 public class ExampleTestSuiteUsage {
     
-    @JUnitPerfTestSetup // must be a static public method
+    @JUnitPerfSuiteSetup // must be a static public method
     static void suiteSetup() {
         JUnitPerfSuite.registerPerfTestSuite(
                 ExampleTestSuiteUsage.class,
