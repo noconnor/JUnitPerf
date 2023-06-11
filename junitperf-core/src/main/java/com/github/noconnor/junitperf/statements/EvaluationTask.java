@@ -1,14 +1,15 @@
 package com.github.noconnor.junitperf.statements;
 
+import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
+import com.google.common.util.concurrent.RateLimiter;
+import lombok.Builder;
+
+import java.util.function.Supplier;
+
 import static java.lang.System.nanoTime;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
-
-import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
-import com.google.common.util.concurrent.RateLimiter;
-import java.util.function.Supplier;
-import lombok.Builder;
 
 final class EvaluationTask implements Runnable {
 
@@ -17,10 +18,16 @@ final class EvaluationTask implements Runnable {
   private final Supplier<Boolean> terminator;
   private final StatisticsCalculator stats;
   private final long warmUpPeriodNs;
+  private final long executionTarget;
 
   @Builder
-  EvaluationTask(TestStatement statement, RateLimiter rateLimiter, StatisticsCalculator stats, Supplier<Boolean> terminator,  int warmUpPeriodMs) {
-    this(statement, rateLimiter, terminator, stats, warmUpPeriodMs);
+  EvaluationTask(TestStatement statement, 
+                 RateLimiter rateLimiter, 
+                 StatisticsCalculator stats, 
+                 Supplier<Boolean> terminator,  
+                 int warmUpPeriodMs, 
+                 int executionTarget) {
+    this(statement, rateLimiter, terminator, stats, warmUpPeriodMs, executionTarget);
   }
 
   // Test only
@@ -28,22 +35,36 @@ final class EvaluationTask implements Runnable {
     RateLimiter rateLimiter,
     Supplier<Boolean> terminator,
     StatisticsCalculator stats,
-    int warmUpPeriodMs) {
+    int warmUpPeriodMs,
+    int executionTarget) {
     this.statement = statement;
     this.rateLimiter = rateLimiter;
     this.terminator = terminator;
     this.stats = stats;
-    this.warmUpPeriodNs = NANOSECONDS.convert(warmUpPeriodMs > 0 ? warmUpPeriodMs : 0, MILLISECONDS);
+    this.warmUpPeriodNs = NANOSECONDS.convert(Math.max(warmUpPeriodMs, 0), MILLISECONDS);
+    this.executionTarget = executionTarget;
   }
 
   @Override
   public void run() {
     long startTimeNs = nanoTime();
     long startMeasurements = startTimeNs + warmUpPeriodNs;
-    while (!terminator.get() && !Thread.currentThread().isInterrupted()) {
+    while (terminationFlagNotSet() && threadNotInterrupted() && executionTargetNotMet()) {
       waitForPermit();
       evaluateStatement(startMeasurements);
     }
+  }
+
+  private boolean terminationFlagNotSet() {
+    return !terminator.get();
+  }
+
+  private static boolean threadNotInterrupted() {
+    return !Thread.currentThread().isInterrupted();
+  }
+
+  private boolean executionTargetNotMet() {
+    return executionTarget <= 0 || stats.getEvaluationCount() < executionTarget;
   }
 
   private void evaluateStatement(long startMeasurements) {

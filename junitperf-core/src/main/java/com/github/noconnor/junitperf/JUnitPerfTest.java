@@ -27,4 +27,9 @@ public @interface JUnitPerfTest {
   // If maxExecutionsPerSecond is not set, this attribute will have no effect
   int rampUpPeriodMs() default 0;
 
+  // Test will execute totalExecutions number of iterations & complete
+  // This is a best effort target, test will execute for at least this number of executions.
+  // If durationMs & totalExecutions are set, totalExecutions will take precedence over test duration 
+  // Default value is no limit
+  int totalExecutions() default -1;
 }

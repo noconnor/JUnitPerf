@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -68,7 +69,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   public void whenEvaluatingABaseStatement_thenTheCorrectNumberOfThreadsShouldBeStarted() throws Throwable {
     when(contextMock.getConfiguredThreads()).thenReturn(10);
     statement.runParallelEvaluation();
-    verify(threadFactoryMock, times(10)).newThread(any(EvaluationTask.class));
+    verify(threadFactoryMock, times(10)).newThread(any(Runnable.class));
     verify(threadMock, times(10)).start();
   }
 
@@ -86,6 +87,12 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   public void whenEvaluationCompletes_thenTheContextShouldBeUpdatedWithStatistics() throws Throwable {
     statement.runParallelEvaluation();
     verify(contextMock).setStatistics(any(StatisticsCalculator.class));
+  }
+
+  @Test
+  public void whenEvaluationCompletes_thenTheContextShouldBeUpdatedWithFinishTime() throws Throwable {
+    statement.runParallelEvaluation();
+    verify(contextMock).setFinishTimeNs(anyLong());
   }
 
   @Test
@@ -188,7 +195,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   public void whenCreatingEvaluationTasks_andIsAsyncEvaluationIsTrue_thenTaskThreadShouldBeCreated() throws Throwable {
     when(contextMock.isAsyncEvaluation()).thenReturn(true);
     statement.runParallelEvaluation();
-    verify(threadFactoryMock).newThread(any(EvaluationTask.class));
+    verify(threadFactoryMock).newThread(any(Runnable.class));
   }
 
   @Test
@@ -200,7 +207,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
   }
 
   private void initialiseThreadFactoryMock() {
-    when(threadFactoryMock.newThread(any(EvaluationTask.class))).thenReturn(threadMock);
+    when(threadFactoryMock.newThread(any(Runnable.class))).thenReturn(threadMock);
   }
 
   private void initialiseContext() {

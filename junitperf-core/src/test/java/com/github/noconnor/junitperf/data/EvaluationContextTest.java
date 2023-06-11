@@ -42,13 +42,16 @@ public class EvaluationContextTest extends BaseTest {
   @Mock
   private JUnitPerfTestRequirement perfTestRequirement;
 
+  private long startTimeNs;
+  
   @Before
   public void setup() {
+    startTimeNs = nanoTime();
     initialisePerfTestAnnotation();
     initialisePerfTestRequirementAnnotation();
     initialiseStatisticsMockToPassValidation();
     DatetimeUtils.setOverride(DATE_OVERRIDE);
-    context = new EvaluationContext(TEST_NAME, nanoTime());
+    context = new EvaluationContext(TEST_NAME, startTimeNs);
   }
 
   @After
@@ -400,10 +403,10 @@ public class EvaluationContextTest extends BaseTest {
 
   @Test
   public void whenDurationIsValid_thenDurationShouldBeFormatted() {
-    when(perfTestAnnotation.durationMs()).thenReturn(100_000_000);
+    context.setFinishTimeNs(startTimeNs + 100_000_000_000_000L);
     context.loadConfiguration(perfTestAnnotation);
     assertEquals("1d:3h:46m:40s", context.getTestDurationFormatted());
-    when(perfTestAnnotation.durationMs()).thenReturn(300);
+    context.setFinishTimeNs(startTimeNs + 300_000_000L);
     context.loadConfiguration(perfTestAnnotation);
     assertEquals("300ms", context.getTestDurationFormatted());
   }
