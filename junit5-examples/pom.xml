@@ -16,12 +16,14 @@
 
 
     <dependencies>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-suite-api</artifactId>
-            <version>${junit.suite.version}</version>
-            <scope>test</scope>
-        </dependency>
+        
+<!--        <dependency>-->
+<!--            <groupId>org.junit.platform</groupId>-->
+<!--            <artifactId>junit-platform-suite-api</artifactId>-->
+<!--            <version>${junit.suite.version}</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
+        <!-- Required for suite support -->
         <dependency>
             <groupId>com.github.noconnor</groupId>
             <artifactId>junitperf-junit5-suite</artifactId>
@@ -34,7 +36,6 @@
             <version>1.27.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>

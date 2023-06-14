@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface JUnitPerfTestRequirement {
 
   // Expected target percentile distribution in the format "percentile1:expected_value_ms,percentile2:expected_value_ms,..."

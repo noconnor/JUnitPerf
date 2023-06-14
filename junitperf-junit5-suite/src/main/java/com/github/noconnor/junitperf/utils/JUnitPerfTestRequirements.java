@@ -6,7 +6,7 @@ import lombok.Builder;
 import java.lang.annotation.Annotation;
 
 @Builder
-public class JUnitPerfSuiteRequirements implements JUnitPerfTestRequirement {
+public class JUnitPerfTestRequirements implements JUnitPerfTestRequirement {
 
     @Builder.Default
     private String percentiles = "";

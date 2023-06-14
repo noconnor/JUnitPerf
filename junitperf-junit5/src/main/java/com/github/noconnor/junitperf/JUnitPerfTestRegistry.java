@@ -1,8 +1,4 @@
-package com.github.noconnor.junitperf.suite;
-
-import com.github.noconnor.junitperf.JUnitPerfReportingConfig;
-import com.github.noconnor.junitperf.JUnitPerfTest;
-import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
+package com.github.noconnor.junitperf;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +9,12 @@ public class JUnitPerfTestRegistry {
     private static final Map<Class<?>, JUnitPerfTestRequirement> suiteRequirementTestAnnotations = new HashMap<>();
     private static final Map<Class<?>, JUnitPerfReportingConfig> suiteReporters = new HashMap<>();
 
+    //
+    // May need to scope by suite:
+    // See JUnitPerfInterceptor::interceptTestMethod:-> extensionContext.getRoot().getUniqueId()
+    // [engine:junit-platform-suite]/[suite:com.github.noconnor.junitperf.examples.ExampleTestSuiteUsage]/[engine:junit-jupiter]
+    // For non suite test cases:
+    // [engine:junit-jupiter]
     public static void registerPerfTest(
             Class<?> clazz,
             JUnitPerfTest spec,
@@ -24,15 +26,15 @@ public class JUnitPerfTestRegistry {
         suiteReporters.put(clazz, reportingConfig);
     }
 
-    public static JUnitPerfReportingConfig getReporters(Class<?> clazz) {
+    public static JUnitPerfReportingConfig getReportingConfig(Class<?> clazz) {
         return suiteReporters.get(clazz);
     }
 
-    public static JUnitPerfTest getSuiteJUnitPerfTestData(Class<?> clazz) {
+    public static JUnitPerfTest getPerfTestData(Class<?> clazz) {
         return suitePerfTestAnnotations.get(clazz);
     }
 
-    public static JUnitPerfTestRequirement getSuiteJUnitPerfRequirements(Class<?> clazz) {
+    public static JUnitPerfTestRequirement getPerfRequirements(Class<?> clazz) {
         return suiteRequirementTestAnnotations.get(clazz);
     }
 

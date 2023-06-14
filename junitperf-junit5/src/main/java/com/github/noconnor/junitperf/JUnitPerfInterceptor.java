@@ -9,7 +9,13 @@ import com.github.noconnor.junitperf.statements.SimpleTestStatement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.extension.*;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.InvocationInterceptor;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.ParameterResolver;
+import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
+import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -36,21 +42,16 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     protected long measurementsStartTimeMs;
     protected PerformanceEvaluationStatementBuilder statementBuilder;
 
-    
+
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
-        
-        // Override suite reporter if JUnitPerfTestActiveConfig is available
-        for (Field field : testInstance.getClass().getDeclaredFields()) {
-            if (field.isAnnotationPresent(JUnitPerfTestActiveConfig.class)) {
-                warnIfNonStatic(field);
-                field.setAccessible(true);
-                JUnitPerfReportingConfig reportingConfig = (JUnitPerfReportingConfig) field.get(testInstance);
-                activeReporters = reportingConfig.getReportGenerators();
-                activeStatisticsCalculator = reportingConfig.getStatisticsCalculatorSupplier().get();
-            }
+
+        JUnitPerfReportingConfig reportingConfig = findTestActiveConfigField(testInstance);
+        if (nonNull(reportingConfig)) {
+            activeReporters = reportingConfig.getReportGenerators();
+            activeStatisticsCalculator = reportingConfig.getStatisticsCalculatorSupplier().get();
         }
-        
+
         // Defaults if no overrides provided
         if (isNull(activeReporters) || activeReporters.isEmpty()) {
             activeReporters = singletonList(DEFAULT_REPORTER);
@@ -117,23 +118,25 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
 
     protected JUnitPerfTestRequirement getJUnitPerfTestRequirementDetails(Method method) {
-        return method.getAnnotation(JUnitPerfTestRequirement.class);
+        JUnitPerfTestRequirement methodAnnotation = method.getAnnotation(JUnitPerfTestRequirement.class);
+        JUnitPerfTestRequirement registeredAnnotation = JUnitPerfTestRegistry.getPerfRequirements(method.getDeclaringClass());
+        return nonNull(methodAnnotation) ? methodAnnotation : registeredAnnotation;
     }
 
     protected JUnitPerfTest getJUnitPerfTestDetails(Method method) {
-        return method.getAnnotation(JUnitPerfTest.class);
-    }
-
-    protected Collection<ReportGenerator> getActiveReporters(Method method) {
-        return activeReporters;
+        JUnitPerfTest methodAnnotation = method.getAnnotation(JUnitPerfTest.class);
+        JUnitPerfTest registeredAnnotation = JUnitPerfTestRegistry.getPerfTestData(method.getDeclaringClass());
+        return nonNull(methodAnnotation) ? methodAnnotation : registeredAnnotation;
     }
 
     protected EvaluationContext createEvaluationContext(Method method, boolean isAsync) {
-        return new EvaluationContext(method.getName(), nanoTime(), isAsync);
+        EvaluationContext ctx =  new EvaluationContext(method.getName(), nanoTime(), isAsync);
+        ctx.setGroupName(method.getDeclaringClass().getSimpleName());
+        return ctx;
     }
 
     private synchronized void updateReport(Method method) {
-        getActiveReporters(method).forEach(r -> {
+        activeReporters.forEach(r -> {
             r.generateReport(ACTIVE_CONTEXTS.get(method.getDeclaringClass()));
         });
     }
@@ -144,4 +147,16 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
             log.warn("Warning: JUnitPerfTestConfig should be static or a new instance will be created for each @Test method");
         }
     }
+
+    private static JUnitPerfReportingConfig findTestActiveConfigField(Object testInstance) throws IllegalAccessException {
+        for (Field field : testInstance.getClass().getDeclaredFields()) {
+            if (field.isAnnotationPresent(JUnitPerfTestActiveConfig.class)) {
+                warnIfNonStatic(field);
+                field.setAccessible(true);
+                return (JUnitPerfReportingConfig) field.get(testInstance);
+            }
+        }
+        return JUnitPerfTestRegistry.getReportingConfig(testInstance.getClass());
+    }
+
 }

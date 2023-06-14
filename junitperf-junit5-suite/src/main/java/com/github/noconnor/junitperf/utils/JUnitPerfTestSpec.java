@@ -6,7 +6,7 @@ import lombok.Builder;
 import java.lang.annotation.Annotation;
 
 @Builder
-public class JUnitPerfSuiteTestSpec implements JUnitPerfTest {
+public class JUnitPerfTestSpec implements JUnitPerfTest {
     @Builder.Default
     private int threads = 1;
     @Builder.Default
