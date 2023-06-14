@@ -32,7 +32,6 @@
         <module>junitperf-core</module>
         <module>junitperf-junit4</module>
         <module>junitperf-junit5</module>
-        <module>junitperf-junit5-suite</module>
     </modules>
 
     <dependencies>

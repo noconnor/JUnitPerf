@@ -8,6 +8,7 @@ import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.P
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor.Invocation;
@@ -22,6 +23,7 @@ import org.mockito.quality.Strictness;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.singletonList;
@@ -102,7 +104,7 @@ class JUnitPerfInterceptorTest {
         Method methodMock = test.getClass().getMethod("someTestMethod");
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
-        ExtensionContext extensionContextMock = mock(ExtensionContext.class);
+        ExtensionContext extensionContextMock = mockTestContext();
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
 
         interceptor.postProcessTestInstance(test, null);
@@ -122,7 +124,7 @@ class JUnitPerfInterceptorTest {
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
-        ExtensionContext extensionContextMock = mock(ExtensionContext.class);
+        ExtensionContext extensionContextMock = mockTestContext();
 
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
         when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
@@ -135,7 +137,7 @@ class JUnitPerfInterceptorTest {
         verify(invocationMock).proceed();
         verify(statementMock).runParallelEvaluation();
 
-        assertEquals(1, JUnitPerfInterceptor.ACTIVE_CONTEXTS.get(test.getClass()).size());
+        assertEquals(1, JUnitPerfInterceptor.ACTIVE_CONTEXTS.get(extensionContextMock.getUniqueId()).size());
         EvaluationContext context = captureEvaluationContext();
         assertFalse(context.isAsyncEvaluation());
     }
@@ -149,7 +151,7 @@ class JUnitPerfInterceptorTest {
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
-        ExtensionContext extensionContextMock = mock(ExtensionContext.class);
+        ExtensionContext extensionContextMock = mockTestContext();
 
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
         when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
@@ -162,7 +164,7 @@ class JUnitPerfInterceptorTest {
         assertTrue(interceptor.measurementsStartTimeMs > 0);
         assertTrue(interceptor.measurementsStartTimeMs <= currentTimeMillis() + 100); // see warmUpMs in annotation
     }
-
+    
     @SuppressWarnings("unchecked")
     @Test
     void whenAsyncTestHasBeenAnnotatedWithPerfAnnotations_thenContextShouldBeMarkedAsAsync() throws Throwable {
@@ -172,11 +174,11 @@ class JUnitPerfInterceptorTest {
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
-        ExtensionContext extensionContextMock = mock(ExtensionContext.class);
+        ExtensionContext extensionContextMock = mockTestContext();
 
         when(invocationContextMock.getArguments()).thenReturn(mockAsyncArgs());
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
-        when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
+        when(extensionContextMock.getUniqueId()).thenReturn(test.getClass().getSimpleName());
         when(statementBuilderMock.build()).thenReturn(statementMock);
 
         interceptor.postProcessTestInstance(test, null);
@@ -225,6 +227,13 @@ class JUnitPerfInterceptorTest {
         return context;
     }
 
+    private static ExtensionContext mockTestContext() {
+        ExtensionContext ctxt = mock(ExtensionContext.class);
+        when(ctxt.getUniqueId()).thenReturn("unitest" + ThreadLocalRandom.current().nextInt());
+        return ctxt;
+    }
+
+
     public static class SampleTestNoReportingOverrides {
     }
 
@@ -268,6 +277,8 @@ class JUnitPerfInterceptorTest {
         }
     }
 
+    
+    @Disabled
     public static class SampleAsyncAnnotatedTest {
         @Test
         @JUnitPerfTest(threads = 1, durationMs = 1_000, maxExecutionsPerSecond = 1_000, warmUpMs = 100)
