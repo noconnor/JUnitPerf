@@ -45,8 +45,8 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
-
         JUnitPerfReportingConfig reportingConfig = findTestActiveConfigField(testInstance);
+        
         if (nonNull(reportingConfig)) {
             activeReporters = reportingConfig.getReportGenerators();
             activeStatisticsCalculator = reportingConfig.getStatisticsCalculatorSupplier().get();
@@ -119,14 +119,20 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
     protected JUnitPerfTestRequirement getJUnitPerfTestRequirementDetails(Method method) {
         JUnitPerfTestRequirement methodAnnotation = method.getAnnotation(JUnitPerfTestRequirement.class);
+        JUnitPerfTestRequirement classAnnotation = method.getDeclaringClass().getAnnotation(JUnitPerfTestRequirement.class);
         JUnitPerfTestRequirement registeredAnnotation = JUnitPerfTestRegistry.getPerfRequirements(method.getDeclaringClass());
-        return nonNull(methodAnnotation) ? methodAnnotation : registeredAnnotation;
+        // Precedence: method, then class, then registered
+        JUnitPerfTestRequirement specifiedAnnotation = nonNull(methodAnnotation) ? methodAnnotation : classAnnotation;
+        return nonNull(specifiedAnnotation) ? specifiedAnnotation : registeredAnnotation;
     }
 
     protected JUnitPerfTest getJUnitPerfTestDetails(Method method) {
         JUnitPerfTest methodAnnotation = method.getAnnotation(JUnitPerfTest.class);
+        JUnitPerfTest classAnnotation = method.getDeclaringClass().getAnnotation(JUnitPerfTest.class);
         JUnitPerfTest registeredAnnotation = JUnitPerfTestRegistry.getPerfTestData(method.getDeclaringClass());
-        return nonNull(methodAnnotation) ? methodAnnotation : registeredAnnotation;
+        // Precedence: method, then class, then registered
+        JUnitPerfTest specifiedAnnotation = nonNull(methodAnnotation) ? methodAnnotation : classAnnotation; 
+        return nonNull(specifiedAnnotation) ? specifiedAnnotation : registeredAnnotation;
     }
 
     protected EvaluationContext createEvaluationContext(Method method, boolean isAsync) {

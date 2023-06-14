@@ -5,9 +5,9 @@ import java.util.Map;
 
 public class JUnitPerfTestRegistry {
 
-    private static final Map<Class<?>, JUnitPerfTest> suitePerfTestAnnotations = new HashMap<>();
-    private static final Map<Class<?>, JUnitPerfTestRequirement> suiteRequirementTestAnnotations = new HashMap<>();
-    private static final Map<Class<?>, JUnitPerfReportingConfig> suiteReporters = new HashMap<>();
+    private static final Map<Class<?>, JUnitPerfTest> registeredPerfTestAnnotations = new HashMap<>();
+    private static final Map<Class<?>, JUnitPerfTestRequirement> registeredRequirementTestAnnotations = new HashMap<>();
+    private static final Map<Class<?>, JUnitPerfReportingConfig> registeredReporterConfigs = new HashMap<>();
 
     //
     // May need to scope by suite:
@@ -21,21 +21,21 @@ public class JUnitPerfTestRegistry {
             JUnitPerfTestRequirement requirements,
             JUnitPerfReportingConfig reportingConfig
     ) {
-        suitePerfTestAnnotations.put(clazz, spec);
-        suiteRequirementTestAnnotations.put(clazz, requirements);
-        suiteReporters.put(clazz, reportingConfig);
+        registeredPerfTestAnnotations.put(clazz, spec);
+        registeredRequirementTestAnnotations.put(clazz, requirements);
+        registeredReporterConfigs.put(clazz, reportingConfig);
     }
 
     public static JUnitPerfReportingConfig getReportingConfig(Class<?> clazz) {
-        return suiteReporters.get(clazz);
+        return registeredReporterConfigs.get(clazz);
     }
 
     public static JUnitPerfTest getPerfTestData(Class<?> clazz) {
-        return suitePerfTestAnnotations.get(clazz);
+        return registeredPerfTestAnnotations.get(clazz);
     }
 
     public static JUnitPerfTestRequirement getPerfRequirements(Class<?> clazz) {
-        return suiteRequirementTestAnnotations.get(clazz);
+        return registeredRequirementTestAnnotations.get(clazz);
     }
 
 }

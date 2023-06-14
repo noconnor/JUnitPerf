@@ -96,9 +96,11 @@ final class EvaluationTask implements Runnable {
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       } catch (Throwable throwable) {
-        stats.incrementEvaluationCount();
-        stats.incrementErrorCount();
-        stats.addLatencyMeasurement(nanoTime() - startTimeNs);
+        if (!(throwable.getCause() instanceof InterruptedException)) {
+          stats.incrementEvaluationCount();
+          stats.incrementErrorCount();
+          stats.addLatencyMeasurement(nanoTime() - startTimeNs);
+        }
       }
 
       try {
