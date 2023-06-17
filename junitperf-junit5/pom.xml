@@ -36,6 +36,7 @@
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite-api</artifactId>
             <version>${junit.jupiter.suite.api.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

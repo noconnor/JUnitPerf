@@ -57,6 +57,10 @@ public class SuiteRegistry {
         settingsCache.put(rootUniqueId, suiteSettings);
     }
 
+    public static void clearRegistry() {
+        settingsCache.clear();
+    }
+    
     public static JUnitPerfReportingConfig getReportingConfig(ExtensionContext context) {
         SuiteSettings s = settingsCache.get(getRootId(context));
         return nonNull(s) ? s.getReportingConfig() : null;
@@ -70,10 +74,6 @@ public class SuiteRegistry {
     public static JUnitPerfTestRequirement getPerfRequirements(ExtensionContext context) {
         SuiteSettings s = settingsCache.get(getRootId(context));
         return nonNull(s) ? s.getRequirements() : null;
-    }
-
-    static void clearRegistry() {
-        settingsCache.clear();
     }
     
     private static String getRootId(ExtensionContext context) {
