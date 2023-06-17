@@ -11,6 +11,7 @@
 
     <properties>
         <junit.jupiter.version>5.9.0</junit.jupiter.version>
+        <junit.jupiter.suite.api.version>1.9.3</junit.jupiter.suite.api.version>
         <mockito.junit.version>3.6.28</mockito.junit.version>
     </properties>
 
@@ -30,6 +31,11 @@
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>${mockito.junit.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite-api</artifactId>
+            <version>${junit.jupiter.suite.api.version}</version>
         </dependency>
     </dependencies>
 

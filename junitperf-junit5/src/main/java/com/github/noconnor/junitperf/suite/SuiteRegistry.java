@@ -72,6 +72,10 @@ public class SuiteRegistry {
         return nonNull(s) ? s.getRequirements() : null;
     }
 
+    static void clearRegistry() {
+        settingsCache.clear();
+    }
+    
     private static String getRootId(ExtensionContext context) {
         if (nonNull(context) && nonNull(context.getRoot())) {
             return context.getRoot().getUniqueId();
@@ -94,8 +98,8 @@ public class SuiteRegistry {
     private static JUnitPerfReportingConfig getFieldValue(Field f) {
         try {
             return (JUnitPerfReportingConfig) f.get(null);
-        } catch (IllegalAccessException e) {
-            log.error("Unable to access JUnitPerfReportingConfig", e);
+        } catch (Exception e) {
+            log.error("Unable to access JUnitPerfReportingConfig, make sure config is a static variable", e);
         }
         return null;
     }
