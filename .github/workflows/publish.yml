@@ -9,6 +9,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          ref: master # Switch back to master: see GITHUB_SHA https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#release
       - name: Set up Maven Central Repository
         uses: actions/setup-java@v3
         with:
@@ -20,7 +21,7 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_SIGNING_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
       - name: Setup git config
-        run: |
+        run: |          
           git config user.name "github-actions[release]"
           git config user.email "github-actions[release]@users.noreply.github.com"
       - name: Publish package
