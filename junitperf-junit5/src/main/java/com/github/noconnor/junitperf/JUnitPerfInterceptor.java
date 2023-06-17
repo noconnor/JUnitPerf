@@ -46,11 +46,11 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
-        
+
         SuiteRegistry.register(context);
-        
+
         JUnitPerfReportingConfig reportingConfig = findTestActiveConfigField(testInstance, context);
-        
+
         if (nonNull(reportingConfig)) {
             activeReporters = reportingConfig.getReportGenerators();
             activeStatisticsCalculator = reportingConfig.getStatisticsCalculatorSupplier().get();
@@ -134,12 +134,12 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         JUnitPerfTest classAnnotation = method.getDeclaringClass().getAnnotation(JUnitPerfTest.class);
         JUnitPerfTest suiteAnnotation = SuiteRegistry.getPerfTestData(ctxt);
         // Precedence: method, then class, then suite
-        JUnitPerfTest specifiedAnnotation = nonNull(methodAnnotation) ? methodAnnotation : classAnnotation; 
+        JUnitPerfTest specifiedAnnotation = nonNull(methodAnnotation) ? methodAnnotation : classAnnotation;
         return nonNull(specifiedAnnotation) ? specifiedAnnotation : suiteAnnotation;
     }
 
     protected EvaluationContext createEvaluationContext(Method method, boolean isAsync) {
-        EvaluationContext ctx =  new EvaluationContext(method.getName(), nanoTime(), isAsync);
+        EvaluationContext ctx = new EvaluationContext(method.getName(), nanoTime(), isAsync);
         ctx.setGroupName(method.getDeclaringClass().getSimpleName());
         return ctx;
     }
@@ -158,14 +158,23 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     }
 
     private static JUnitPerfReportingConfig findTestActiveConfigField(Object testInstance, ExtensionContext ctxt) throws IllegalAccessException {
-        for (Field field : testInstance.getClass().getDeclaredFields()) {
+        Class<?> testClass = testInstance.getClass();
+        JUnitPerfReportingConfig config = scanForReportingConfig(testInstance, testClass);
+        return isNull(config) ? SuiteRegistry.getReportingConfig(ctxt) : config;
+    }
+
+    private static JUnitPerfReportingConfig scanForReportingConfig(Object testInstance, Class<?> testClass) throws IllegalAccessException {
+        if (isNull(testClass)) {
+            return null;
+        }
+        for (Field field : testClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(JUnitPerfTestActiveConfig.class)) {
                 warnIfNonStatic(field);
                 field.setAccessible(true);
                 return (JUnitPerfReportingConfig) field.get(testInstance);
             }
         }
-        return SuiteRegistry.getReportingConfig(ctxt);
+        return scanForReportingConfig(testInstance, testClass.getSuperclass());
     }
 
 }
