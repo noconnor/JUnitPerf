@@ -100,13 +100,13 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
                     .build();
 
             parallelExecution.runParallelEvaluation();
-        }
-        try {
-            // Must be called for framework to proceed
+
+            proceedQuietly(invocation);
+
+        } else {
             invocation.proceed();
-        } catch (Exception e) {
-            // Ignore
         }
+        
     }
 
     @Override
@@ -118,7 +118,6 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         return new TestContextSupplier(measurementsStartTimeMs, activeStatisticsCalculator);
     }
-
 
     protected JUnitPerfTestRequirement getJUnitPerfTestRequirementDetails(Method method, ExtensionContext ctxt) {
         JUnitPerfTestRequirement methodAnnotation = method.getAnnotation(JUnitPerfTestRequirement.class);
@@ -175,6 +174,15 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
             }
         }
         return scanForReportingConfig(testInstance, testClass.getSuperclass());
+    }
+
+    private static void proceedQuietly(Invocation<Void> invocation) throws Throwable {
+        try {
+            // Must be called for framework to proceed
+            invocation.proceed();
+        } catch (Throwable e) {
+            // Ignore
+        }
     }
 
 }

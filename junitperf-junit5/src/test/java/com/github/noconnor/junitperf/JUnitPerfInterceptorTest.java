@@ -262,6 +262,54 @@ class JUnitPerfInterceptorTest {
     }
 
     @Test
+    void whenProceedThrowsAnAssertionError_thenTestShouldNotFail() throws Throwable {
+        SampleAnnotatedTest test = new SampleAnnotatedTest();
+
+        Method methodMock = test.getClass().getMethod("someTestMethod");
+        PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
+        Invocation<Void> invocationMock = mock(Invocation.class);
+        ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
+        ExtensionContext extensionContextMock = mockTestContext();
+
+        when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
+        when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
+        when(statementBuilderMock.build()).thenReturn(statementMock);
+
+        when(invocationMock.proceed()).thenThrow(new AssertionError());
+        
+        interceptor.postProcessTestInstance(test, extensionContextMock);
+        interceptor.statementBuilder = statementBuilderMock;
+        
+        assertDoesNotThrow(() -> {
+            interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
+        });
+    }
+
+    @Test
+    void whenProceedThrowsAnAssertionError_andTestIsNotAPerfTest_thenTestShouldFail() throws Throwable {
+        SampleNoAnnotationsTest test = new SampleNoAnnotationsTest();
+
+        Method methodMock = test.getClass().getMethod("someTestMethod");
+        PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
+        Invocation<Void> invocationMock = mock(Invocation.class);
+        ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
+        ExtensionContext extensionContextMock = mockTestContext();
+
+        when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
+        when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
+        when(statementBuilderMock.build()).thenReturn(statementMock);
+
+        when(invocationMock.proceed()).thenThrow(new AssertionError());
+
+        interceptor.postProcessTestInstance(test, extensionContextMock);
+        interceptor.statementBuilder = statementBuilderMock;
+
+        assertThrows(AssertionError.class, () -> {
+            interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
+        });
+    }
+
+    @Test
     void whenInterceptorSupportsParameterIsCalled_thenParameterTypeShouldBeChecked() throws NoSuchMethodException {
         assertTrue(interceptor.supportsParameter(mockTestContextSupplierParameterType(), null));
         assertFalse(interceptor.supportsParameter(mockStringParameterType(), null));
