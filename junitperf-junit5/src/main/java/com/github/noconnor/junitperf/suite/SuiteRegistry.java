@@ -42,7 +42,6 @@ public class SuiteRegistry {
                 .filter(f -> f.isAnnotationPresent(JUnitPerfTestActiveConfig.class))
                 .map(f -> {
                     warnIfNonStatic(f);
-                    f.setAccessible(true);
                     return getFieldValue(f);
                 })
                 .filter(Objects::nonNull)
@@ -97,6 +96,7 @@ public class SuiteRegistry {
 
     private static JUnitPerfReportingConfig getFieldValue(Field f) {
         try {
+            f.setAccessible(true);
             return (JUnitPerfReportingConfig) f.get(null);
         } catch (Exception e) {
             log.error("Unable to access JUnitPerfReportingConfig, make sure config is a static variable", e);
