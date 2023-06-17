@@ -17,7 +17,6 @@ import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
@@ -104,6 +103,9 @@ public class EvaluationContext {
   private final String testName;
   @Getter
   private final String startTime;
+  @Getter
+  @Setter
+  private String groupName;
 
   public EvaluationContext(String testName, long startTimeNs) {
     this(testName, startTimeNs, false);

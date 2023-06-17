@@ -80,12 +80,6 @@ This will override the `durationMs` set in the `@JUnitPerfTest` annotation.
 
 [CSV Reporting](#csv-reporting)
 
-[Custom Reporting](#custom-reporting)
-
-[Multiple Reports](#multiple-reports)
-
-[Grouping Reports](#grouping-reports)
-
 <br />
 
 #### HTML Reports

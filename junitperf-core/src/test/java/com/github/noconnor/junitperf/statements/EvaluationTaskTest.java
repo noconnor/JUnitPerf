@@ -84,6 +84,16 @@ public class EvaluationTaskTest extends BaseTest {
   }
 
   @Test
+  public void whenRunning_andStatementEvaluationThrowsAnInterruptException_thenNoMeasurementsShouldBeTakenTaken() throws Throwable {
+    setExecutionCount(10);
+    mockNestedInterruptAfter(9);
+    task.run();
+    verify(statsMock, times(9)).addLatencyMeasurement(anyLong());
+    verify(statsMock, times(9)).incrementEvaluationCount();
+    verify(statsMock, never()).incrementErrorCount();
+  }
+
+  @Test
   public void whenRunning_thenAnAttemptShouldBeMadeToRetrieveAPermit() {
     setExecutionCount(10);
     task.run();
@@ -200,7 +210,6 @@ public class EvaluationTaskTest extends BaseTest {
       }
       return null;
     }).when(statementMock).evaluate();
-
   }
 
   private void mockInterruptAfter(int desiredSuccessfulInvocations) throws Throwable {
@@ -212,6 +221,17 @@ public class EvaluationTaskTest extends BaseTest {
       return null;
     }).when(statementMock).evaluate();
   }
+
+  private void mockNestedInterruptAfter(int desiredSuccessfulInvocations) throws Throwable {
+    AtomicInteger executions = new AtomicInteger();
+    doAnswer(invocation -> {
+      if (executions.getAndIncrement() >= desiredSuccessfulInvocations) {
+        throw new RuntimeException("Nest interrupt", new InterruptedException("mock exception"));
+      }
+      return null;
+    }).when(statementMock).evaluate();
+  }
+  
 
   private void mockTerminateAfter(int desiredSuccessfulInvocations) throws Throwable {
     AtomicInteger executions = new AtomicInteger();

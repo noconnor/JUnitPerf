@@ -13,6 +13,8 @@ Back to [index](../README.md) page.
 
 [Overriding Statistic Capturing](#overriding-statistic-capturing)
 
+[Test Suites](#test-suite-configuration)
+
 <br />
 
 ### Install Instructions
@@ -312,3 +314,38 @@ private final static JUnitPerfReportingConfig PERF_CONFIG = JUnitPerfReportingCo
 ``` 
 
 For each `@Test` instance, the `statisticsCalculatorSupplier` will be called to generate a new `StatisticsCalculator` instance
+
+<br />
+
+### Test Suite Configuration
+
+JUnitPerf annotations can also be applied at the suite level. <br />
+When running in a test suite, annotation resolution follows the following precedence order:
+
+* Test method level annotations will take precedence over all other annotation configurations
+* If no method level annotations are available, class level annotations will be considered next
+* If no class level annotations are available, an attempt will be made to identify suite level annotations (if the test is currently running as part of a suite)
+
+If order to apply the JUnitPerfTestInterceptor to all tests in a suite, jupiter global extensions must be enabled. <br />
+This can be done by:
+* Adding a run time VM arg: `-Djunit.jupiter.extensions.autodetection.enabled=true`
+* Specifying the extensions param as a ConfigurationParameter at the suite level: i.e. add this annotation to your suite `@ConfigurationParameter(key = "junit.jupiter.extensions.autodetection.enabled", value = "true")`
+
+The `junit-platform-suite-engine` dependency must also be added to your project:
+```
+<dependency>
+    <groupId>org.junit.platform</groupId>
+    <artifactId>junit-platform-suite-engine</artifactId>
+    <version>LATEST_VERSION</version>
+    <scope>test</scope>
+</dependency>
+```
+
+
+An example test case can be found in the [junit5-examples](../junit5-examples/src/test/java/com/github/noconnor/junitperf/examples/ExampleTestSuiteUsage.java) module
+
+To run the example suite test you can use the following maven commands
+* from inside the junitperf project root directory:  `mvn clean install -Dgpg.skip`
+  * This will install all junitperf snapshot dependencies to your local maven repo 
+* from inside the `junit5-examples` folder: `mvn -Dtest=ExampleTestSuiteUsage -DskipTests=false test`
+  * Location of test reports will be printed to console (default location is the `junit5-examples/build/reports/` directory)
