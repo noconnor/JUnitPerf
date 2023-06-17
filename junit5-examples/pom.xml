@@ -11,10 +11,8 @@
 
     <properties>
         <skipTests>true</skipTests>
-        <junit.suite.version>1.9.3</junit.suite.version>
     </properties>
-
-
+    
     <dependencies>
         <dependency>
             <groupId>com.github.noconnor</groupId>

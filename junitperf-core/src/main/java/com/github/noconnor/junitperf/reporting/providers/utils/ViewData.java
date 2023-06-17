@@ -58,7 +58,7 @@ public class ViewData {
     private final List<RequiredPercentilesData> requiredPercentiles;
 
     public ViewData(EvaluationContext context) {
-        this.testName = nonNull(context.getGroupName()) ? context.getGroupName() + " : " + context.getTestName() : context.getTestName();
+        this.testName = buildTestName(context);
         this.testNameColour = context.isSuccessful() ? SUCCESS_COLOUR : FAILED_COLOUR;
         this.chartData = buildChartData(context);
         this.csvData = buildCsvData(context);
@@ -85,6 +85,10 @@ public class ViewData {
         this.maxLatency = formatNumber(context.getMaxLatencyMs(), 2, ",");
         this.requiredMaxLatency = (context.getRequiredMaxLatency() < 0) ? "N/A" : formatNumber(context.getRequiredMaxLatency(), 2, "");
         this.requiredPercentiles = buildRequiredPercentileData(context);
+    }
+
+    private static String buildTestName(EvaluationContext context) {
+        return nonNull(context.getGroupName()) ? context.getGroupName() + " : " + context.getTestName() : context.getTestName();
     }
 
     private List<RequiredPercentilesData> buildRequiredPercentileData(EvaluationContext context) {

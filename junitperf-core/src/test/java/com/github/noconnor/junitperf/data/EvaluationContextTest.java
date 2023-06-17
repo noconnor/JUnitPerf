@@ -4,6 +4,7 @@ import static com.github.noconnor.junitperf.data.EvaluationContext.JUNITPERF_DUR
 import static com.github.noconnor.junitperf.data.EvaluationContext.JUNITPERF_MAX_EXECUTIONS_PER_SECOND;
 import static com.github.noconnor.junitperf.data.EvaluationContext.JUNITPERF_RAMP_UP_PERIOD_MS;
 import static com.github.noconnor.junitperf.data.EvaluationContext.JUNITPERF_THREADS;
+import static com.github.noconnor.junitperf.data.EvaluationContext.JUNITPERF_TOTAL_EXECUTIONS;
 import static com.github.noconnor.junitperf.data.EvaluationContext.JUNITPERF_WARM_UP_MS;
 import static java.lang.System.nanoTime;
 import static java.util.Collections.emptyMap;
@@ -61,6 +62,7 @@ public class EvaluationContextTest extends BaseTest {
     System.clearProperty(JUNITPERF_WARM_UP_MS);
     System.clearProperty(JUNITPERF_MAX_EXECUTIONS_PER_SECOND);
     System.clearProperty(JUNITPERF_RAMP_UP_PERIOD_MS);
+    System.clearProperty(JUNITPERF_TOTAL_EXECUTIONS);
   }
 
   @Test
@@ -71,6 +73,7 @@ public class EvaluationContextTest extends BaseTest {
     assertEquals(perfTestAnnotation.threads(), context.getConfiguredThreads());
     assertEquals(perfTestAnnotation.warmUpMs(), context.getConfiguredWarmUp());
     assertEquals(perfTestAnnotation.rampUpPeriodMs(), context.getConfiguredRampUpPeriodMs());
+    assertEquals(perfTestAnnotation.totalExecutions(), context.getConfiguredExecutionTarget());
   }
 
   @Test
@@ -80,12 +83,14 @@ public class EvaluationContextTest extends BaseTest {
     System.setProperty(JUNITPERF_WARM_UP_MS, "2000");
     System.setProperty(JUNITPERF_MAX_EXECUTIONS_PER_SECOND, "55");
     System.setProperty(JUNITPERF_RAMP_UP_PERIOD_MS, "1000");
+    System.setProperty(JUNITPERF_TOTAL_EXECUTIONS, "400");
     context.loadConfiguration(perfTestAnnotation);
     assertEquals(60000, context.getConfiguredDuration());
     assertEquals(55, context.getConfiguredRateLimit());
     assertEquals(45, context.getConfiguredThreads());
     assertEquals(2000, context.getConfiguredWarmUp());
     assertEquals(1000, context.getConfiguredRampUpPeriodMs());
+    assertEquals(400, context.getConfiguredExecutionTarget());
   }
 
   @Test
@@ -402,6 +407,12 @@ public class EvaluationContextTest extends BaseTest {
   }
 
   @Test
+  public void whenGroupNameIsSet_thenGroupNameShouldBeConfigured() {
+    context.setGroupName("unittest");
+    assertEquals("unittest", context.getGroupName());
+  }
+
+  @Test
   public void whenDurationIsValid_thenDurationShouldBeFormatted() {
     context.setFinishTimeNs(startTimeNs + 100_000_000_000_000L);
     context.loadConfiguration(perfTestAnnotation);
@@ -423,6 +434,7 @@ public class EvaluationContextTest extends BaseTest {
     when(perfTestAnnotation.threads()).thenReturn(50);
     when(perfTestAnnotation.warmUpMs()).thenReturn(5);
     when(perfTestAnnotation.rampUpPeriodMs()).thenReturn(4);
+    when(perfTestAnnotation.totalExecutions()).thenReturn(345);
   }
 
   private void initialisePerfTestRequirementAnnotation() {

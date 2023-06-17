@@ -140,6 +140,14 @@ public class ViewDataTest extends BaseTest {
         assertEquals(Collections.emptyList(), viewData.getRequiredPercentiles());
     }
 
+    @Test
+    public void whenGroupNameIsSet_thenTestNameShouldBeScopedByGroupName() {
+        EvaluationContext context = buildMockContext(1234F, true);
+        when(context.getGroupName()).thenReturn("ClassName");
+        ViewData viewData = new ViewData(context);
+        assertEquals("ClassName : Unittest", viewData.getTestName());
+    }
+
     private EvaluationContext buildMockContext(float dummyLatency, boolean isSuccessful) {
         EvaluationContext context = mock(EvaluationContext.class);
         when(context.getTestName()).thenReturn("Unittest");
