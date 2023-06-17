@@ -231,13 +231,34 @@ class JUnitPerfInterceptorTest {
         
     }
 
-    private static void mockActiveSuite(ExtensionContext extensionContextMock, Class<?> suiteClass) {
-        when(extensionContextMock.getRoot()).thenReturn(extensionContextMock);
-        when(extensionContextMock.getUniqueId()).thenReturn(buildSuiteId(suiteClass));
-    }
+    @Test
+    void whenAChildClassInheritsFromABaseClassWithReportingConfig_thenChildClassShouldHaveAccessToReportingConfig() throws Throwable {
+        SampleChildTest test = new SampleChildTest();
 
-    private static String buildSuiteId(Class<?> clazz) {
-        return "[engine:junit-platform-suite]/[suite:" + clazz.getName() + "]/[engine:junit-jupiter]";
+        Method methodMock = test.getClass().getMethod("someTestMethod");
+        PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
+        Invocation<Void> invocationMock = mock(Invocation.class);
+        ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
+        ExtensionContext extensionContextMock = mockTestContext();
+
+        when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
+        when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
+        when(statementBuilderMock.build()).thenReturn(statementMock);
+
+        interceptor.postProcessTestInstance(test, extensionContextMock);
+        interceptor.statementBuilder = statementBuilderMock;
+        interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
+
+        assertTrue(interceptor.measurementsStartTimeMs > 0);
+
+        assertEquals(1, interceptor.activeReporters.size());
+        assertEquals( SampleBaseTest.config.getReportGenerators(), interceptor.activeReporters);
+
+        EvaluationContext context = captureEvaluationContext();
+        assertEquals(120, context.getConfiguredExecutionTarget());
+        assertEquals(15, context.getConfiguredThreads());
+        assertEquals(67, context.getRequiredThroughput());
+
     }
 
     @Test
@@ -249,6 +270,15 @@ class JUnitPerfInterceptorTest {
     @Test
     void whenInterceptorResolveParameterIsCalled_thenTestContextSupplierShouldBeReturned() {
         assertTrue(interceptor.resolveParameter(null, null) instanceof TestContextSupplier);
+    }
+    
+    private static void mockActiveSuite(ExtensionContext extensionContextMock, Class<?> suiteClass) {
+        when(extensionContextMock.getRoot()).thenReturn(extensionContextMock);
+        when(extensionContextMock.getUniqueId()).thenReturn(buildSuiteId(suiteClass));
+    }
+
+    private static String buildSuiteId(Class<?> clazz) {
+        return "[engine:junit-platform-suite]/[suite:" + clazz.getName() + "]/[engine:junit-jupiter]";
     }
 
     private static ParameterContext mockTestContextSupplierParameterType() throws NoSuchMethodException {
@@ -354,6 +384,23 @@ class JUnitPerfInterceptorTest {
         public static JUnitPerfReportingConfig config = JUnitPerfReportingConfig.builder()
                 .reportGenerator(new ConsoleReportGenerator())
                 .build();
+    }
+
+    public static class SampleBaseTest {
+        @JUnitPerfTestActiveConfig 
+        public static final JUnitPerfReportingConfig config = JUnitPerfReportingConfig.builder()
+                .reportGenerator(new HtmlReportGenerator())
+                .build();
+    }
+
+    @Disabled
+    @JUnitPerfTest( threads = 15, totalExecutions = 120)
+    @JUnitPerfTestRequirement(executionsPerSec = 67)
+    public static class SampleChildTest extends SampleBaseTest {
+        @Test
+        public void someTestMethod() {
+            assertTrue(true);
+        }
     }
     
 }
