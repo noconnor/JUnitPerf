@@ -149,10 +149,10 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         });
     }
 
-    private static void warnIfNonStatic(Field field) {
+    private static void failIfNonStatic(Field field) {
         boolean isStatic = Modifier.isStatic(field.getModifiers());
         if (!isStatic) {
-            log.warn("Warning: JUnitPerfTestConfig should be static or a new instance will be created for each @Test method");
+            throw new IllegalStateException("JUnitPerfTestConfig should be static ");
         }
     }
 
@@ -168,7 +168,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         }
         for (Field field : testClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(JUnitPerfTestActiveConfig.class)) {
-                warnIfNonStatic(field);
+                failIfNonStatic(field);
                 field.setAccessible(true);
                 return (JUnitPerfReportingConfig) field.get(testInstance);
             }

@@ -310,6 +310,19 @@ class JUnitPerfInterceptorTest {
     }
 
     @Test
+    void whenReportingConfigIsNonStatic_thenPostProcessTestInstanceShouldThrowAnException() throws Throwable {
+        SampleNonStaticReporterConfigTest test = new SampleNonStaticReporterConfigTest();
+
+        Method methodMock = test.getClass().getMethod("someTestMethod");
+        ExtensionContext extensionContextMock = mockTestContext();
+
+        when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
+        when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
+        
+        assertThrows( IllegalStateException.class, () -> interceptor.postProcessTestInstance(test, extensionContextMock));
+    }
+
+    @Test
     void whenInterceptorSupportsParameterIsCalled_thenParameterTypeShouldBeChecked() throws NoSuchMethodException {
         assertTrue(interceptor.supportsParameter(mockTestContextSupplierParameterType(), null));
         assertFalse(interceptor.supportsParameter(mockStringParameterType(), null));
@@ -445,6 +458,19 @@ class JUnitPerfInterceptorTest {
     @JUnitPerfTest( threads = 15, totalExecutions = 120)
     @JUnitPerfTestRequirement(executionsPerSec = 67)
     public static class SampleChildTest extends SampleBaseTest {
+        @Test
+        public void someTestMethod() {
+            assertTrue(true);
+        }
+    }
+
+    @Disabled
+    public static class SampleNonStaticReporterConfigTest {
+        @JUnitPerfTestActiveConfig
+        public final JUnitPerfReportingConfig config = JUnitPerfReportingConfig.builder()
+                .reportGenerator(new HtmlReportGenerator())
+                .build();
+
         @Test
         public void someTestMethod() {
             assertTrue(true);
