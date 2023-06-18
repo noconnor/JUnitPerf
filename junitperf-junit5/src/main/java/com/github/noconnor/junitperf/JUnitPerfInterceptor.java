@@ -205,7 +205,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     private static TestDetails getTestDetails(ExtensionContext extensionContext) {
         String testId  = extensionContext.getUniqueId();
         testContexts.computeIfAbsent(testId, newTestId -> {
-            String parentId = extensionContext.getParent().map(ExtensionContext::getUniqueId).orElse(null);
+            String parentId = extensionContext.getParent().map(ExtensionContext::getUniqueId).orElse("");
             SharedConfig parentDetails = sharedContexts.getOrDefault(parentId, new SharedConfig());
             TestDetails testDetails = new TestDetails();
             testDetails.setStatementBuilder(parentDetails.getStatementBuilder().get());
