@@ -138,7 +138,7 @@ class JUnitPerfInterceptorTest {
 
         interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
         // Override statement builder
-        getSharedContext(extensionContextMock).setStatementBuilder(statementBuilderMock);
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
         interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
 
         verify(invocationMock).proceed();
@@ -164,7 +164,7 @@ class JUnitPerfInterceptorTest {
 
         interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
         // Override statement builder
-        getSharedContext(extensionContextMock).setStatementBuilder(statementBuilderMock);
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
         interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
 
         verify(invocationMock).proceed();
@@ -194,7 +194,7 @@ class JUnitPerfInterceptorTest {
 
         interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
         
-        getSharedContext(extensionContextMock).setStatementBuilder(statementBuilderMock);
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
         
         interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
 
@@ -223,7 +223,7 @@ class JUnitPerfInterceptorTest {
 
         interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
 
-        getSharedContext(extensionContextMock).setStatementBuilder(statementBuilderMock);
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
 
         interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
 
@@ -250,7 +250,7 @@ class JUnitPerfInterceptorTest {
 
         interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
 
-        getSharedContext(extensionContextMock).setStatementBuilder(statementBuilderMock);
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
 
         interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
 
@@ -286,7 +286,7 @@ class JUnitPerfInterceptorTest {
 
         interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
 
-        getSharedContext(extensionContextMock).setStatementBuilder(statementBuilderMock);
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
 
         interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
 
@@ -324,7 +324,7 @@ class JUnitPerfInterceptorTest {
 
         interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
 
-        getSharedContext(extensionContextMock).setStatementBuilder(statementBuilderMock);
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
         
         assertDoesNotThrow(() -> {
             interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
@@ -351,7 +351,7 @@ class JUnitPerfInterceptorTest {
 
         interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
 
-        getSharedContext(extensionContextMock).setStatementBuilder(statementBuilderMock);
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
 
         assertThrows(AssertionError.class, () -> {
             interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);

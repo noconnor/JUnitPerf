@@ -56,7 +56,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     protected static class SharedConfig {
         private Collection<ReportGenerator> activeReporters = singletonList(DEFAULT_REPORTER);
         private Supplier<StatisticsCalculator> statsSupplier = DescriptiveStatisticsCalculator::new;
-        private PerformanceEvaluationStatementBuilder statementBuilder = PerformanceEvaluationStatement.builder();
+        private Supplier<PerformanceEvaluationStatementBuilder> statementBuilder = PerformanceEvaluationStatement::builder;
     }
     
     @Override
@@ -208,7 +208,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
             String parentId = extensionContext.getParent().map(ExtensionContext::getUniqueId).orElse(null);
             SharedConfig parentDetails = sharedContexts.getOrDefault(parentId, new SharedConfig());
             TestDetails testDetails = new TestDetails();
-            testDetails.setStatementBuilder(parentDetails.getStatementBuilder());
+            testDetails.setStatementBuilder(parentDetails.getStatementBuilder().get());
             testDetails.setActiveReporters(parentDetails.getActiveReporters());
             testDetails.setStatsCalculator(parentDetails.getStatsSupplier().get());
             return testDetails;
