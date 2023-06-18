@@ -9,6 +9,7 @@ import com.github.noconnor.junitperf.statements.SimpleTestStatement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
 import com.github.noconnor.junitperf.suite.SuiteRegistry;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
@@ -25,6 +26,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import static java.lang.System.currentTimeMillis;
 import static java.lang.System.nanoTime;
@@ -36,40 +38,50 @@ import static java.util.Objects.nonNull;
 public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstancePostProcessor, ParameterResolver {
 
     protected static final ReportGenerator DEFAULT_REPORTER = new ConsoleReportGenerator();
-    protected static final Map<String, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = new ConcurrentHashMap<>();
+    protected static final Map<String, TestDetails> testContexts = new ConcurrentHashMap<>();
+    protected static final Map<String, SharedConfig> sharedContexts = new ConcurrentHashMap<>();
 
-    protected Collection<ReportGenerator> activeReporters;
-    protected StatisticsCalculator activeStatisticsCalculator;
-    protected long measurementsStartTimeMs;
-    protected PerformanceEvaluationStatementBuilder statementBuilder;
+    @Data
+    protected static class TestDetails {
+        private Class<?> testClass;
+        private Method testMethod;
+        private long measurementsStartTimeMs;
+        private EvaluationContext context;
+        private StatisticsCalculator statsCalculator;
+        private Collection<ReportGenerator> activeReporters;
+        private PerformanceEvaluationStatementBuilder statementBuilder;
+    }
 
-
+    @Data
+    protected static class SharedConfig {
+        private Collection<ReportGenerator> activeReporters = singletonList(DEFAULT_REPORTER);
+        private Supplier<StatisticsCalculator> statsSupplier = DescriptiveStatisticsCalculator::new;
+        private Supplier<PerformanceEvaluationStatementBuilder> statementBuilder = PerformanceEvaluationStatement::builder;
+    }
+    
     @Override
-    public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
-
-        SuiteRegistry.register(context);
-
+    public synchronized void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
+        if (sharedContexts.containsKey(context.getUniqueId())) {
+            log.debug("Test already configured");
+            return;
+        }
+        
+        SharedConfig test = new SharedConfig();
+        SuiteRegistry.scanForSuiteDetails(context);
         JUnitPerfReportingConfig reportingConfig = findTestActiveConfigField(testInstance, context);
-
         if (nonNull(reportingConfig)) {
-            activeReporters = reportingConfig.getReportGenerators();
-            activeStatisticsCalculator = reportingConfig.getStatisticsCalculatorSupplier().get();
+            test.setActiveReporters(reportingConfig.getReportGenerators());
+            test.setStatsSupplier(reportingConfig.getStatisticsCalculatorSupplier());
         }
-
-        // Defaults if no overrides provided
-        if (isNull(activeReporters) || activeReporters.isEmpty()) {
-            activeReporters = singletonList(DEFAULT_REPORTER);
-        }
-        if (isNull(activeStatisticsCalculator)) {
-            activeStatisticsCalculator = new DescriptiveStatisticsCalculator();
-        }
-        statementBuilder = PerformanceEvaluationStatement.builder();
+        sharedContexts.put(context.getUniqueId(), test);
     }
 
     @Override
     public void interceptTestMethod(Invocation<Void> invocation,
                                     ReflectiveInvocationContext<Method> invocationContext,
                                     ExtensionContext extensionContext) throws Throwable {
+        
+
         // Will be called for every instance of @Test
         Method method = extensionContext.getRequiredTestMethod();
 
@@ -77,26 +89,28 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         JUnitPerfTestRequirement requirementsAnnotation = getJUnitPerfTestRequirementDetails(method, extensionContext);
 
         if (nonNull(perfTestAnnotation)) {
-            measurementsStartTimeMs = currentTimeMillis() + perfTestAnnotation.warmUpMs();
-            boolean isAsync = invocationContext.getArguments().stream().anyMatch(arg -> arg instanceof TestContextSupplier);
 
+            boolean isAsync = invocationContext.getArguments().stream().anyMatch(arg -> arg instanceof TestContextSupplier);
             EvaluationContext context = createEvaluationContext(method, isAsync);
             context.loadConfiguration(perfTestAnnotation);
             context.loadRequirements(requirementsAnnotation);
 
-            ACTIVE_CONTEXTS.putIfAbsent(extensionContext.getUniqueId(), new LinkedHashSet<>());
-            ACTIVE_CONTEXTS.get(extensionContext.getUniqueId()).add(context);
+            TestDetails test = getTestDetails(extensionContext);
+            test.setTestClass(method.getDeclaringClass());
+            test.setTestMethod(method);
+            test.setMeasurementsStartTimeMs(currentTimeMillis() + perfTestAnnotation.warmUpMs());
+            test.setContext(context);
 
             SimpleTestStatement testStatement = () -> method.invoke(
                     extensionContext.getRequiredTestInstance(),
                     invocationContext.getArguments().toArray()
             );
 
-            PerformanceEvaluationStatement parallelExecution = statementBuilder
+            PerformanceEvaluationStatement parallelExecution = test.getStatementBuilder()
                     .baseStatement(testStatement)
-                    .statistics(activeStatisticsCalculator)
+                    .statistics(test.getStatsCalculator())
                     .context(context)
-                    .listener(complete -> updateReport(extensionContext))
+                    .listener(complete -> updateReport(test))
                     .build();
 
             parallelExecution.runParallelEvaluation();
@@ -106,9 +120,9 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         } else {
             invocation.proceed();
         }
-        
-    }
 
+    }
+    
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         return parameterContext.getParameter().getType() == TestContextSupplier.class;
@@ -116,7 +130,8 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return new TestContextSupplier(measurementsStartTimeMs, activeStatisticsCalculator);
+        TestDetails test = getTestDetails(extensionContext);
+        return new TestContextSupplier(test.getMeasurementsStartTimeMs(), test.getStatsCalculator());
     }
 
     protected JUnitPerfTestRequirement getJUnitPerfTestRequirementDetails(Method method, ExtensionContext ctxt) {
@@ -143,16 +158,18 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         return ctx;
     }
 
-    private synchronized void updateReport(ExtensionContext ctxt) {
-        activeReporters.forEach(r -> {
-            r.generateReport(ACTIVE_CONTEXTS.get(ctxt.getUniqueId()));
+    private synchronized void updateReport(TestDetails test) {
+        test.getActiveReporters().forEach(r -> {
+            LinkedHashSet<EvaluationContext> ctxt = new LinkedHashSet<>();
+            ctxt.add(test.getContext());
+            r.generateReport(ctxt);
         });
     }
 
-    private static void warnIfNonStatic(Field field) {
+    private static void failIfNonStatic(Field field) {
         boolean isStatic = Modifier.isStatic(field.getModifiers());
         if (!isStatic) {
-            log.warn("Warning: JUnitPerfTestConfig should be static or a new instance will be created for each @Test method");
+            throw new IllegalStateException("JUnitPerfTestConfig should be static ");
         }
     }
 
@@ -168,7 +185,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         }
         for (Field field : testClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(JUnitPerfTestActiveConfig.class)) {
-                warnIfNonStatic(field);
+                failIfNonStatic(field);
                 field.setAccessible(true);
                 return (JUnitPerfReportingConfig) field.get(testInstance);
             }
@@ -185,4 +202,18 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         }
     }
 
+    private static TestDetails getTestDetails(ExtensionContext extensionContext) {
+        String testId  = extensionContext.getUniqueId();
+        testContexts.computeIfAbsent(testId, newTestId -> {
+            String parentId = extensionContext.getParent().map(ExtensionContext::getUniqueId).orElse("");
+            SharedConfig parentDetails = sharedContexts.getOrDefault(parentId, new SharedConfig());
+            TestDetails testDetails = new TestDetails();
+            testDetails.setStatementBuilder(parentDetails.getStatementBuilder().get());
+            testDetails.setActiveReporters(parentDetails.getActiveReporters());
+            testDetails.setStatsCalculator(parentDetails.getStatsSupplier().get());
+            return testDetails;
+        });
+        return testContexts.get(testId);
+    }
+    
 }

@@ -214,7 +214,7 @@ private final static JUnitPerfReportingConfig PERF_CONFIG = JUnitPerfReportingCo
         .build();
 ```
 
-**NOTE:** the `JUnitPerfReportingConfig` should be a **static** field instance to prevent a new/different instance being created for each `@Test`
+**NOTE:** the `JUnitPerfReportingConfig` must be a **static** field instance to prevent a new/different instance being created for each `@Test`
 instance
 
 To generate an **CSV report**

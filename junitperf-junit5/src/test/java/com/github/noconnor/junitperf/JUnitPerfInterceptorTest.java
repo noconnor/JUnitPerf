@@ -1,5 +1,7 @@
 package com.github.noconnor.junitperf;
 
+import com.github.noconnor.junitperf.JUnitPerfInterceptor.SharedConfig;
+import com.github.noconnor.junitperf.JUnitPerfInterceptor.TestDetails;
 import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.github.noconnor.junitperf.reporting.providers.ConsoleReportGenerator;
@@ -27,12 +29,22 @@ import org.mockito.quality.Strictness;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.singletonList;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 class JUnitPerfInterceptorTest {
@@ -45,7 +57,8 @@ class JUnitPerfInterceptorTest {
     @BeforeEach
     void setup() {
         SuiteRegistry.clearRegistry();
-        JUnitPerfInterceptor.ACTIVE_CONTEXTS.clear();
+        JUnitPerfInterceptor.testContexts.clear();
+        JUnitPerfInterceptor.sharedContexts.clear();
         interceptor = new JUnitPerfInterceptor();
     }
     
@@ -56,69 +69,76 @@ class JUnitPerfInterceptorTest {
 
     @Test
     void whenATestClassHasNoReportingOverrides_thenDefaultReportingConfigsShouldBeSet() throws Exception {
-        assertNull(interceptor.activeStatisticsCalculator);
-        assertNull(interceptor.activeReporters);
+        ExtensionContext context = mockTestContext();
+        assertNull(getSharedContext(context));
+        
+        interceptor.postProcessTestInstance(new SampleTestNoReportingOverrides(), getParent(context));
 
-        interceptor.postProcessTestInstance(new SampleTestNoReportingOverrides(), null);
-
-        assertTrue(interceptor.activeStatisticsCalculator instanceof DescriptiveStatisticsCalculator);
-        assertEquals(1, interceptor.activeReporters.size());
-        assertEquals(JUnitPerfInterceptor.DEFAULT_REPORTER, interceptor.activeReporters.toArray()[0]);
+        SharedConfig shared = getSharedContext(context);
+        
+        assertTrue(shared.getStatsSupplier().get() instanceof DescriptiveStatisticsCalculator);
+        assertEquals(1, shared.getActiveReporters().size());
+        assertEquals(JUnitPerfInterceptor.DEFAULT_REPORTER, shared.getActiveReporters().toArray()[0]);
     }
-
+    
     @SuppressWarnings("InstantiationOfUtilityClass")
     @Test
     void whenATestClassHasReportingOverrides_butOverridesAreMissingAnnotation_thenDefaultReportingConfigsShouldBeSet() throws Exception {
-        assertNull(interceptor.activeStatisticsCalculator);
-        assertNull(interceptor.activeReporters);
+        ExtensionContext context = mockTestContext();
+        assertNull(getSharedContext(context));
 
-        interceptor.postProcessTestInstance(new SampleTestWithReportingOverridesMissingAnnotation(), null);
+        interceptor.postProcessTestInstance(new SampleTestWithReportingOverridesMissingAnnotation(), getParent(context));
 
-        assertTrue(interceptor.activeStatisticsCalculator instanceof DescriptiveStatisticsCalculator);
-        assertEquals(1, interceptor.activeReporters.size());
-        assertEquals(JUnitPerfInterceptor.DEFAULT_REPORTER, interceptor.activeReporters.toArray()[0]);
+        SharedConfig shared = getSharedContext(context);
+        assertTrue(shared.getStatsSupplier().get() instanceof DescriptiveStatisticsCalculator);
+        assertEquals(1, shared.getActiveReporters().size());
+        assertEquals(JUnitPerfInterceptor.DEFAULT_REPORTER, shared.getActiveReporters().toArray()[0]);
     }
 
     @SuppressWarnings("InstantiationOfUtilityClass")
     @Test
     void whenATestClassHasReportingOverrides_thenOverridesShouldBeAccepted() throws Exception {
-        assertNull(interceptor.activeStatisticsCalculator);
-        assertNull(interceptor.activeReporters);
+        ExtensionContext context = mockTestContext();
+        assertNull(getSharedContext(context));
 
-        interceptor.postProcessTestInstance(new SampleTestWithReportingOverrides(), null);
+        interceptor.postProcessTestInstance(new SampleTestWithReportingOverrides(), getParent(context));
 
-        assertTrue(interceptor.activeStatisticsCalculator instanceof DescriptiveStatisticsCalculator);
-        assertEquals(1, interceptor.activeReporters.size());
-        assertEquals(SampleTestWithReportingOverrides.REPORTER, interceptor.activeReporters.toArray()[0]);
+        SharedConfig shared = getSharedContext(context);
+        assertTrue(shared.getStatsSupplier().get() instanceof DescriptiveStatisticsCalculator);
+        assertEquals(1, shared.getActiveReporters().size());
+        assertEquals(SampleTestWithReportingOverrides.REPORTER, shared.getActiveReporters().toArray()[0]);
     }
 
     @SuppressWarnings("InstantiationOfUtilityClass")
     @Test
     void whenATestClassHasReportingAndStatsOverrides_thenOverridesShouldBeAccepted() throws Exception {
-        assertNull(interceptor.activeStatisticsCalculator);
-        assertNull(interceptor.activeReporters);
+        ExtensionContext context = mockTestContext();
+        assertNull(getSharedContext(context));
 
-        interceptor.postProcessTestInstance(new SampleTestWithReportingAndStatisticsOverrides(), null);
+        interceptor.postProcessTestInstance(new SampleTestWithReportingAndStatisticsOverrides(), getParent(context));
 
-        assertEquals(SampleTestWithReportingAndStatisticsOverrides.CALCULATOR, interceptor.activeStatisticsCalculator);
-        assertEquals(1, interceptor.activeReporters.size());
-        assertEquals(SampleTestWithReportingAndStatisticsOverrides.REPORTER, interceptor.activeReporters.toArray()[0]);
+        SharedConfig shared = getSharedContext(context);
+        assertEquals(SampleTestWithReportingAndStatisticsOverrides.CALCULATOR, shared.getStatsSupplier().get());
+        assertEquals(1, shared.getActiveReporters().size());
+        assertEquals(SampleTestWithReportingAndStatisticsOverrides.REPORTER, shared.getActiveReporters().toArray()[0]);
     }
-
 
     @SuppressWarnings("unchecked")
     @Test
     void whenTestHasNotBeenAnnotatedWithPerfAnnotations_thenTestWillBeExecutedOnce() throws Throwable {
+        ExtensionContext extensionContextMock = mockTestContext();
+        assertNull(getSharedContext(extensionContextMock));
+        
         SampleNoAnnotationsTest test = new SampleNoAnnotationsTest();
 
         Method methodMock = test.getClass().getMethod("someTestMethod");
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
-        ExtensionContext extensionContextMock = mockTestContext();
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
 
-        interceptor.postProcessTestInstance(test, null);
-        interceptor.statementBuilder = statementBuilderMock;
+        interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
+        // Override statement builder
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
         interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
 
         verify(invocationMock).proceed();
@@ -128,26 +148,29 @@ class JUnitPerfInterceptorTest {
     @SuppressWarnings("unchecked")
     @Test
     void whenTestHasBeenAnnotatedWithPerfAnnotations_thenTestStatementShouldBeBuilt() throws Throwable {
+        ExtensionContext extensionContextMock = mockTestContext();
+        assertNull(getSharedContext(extensionContextMock));
+        
         SampleAnnotatedTest test = new SampleAnnotatedTest();
 
         Method methodMock = test.getClass().getMethod("someTestMethod");
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
-        ExtensionContext extensionContextMock = mockTestContext();
 
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
         when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
         when(statementBuilderMock.build()).thenReturn(statementMock);
 
-        interceptor.postProcessTestInstance(test, null);
-        interceptor.statementBuilder = statementBuilderMock;
+        interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
+        // Override statement builder
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
         interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
 
         verify(invocationMock).proceed();
         verify(statementMock).runParallelEvaluation();
 
-        assertEquals(1, JUnitPerfInterceptor.ACTIVE_CONTEXTS.get(extensionContextMock.getUniqueId()).size());
+        assertNotNull(getTestContext(extensionContextMock));
         EvaluationContext context = captureEvaluationContext();
         assertFalse(context.isAsyncEvaluation());
     }
@@ -155,44 +178,53 @@ class JUnitPerfInterceptorTest {
     @SuppressWarnings("unchecked")
     @Test
     void whenTestHasBeenAnnotatedWithPerfAnnotations_thenMeasurementStartMsShouldBeCaptured() throws Throwable {
+        ExtensionContext extensionContextMock = mockTestContext();
+        assertNull(getSharedContext(extensionContextMock));
+
         SampleAnnotatedTest test = new SampleAnnotatedTest();
 
         Method methodMock = test.getClass().getMethod("someTestMethod");
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
-        ExtensionContext extensionContextMock = mockTestContext();
 
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
         when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
         when(statementBuilderMock.build()).thenReturn(statementMock);
 
-        interceptor.postProcessTestInstance(test, null);
-        interceptor.statementBuilder = statementBuilderMock;
+        interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
+        
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
+        
         interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
 
-        assertTrue(interceptor.measurementsStartTimeMs > 0);
-        assertTrue(interceptor.measurementsStartTimeMs <= currentTimeMillis() + 100); // see warmUpMs in annotation
+        TestDetails testDetails = getTestContext(extensionContextMock);
+        assertTrue(testDetails.getMeasurementsStartTimeMs() > 0);
+        assertTrue(testDetails.getMeasurementsStartTimeMs() <= currentTimeMillis() + 100); // see warmUpMs in annotation
     }
     
     @SuppressWarnings("unchecked")
     @Test
     void whenAsyncTestHasBeenAnnotatedWithPerfAnnotations_thenContextShouldBeMarkedAsAsync() throws Throwable {
+        ExtensionContext extensionContextMock = mockTestContext();
+        assertNull(getSharedContext(extensionContextMock));
+        
         SampleAsyncAnnotatedTest test = new SampleAsyncAnnotatedTest();
 
         Method methodMock = test.getClass().getMethod("someTestMethod", TestContextSupplier.class);
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
-        ExtensionContext extensionContextMock = mockTestContext();
 
         when(invocationContextMock.getArguments()).thenReturn(mockAsyncArgs());
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
         when(extensionContextMock.getUniqueId()).thenReturn(test.getClass().getSimpleName());
         when(statementBuilderMock.build()).thenReturn(statementMock);
 
-        interceptor.postProcessTestInstance(test, null);
-        interceptor.statementBuilder = statementBuilderMock;
+        interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
+
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
+
         interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
 
         EvaluationContext context = captureEvaluationContext();
@@ -201,28 +233,33 @@ class JUnitPerfInterceptorTest {
 
     @Test
     void whenASuiteAnnotationsAreAvailable_thenSuiteAnnotationsShouldBeUsed() throws Throwable {
+        ExtensionContext extensionContextMock = mockTestContext();
+        assertNull(getSharedContext(extensionContextMock));
+
         SampleNoAnnotationsTest test = new SampleNoAnnotationsTest();
         
         Method methodMock = test.getClass().getMethod("someTestMethod");
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
-        ExtensionContext extensionContextMock = mockTestContext();
         mockActiveSuite(extensionContextMock, SuiteSampleTest.class);
-
-
+        
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
         when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
         when(statementBuilderMock.build()).thenReturn(statementMock);
 
-        interceptor.postProcessTestInstance(test, extensionContextMock);
-        interceptor.statementBuilder = statementBuilderMock;
+        interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
+
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
+
         interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
 
-        assertTrue(interceptor.measurementsStartTimeMs > 0);
+        TestDetails testDetails = getTestContext(extensionContextMock);
+
+        assertTrue(testDetails.getMeasurementsStartTimeMs() > 0);
         
-        assertEquals(1, interceptor.activeReporters.size());
-        assertEquals(SuiteSampleTest.config.getReportGenerators(), interceptor.activeReporters);
+        assertEquals(1, testDetails.getActiveReporters().size());
+        assertEquals(SuiteSampleTest.config.getReportGenerators(), testDetails.getActiveReporters());
         
         EvaluationContext context = captureEvaluationContext();
         assertEquals(100, context.getConfiguredExecutionTarget());
@@ -233,26 +270,32 @@ class JUnitPerfInterceptorTest {
 
     @Test
     void whenAChildClassInheritsFromABaseClassWithReportingConfig_thenChildClassShouldHaveAccessToReportingConfig() throws Throwable {
+        ExtensionContext extensionContextMock = mockTestContext();
+        assertNull(getSharedContext(extensionContextMock));
+
         SampleChildTest test = new SampleChildTest();
 
         Method methodMock = test.getClass().getMethod("someTestMethod");
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
-        ExtensionContext extensionContextMock = mockTestContext();
 
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
         when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
         when(statementBuilderMock.build()).thenReturn(statementMock);
 
-        interceptor.postProcessTestInstance(test, extensionContextMock);
-        interceptor.statementBuilder = statementBuilderMock;
+        interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
+
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
+
         interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
 
-        assertTrue(interceptor.measurementsStartTimeMs > 0);
+        TestDetails testDetails = getTestContext(extensionContextMock);
 
-        assertEquals(1, interceptor.activeReporters.size());
-        assertEquals( SampleBaseTest.config.getReportGenerators(), interceptor.activeReporters);
+        assertTrue(testDetails.getMeasurementsStartTimeMs() > 0);
+
+        assertEquals(1, testDetails.getActiveReporters().size());
+        assertEquals(SampleBaseTest.config.getReportGenerators(), testDetails.getActiveReporters());
 
         EvaluationContext context = captureEvaluationContext();
         assertEquals(120, context.getConfiguredExecutionTarget());
@@ -263,37 +306,42 @@ class JUnitPerfInterceptorTest {
 
     @Test
     void whenProceedThrowsAnAssertionError_thenTestShouldNotFail() throws Throwable {
+        ExtensionContext extensionContextMock = mockTestContext();
+        assertNull(getSharedContext(extensionContextMock));
+
         SampleAnnotatedTest test = new SampleAnnotatedTest();
 
         Method methodMock = test.getClass().getMethod("someTestMethod");
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
-        ExtensionContext extensionContextMock = mockTestContext();
 
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
         when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
         when(statementBuilderMock.build()).thenReturn(statementMock);
 
         when(invocationMock.proceed()).thenThrow(new AssertionError());
-        
-        interceptor.postProcessTestInstance(test, extensionContextMock);
-        interceptor.statementBuilder = statementBuilderMock;
+
+        interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
+
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
         
         assertDoesNotThrow(() -> {
             interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
         });
     }
-
+    
     @Test
     void whenProceedThrowsAnAssertionError_andTestIsNotAPerfTest_thenTestShouldFail() throws Throwable {
+        ExtensionContext extensionContextMock = mockTestContext();
+        assertNull(getSharedContext(extensionContextMock));
+
         SampleNoAnnotationsTest test = new SampleNoAnnotationsTest();
 
         Method methodMock = test.getClass().getMethod("someTestMethod");
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
-        ExtensionContext extensionContextMock = mockTestContext();
 
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
         when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
@@ -301,12 +349,26 @@ class JUnitPerfInterceptorTest {
 
         when(invocationMock.proceed()).thenThrow(new AssertionError());
 
-        interceptor.postProcessTestInstance(test, extensionContextMock);
-        interceptor.statementBuilder = statementBuilderMock;
+        interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
+
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
 
         assertThrows(AssertionError.class, () -> {
             interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
         });
+    }
+
+    @Test
+    void whenReportingConfigIsNonStatic_thenPostProcessTestInstanceShouldThrowAnException() throws Throwable {
+        SampleNonStaticReporterConfigTest test = new SampleNonStaticReporterConfigTest();
+
+        Method methodMock = test.getClass().getMethod("someTestMethod");
+        ExtensionContext extensionContextMock = mockTestContext();
+
+        when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
+        when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
+        
+        assertThrows(IllegalStateException.class, () -> interceptor.postProcessTestInstance(test, getParent(extensionContextMock)));
     }
 
     @Test
@@ -316,13 +378,18 @@ class JUnitPerfInterceptorTest {
     }
 
     @Test
-    void whenInterceptorResolveParameterIsCalled_thenTestContextSupplierShouldBeReturned() {
-        assertTrue(interceptor.resolveParameter(null, null) instanceof TestContextSupplier);
+    void whenInterceptorResolveParameterIsCalled_thenTestContextSupplierShouldBeReturned() throws Exception {
+        ExtensionContext extensionContextMock = mockTestContext();
+        interceptor.postProcessTestInstance(this, getParent(extensionContextMock));
+        assertTrue(interceptor.resolveParameter(null, extensionContextMock) instanceof TestContextSupplier);
     }
     
-    private static void mockActiveSuite(ExtensionContext extensionContextMock, Class<?> suiteClass) {
-        when(extensionContextMock.getRoot()).thenReturn(extensionContextMock);
-        when(extensionContextMock.getUniqueId()).thenReturn(buildSuiteId(suiteClass));
+    private static void mockActiveSuite(ExtensionContext testMethodContext, Class<?> suiteClass) {
+        ExtensionContext suiteRoot = mock(ExtensionContext.class);
+        ExtensionContext parent = testMethodContext.getParent().get();
+        when(parent.getRoot()).thenReturn(suiteRoot);
+        when(testMethodContext.getRoot()).thenReturn(suiteRoot);
+        when(suiteRoot.getUniqueId()).thenReturn(buildSuiteId(suiteClass));
     }
 
     private static String buildSuiteId(Class<?> clazz) {
@@ -357,9 +424,24 @@ class JUnitPerfInterceptorTest {
     }
 
     private static ExtensionContext mockTestContext() {
-        ExtensionContext ctxt = mock(ExtensionContext.class);
-        when(ctxt.getUniqueId()).thenReturn("unitest" + ThreadLocalRandom.current().nextInt());
-        return ctxt;
+        ExtensionContext parent = mock(ExtensionContext.class);
+        ExtensionContext test = mock(ExtensionContext.class);
+        when(test.getUniqueId()).thenReturn("test:" + ThreadLocalRandom.current().nextInt());
+        when(parent.getUniqueId()).thenReturn("class:" + ThreadLocalRandom.current().nextInt());
+        when(test.getParent()).thenReturn(Optional.of(parent));
+        return test;
+    }
+
+    private static SharedConfig getSharedContext(ExtensionContext context) {
+        return JUnitPerfInterceptor.sharedContexts.get(context.getParent().get().getUniqueId());
+    }
+
+    private static TestDetails getTestContext(ExtensionContext context) {
+        return JUnitPerfInterceptor.testContexts.get(context.getUniqueId());
+    }
+
+    private static ExtensionContext getParent(ExtensionContext extensionContextMock) {
+        return extensionContextMock.getParent().get();
     }
 
 
@@ -445,6 +527,19 @@ class JUnitPerfInterceptorTest {
     @JUnitPerfTest( threads = 15, totalExecutions = 120)
     @JUnitPerfTestRequirement(executionsPerSec = 67)
     public static class SampleChildTest extends SampleBaseTest {
+        @Test
+        public void someTestMethod() {
+            assertTrue(true);
+        }
+    }
+
+    @Disabled
+    public static class SampleNonStaticReporterConfigTest {
+        @JUnitPerfTestActiveConfig
+        public final JUnitPerfReportingConfig config = JUnitPerfReportingConfig.builder()
+                .reportGenerator(new HtmlReportGenerator())
+                .build();
+
         @Test
         public void someTestMethod() {
             assertTrue(true);

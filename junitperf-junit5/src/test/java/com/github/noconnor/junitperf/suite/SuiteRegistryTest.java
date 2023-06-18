@@ -26,7 +26,7 @@ public class SuiteRegistryTest {
     @Test
     void whenNoTestSuiteClassIsConfigured_thenSuiteShouldBeIdentified() {
         ExtensionContext context = createMockExtensionContext("[engine:junit-jupiter]");
-        SuiteRegistry.register(context);
+        SuiteRegistry.scanForSuiteDetails(context);
         assertNull(SuiteRegistry.getPerfTestData(context));
         assertNull(SuiteRegistry.getPerfRequirements(context));
         assertNull(SuiteRegistry.getReportingConfig(context));
@@ -35,7 +35,7 @@ public class SuiteRegistryTest {
     @Test
     void whenInvalidTestSuiteClassIsConfigured_thenSuiteShouldNotBeIdentified() {
         ExtensionContext context = createMockExtensionContext(buildSuiteId("com.does.not.Exist"));
-        SuiteRegistry.register(context);
+        SuiteRegistry.scanForSuiteDetails(context);
         assertNull(SuiteRegistry.getPerfTestData(context));
         assertNull(SuiteRegistry.getPerfRequirements(context));
         assertNull(SuiteRegistry.getReportingConfig(context));
@@ -44,7 +44,7 @@ public class SuiteRegistryTest {
     @Test
     void whenTestSuiteClassIsConfigured_butSuiteHasNoAnnotations_thenSuiteShouldBeIdentifiedButNoPerfDataShouldBeAvailable() {
         ExtensionContext context = createMockExtensionContext(buildSuiteId(DummySuiteNoAnnotations.class));
-        SuiteRegistry.register(context);
+        SuiteRegistry.scanForSuiteDetails(context);
         assertNull(SuiteRegistry.getPerfTestData(context));
         assertNull(SuiteRegistry.getPerfRequirements(context));
         assertNull(SuiteRegistry.getReportingConfig(context));
@@ -53,7 +53,7 @@ public class SuiteRegistryTest {
     @Test
     void whenTestSuiteClassIsConfigured_andSuiteHasPerfAnnotation_thenSuitePerfDataShouldBeAvailable() {
         ExtensionContext context = createMockExtensionContext(buildSuiteId(DummySuitePerfTestAnnotation.class));
-        SuiteRegistry.register(context);
+        SuiteRegistry.scanForSuiteDetails(context);
         JUnitPerfTest testSpec = SuiteRegistry.getPerfTestData(context);
 
         assertNotNull(testSpec);
@@ -65,7 +65,7 @@ public class SuiteRegistryTest {
     @Test
     void whenTestSuiteClassIsConfigured_andSuiteHasAllPerfAnnotations_thenSuitePerfDataShouldBeAvailable() {
         ExtensionContext context = createMockExtensionContext(buildSuiteId(DummySuitePerfTestAllAnnotations.class));
-        SuiteRegistry.register(context);
+        SuiteRegistry.scanForSuiteDetails(context);
         JUnitPerfTest testSpec = SuiteRegistry.getPerfTestData(context);
         JUnitPerfTestRequirement requirements = SuiteRegistry.getPerfRequirements(context);
 
@@ -80,7 +80,7 @@ public class SuiteRegistryTest {
     @Test
     void whenTestSuiteClassIsConfigured_andSuiteHasAllPerfAnnotationsAndReportingConfig_thenSuitePerfDataShouldBeAvailable() {
         ExtensionContext context = createMockExtensionContext(buildSuiteId(DummySuiteAllConfigs.class));
-        SuiteRegistry.register(context);
+        SuiteRegistry.scanForSuiteDetails(context);
         JUnitPerfTest testSpec = SuiteRegistry.getPerfTestData(context);
         JUnitPerfTestRequirement requirements = SuiteRegistry.getPerfRequirements(context);
         JUnitPerfReportingConfig reportConfig = SuiteRegistry.getReportingConfig(context);
@@ -97,7 +97,7 @@ public class SuiteRegistryTest {
     @Test
     void whenTestSuiteClassIsConfigured_andSuiteHasBadReporterConfig_thenSuitePerfDataShouldBeAvailable_butReporterConfigWillBeMissing() {
         ExtensionContext context = createMockExtensionContext(buildSuiteId(DummySuiteBadReporterConfigs.class));
-        SuiteRegistry.register(context);
+        SuiteRegistry.scanForSuiteDetails(context);
         JUnitPerfTest testSpec = SuiteRegistry.getPerfTestData(context);
         JUnitPerfTestRequirement requirements = SuiteRegistry.getPerfRequirements(context);
         JUnitPerfReportingConfig reportConfig = SuiteRegistry.getReportingConfig(context);

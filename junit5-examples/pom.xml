@@ -43,6 +43,12 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <skipTests>${skipTests}</skipTests>
+<!--                    <properties>-->
+<!--                        <configurationParameters>-->
+<!--                            junit.jupiter.execution.parallel.enabled = true-->
+<!--                            junit.jupiter.execution.parallel.mode.default = concurrent-->
+<!--                        </configurationParameters>-->
+<!--                    </properties>-->
                 </configuration>
             </plugin>
         </plugins>
