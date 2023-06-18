@@ -57,7 +57,7 @@ public class HtmlReportGenerator implements ReportGenerator {
     }
 
     @Override
-    public void generateReport(LinkedHashSet<EvaluationContext> testContexts) {
+    public synchronized void generateReport(LinkedHashSet<EvaluationContext> testContexts) {
         history.addAll(testContexts);
         renderTemplate();
     }

@@ -27,7 +27,7 @@ public class SuiteRegistry {
     private static final Map<String, SuiteSettings> settingsCache = new HashMap<>();
     private static final Pattern suiteClassPattern = Pattern.compile(".*\\[suite:([^\\]]*)\\].*");
 
-    public static void register(ExtensionContext context) {
+    public static void scanForSuiteDetails(ExtensionContext context) {
 
         String rootUniqueId = getRootId(context);
         Class<?> clazz = getSuiteClass(rootUniqueId);
