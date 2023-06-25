@@ -101,10 +101,13 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
             test.setMeasurementsStartTimeMs(currentTimeMillis() + perfTestAnnotation.warmUpMs());
             test.setContext(context);
 
-            SimpleTestStatement testStatement = () -> method.invoke(
-                    extensionContext.getRequiredTestInstance(),
-                    invocationContext.getArguments().toArray()
-            );
+            SimpleTestStatement testStatement = () -> {
+                method.setAccessible(true);
+                method.invoke(
+                        extensionContext.getRequiredTestInstance(),
+                        invocationContext.getArguments().toArray()
+                );
+            };
 
             PerformanceEvaluationStatement parallelExecution = test.getStatementBuilder()
                     .baseStatement(testStatement)
@@ -198,7 +201,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
             // Must be called for framework to proceed
             invocation.proceed();
         } catch (Throwable e) {
-            // Ignore
+            log.trace("Proceed error", e);
         }
     }
 

@@ -3,6 +3,7 @@ package com.github.noconnor.junitperf.statements;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.util.concurrent.RateLimiter;
 import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.function.Supplier;
 
@@ -11,6 +12,7 @@ import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
+@Slf4j
 final class EvaluationTask implements Runnable {
 
   private final TestStatement statement;
@@ -76,7 +78,7 @@ final class EvaluationTask implements Runnable {
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       } catch (Throwable throwable) {
-        // IGNORE
+        log.trace("Warmup error", throwable);
       }
     } else {
 
@@ -85,6 +87,7 @@ final class EvaluationTask implements Runnable {
       } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
       } catch (Throwable throwable) {
+        log.trace("Setup error", throwable);
         throw new IllegalStateException("Before method failed", throwable);
       }
 
@@ -101,6 +104,7 @@ final class EvaluationTask implements Runnable {
           stats.incrementErrorCount();
           stats.addLatencyMeasurement(nanoTime() - startTimeNs);
         }
+        log.trace("Execution error", throwable);
       }
 
       try {
@@ -108,6 +112,7 @@ final class EvaluationTask implements Runnable {
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       } catch (Throwable throwable) {
+        log.trace("Teardown error", throwable);
         throw new IllegalStateException("After method failed", throwable);
       }
 
