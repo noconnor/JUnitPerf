@@ -25,12 +25,12 @@ import static java.util.Objects.nonNull;
 public class SuiteRegistry {
 
     private static final Map<String, SuiteSettings> settingsCache = new HashMap<>();
-    private static final Pattern suiteClassPattern = Pattern.compile(".*\\[suite:([^\\]]*)\\].*");
+    private static final Pattern suiteClassPattern = Pattern.compile("\\[suite:([^\\]]*)\\]");
 
     public static void scanForSuiteDetails(ExtensionContext context) {
 
         String rootUniqueId = getRootId(context);
-        Class<?> clazz = getSuiteClass(rootUniqueId);
+        Class<?> clazz = getTopLevelSuiteClass(rootUniqueId);
 
         if (isNull(clazz) || settingsCache.containsKey(rootUniqueId)) {
             return;
@@ -82,9 +82,9 @@ public class SuiteRegistry {
         return "";
     }
 
-    private static Class<?> getSuiteClass(String rootUniqueId) {
+    private static Class<?> getTopLevelSuiteClass(String rootUniqueId) {
         Matcher m = suiteClassPattern.matcher(rootUniqueId);
-        if (m.find()) {
+        if (m.find()) { // find first match - root suite
             try {
                 return Class.forName(m.group(1));
             } catch (ClassNotFoundException e) {

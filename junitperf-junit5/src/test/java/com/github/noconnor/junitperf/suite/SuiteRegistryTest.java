@@ -8,11 +8,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -110,12 +112,35 @@ public class SuiteRegistryTest {
         assertEquals(0.168F, requirements.allowedErrorPercentage());
     }
 
+    @Test
+    void whenTestSuiteIsASuiteOfSuites_andTopLevelSuiteHasPerfAnnotation_thenSuitePerfDataShouldBeAvailable() {
+        ExtensionContext context = createMockExtensionContext(buildSuiteOfSuitesId(DummySuiteOfSuites.class, DummySuite.class));
+        SuiteRegistry.scanForSuiteDetails(context);
+        JUnitPerfTest testSpec = SuiteRegistry.getPerfTestData(context);
+        JUnitPerfTestRequirement requirements = SuiteRegistry.getPerfRequirements(context);
+        
+        assertNotNull(testSpec);
+        assertNotNull(requirements);
+        assertNotNull(SuiteRegistry.getReportingConfig(context));
+        
+        assertEquals(0.198F, requirements.allowedErrorPercentage());
+        assertEquals(376, testSpec.totalExecutions());
+    }
+
     private static String buildSuiteId(Class<?> clazz) {
         return buildSuiteId(clazz.getName());
     }
 
     private static String buildSuiteId(String clazz) {
         return "[engine:junit-platform-suite]/[suite:" + clazz + "]/[engine:junit-jupiter]";
+    }
+
+    private static String buildSuiteOfSuitesId(Class<?> clazz1, Class<?> clazz2) {
+        return buildSuiteOfSuitesId(clazz1.getName(), clazz2.getName());
+    }
+    
+    private static String buildSuiteOfSuitesId(String suiteClazz1, String suiteClazz2) {
+        return "[engine:junit-platform-suite]/[suite:" + suiteClazz1 + "]/[engine:junit-platform-suite]/[suite:" + suiteClazz2 + "]/[engine:junit-jupiter]";
     }
 
     private static ExtensionContext createMockExtensionContext(String rootId) {
@@ -161,5 +186,30 @@ public class SuiteRegistryTest {
     public static class DummySuiteBadReporterConfigs {
         @JUnitPerfTestActiveConfig // not static - should be dropped
         public JUnitPerfReportingConfig config = JUnitPerfReportingConfig.builder().build();
+    }
+
+    @Disabled
+    @Suite
+    @SelectClasses(DummySuite.class)
+    @JUnitPerfTest(totalExecutions = 376)
+    @JUnitPerfTestRequirement(allowedErrorPercentage = 0.198F)
+    public static class DummySuiteOfSuites {
+        @JUnitPerfTestActiveConfig // not static - should be dropped
+        public static JUnitPerfReportingConfig config = JUnitPerfReportingConfig.builder().build();
+    }
+
+    @Disabled
+    @Suite
+    @SelectClasses(DummyTestClass.class)
+    public static class DummySuite {
+    }
+
+    @Disabled
+    public static class DummyTestClass {
+        
+        @Test
+        void someTest() {
+            assertTrue(true);
+        }
     }
 }
