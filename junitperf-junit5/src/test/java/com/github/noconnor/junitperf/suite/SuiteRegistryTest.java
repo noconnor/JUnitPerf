@@ -194,7 +194,7 @@ public class SuiteRegistryTest {
     @JUnitPerfTest(totalExecutions = 376)
     @JUnitPerfTestRequirement(allowedErrorPercentage = 0.198F)
     public static class DummySuiteOfSuites {
-        @JUnitPerfTestActiveConfig // not static - should be dropped
+        @JUnitPerfTestActiveConfig
         public static JUnitPerfReportingConfig config = JUnitPerfReportingConfig.builder().build();
     }
 
