@@ -26,12 +26,12 @@ public class ExampleSuccessTests {
 
     @BeforeEach
     public void setup() throws InterruptedException {
-        Thread.sleep(1_000);
+        Thread.sleep(10);
     }
 
     @AfterEach
     public void teardown() throws InterruptedException {
-        Thread.sleep(1_000);
+        Thread.sleep(10);
     }
 
     @Test

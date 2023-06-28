@@ -3,12 +3,13 @@ package com.github.noconnor.junitperf;
 import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.github.noconnor.junitperf.reporting.providers.ConsoleReportGenerator;
+import com.github.noconnor.junitperf.statements.FullStatement;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
-import com.github.noconnor.junitperf.statements.SimpleTestStatement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
 import com.github.noconnor.junitperf.suite.SuiteRegistry;
+import com.github.noconnor.junitperf.utils.TestReflectionUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -58,14 +59,14 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         private Supplier<StatisticsCalculator> statsSupplier = DescriptiveStatisticsCalculator::new;
         private Supplier<PerformanceEvaluationStatementBuilder> statementBuilder = PerformanceEvaluationStatement::builder;
     }
-    
+
     @Override
     public synchronized void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
         if (sharedContexts.containsKey(context.getUniqueId())) {
             log.debug("Test already configured");
             return;
         }
-        
+
         SharedConfig test = new SharedConfig();
         SuiteRegistry.scanForSuiteDetails(context);
         JUnitPerfReportingConfig reportingConfig = findTestActiveConfigField(testInstance, context);
@@ -80,10 +81,11 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     public void interceptTestMethod(Invocation<Void> invocation,
                                     ReflectiveInvocationContext<Method> invocationContext,
                                     ExtensionContext extensionContext) throws Throwable {
-        
+
 
         // Will be called for every instance of @Test
         Method method = extensionContext.getRequiredTestMethod();
+        Object testInstance = extensionContext.getRequiredTestInstance();
 
         JUnitPerfTest perfTestAnnotation = getJUnitPerfTestDetails(method, extensionContext);
         JUnitPerfTestRequirement requirementsAnnotation = getJUnitPerfTestRequirementDetails(method, extensionContext);
@@ -101,13 +103,9 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
             test.setMeasurementsStartTimeMs(currentTimeMillis() + perfTestAnnotation.warmUpMs());
             test.setContext(context);
 
-            SimpleTestStatement testStatement = () -> {
-                method.setAccessible(true);
-                method.invoke(
-                        extensionContext.getRequiredTestInstance(),
-                        invocationContext.getArguments().toArray()
-                );
-            };
+            FullStatement testStatement = new FullStatement(testInstance, method, invocationContext.getArguments());
+            testStatement.setBeforeEach(TestReflectionUtils.findBeforeEach(testInstance));
+            testStatement.setAfterEach(TestReflectionUtils.findAfterEach(testInstance));
 
             PerformanceEvaluationStatement parallelExecution = test.getStatementBuilder()
                     .baseStatement(testStatement)
@@ -125,7 +123,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         }
 
     }
-    
+
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         return parameterContext.getParameter().getType() == TestContextSupplier.class;
@@ -206,7 +204,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     }
 
     private static TestDetails getTestDetails(ExtensionContext extensionContext) {
-        String testId  = extensionContext.getUniqueId();
+        String testId = extensionContext.getUniqueId();
         testContexts.computeIfAbsent(testId, newTestId -> {
             String parentId = extensionContext.getParent().map(ExtensionContext::getUniqueId).orElse("");
             SharedConfig parentDetails = sharedContexts.getOrDefault(parentId, new SharedConfig());
@@ -218,5 +216,5 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         });
         return testContexts.get(testId);
     }
-    
+
 }

@@ -88,7 +88,9 @@ final class EvaluationTask implements Runnable {
           Thread.currentThread().interrupt();
       } catch (Throwable throwable) {
         log.trace("Setup error", throwable);
-        throw new IllegalStateException("Before method failed", throwable);
+        if (!(throwable.getCause() instanceof InterruptedException)) {
+          throw new IllegalStateException("Before method failed", throwable);
+        }
       }
 
       long startTimeNs = nanoTime();
@@ -113,7 +115,9 @@ final class EvaluationTask implements Runnable {
         Thread.currentThread().interrupt();
       } catch (Throwable throwable) {
         log.trace("Teardown error", throwable);
-        throw new IllegalStateException("After method failed", throwable);
+        if (!(throwable.getCause() instanceof InterruptedException)) {
+          throw new IllegalStateException("After method failed", throwable);
+        }
       }
 
     }
