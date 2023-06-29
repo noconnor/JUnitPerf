@@ -6,10 +6,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Getter
@@ -97,6 +99,9 @@ public class ViewData {
     }
 
     private List<RequiredPercentilesData> buildRequiredPercentileData(EvaluationContext context) {
+        if (isNull(context.getPercentileResults())) {
+            return Collections.emptyList();
+        }
         return context.getRequiredPercentiles().entrySet()
                 .stream()
                 .map(entry -> {

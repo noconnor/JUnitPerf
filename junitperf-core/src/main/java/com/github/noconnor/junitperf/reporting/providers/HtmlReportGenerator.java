@@ -86,9 +86,10 @@ public class HtmlReportGenerator implements ReportGenerator {
                 ViewData c = new ViewData(context);
 
                 String overview = ViewProcessor.populateTemplate(c, "context", blocks.get(OVERVIEW_MARKER));
-                overviews.append(overview).append("\n");
                 
-                if (isNull(context.getAbortedException())) {
+                if (context.isAborted()) {
+                    overview = overview.replaceAll("href=", "nolink=");
+                } else {
                     String detail = ViewProcessor.populateTemplate(c, "context", blocks.get(DETAILS_MARKER));
                     String percentileData = ViewProcessor.populateTemplate(
                             c.getRequiredPercentiles(),
@@ -99,6 +100,7 @@ public class HtmlReportGenerator implements ReportGenerator {
                     detail = detail.replaceAll(asRegex(PERCENTILE_TARGETS_MARKER), percentileData);
                     details.append(detail).append("\n");
                 }
+                overviews.append(overview).append("\n");
             }
 
             root = root.replaceAll(asRegex(OVERVIEW_MARKER), overviews.toString());
