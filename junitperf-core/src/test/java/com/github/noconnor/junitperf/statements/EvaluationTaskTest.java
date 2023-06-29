@@ -42,6 +42,8 @@ public class EvaluationTaskTest extends BaseTest {
 
   @Before
   public void setup() {
+    ExceptionsRegistry.registerIgnorable(InterruptedException.class);
+    ExceptionsRegistry.registerAbort(AbortTestException.class);
     initialiseRateLimiterMock();
     task = new EvaluationTask(statementMock, rateLimiterMock, terminatorMock, statsMock, 0, 0);
   }
@@ -49,6 +51,7 @@ public class EvaluationTaskTest extends BaseTest {
   @After
   public void teardown() {
     // clear thread interrupt
+    ExceptionsRegistry.clearRegistry();
     Thread.interrupted();
   }
 
@@ -76,6 +79,23 @@ public class EvaluationTaskTest extends BaseTest {
   }
 
   @Test
+  public void whenRunning_andStatementEvaluationThrowsATestAbortedException_thenStatsExecutionCounterShouldBeIncremented() throws Throwable {
+    setExecutionCount(10);
+    mockAssumptionFailures(1);
+    
+    try {
+      task.run();
+      fail("Expected exception");
+    } catch (AbortTestException e){
+      // expected
+    } finally {
+      verify(statsMock, never()).incrementEvaluationCount();
+      verify(statsMock, never()).addLatencyMeasurement(anyLong());
+      verify(statsMock, never()).incrementErrorCount();  
+    }
+  }
+
+  @Test
   public void whenRunning_andStatementEvaluationThrowsAnException_thenLatencyMeasurementShouldBeTaken() throws Throwable {
     setExecutionCount(10);
     mockEvaluationFailures(5);
@@ -88,8 +108,8 @@ public class EvaluationTaskTest extends BaseTest {
     setExecutionCount(10);
     mockNestedInterruptAfter(9);
     task.run();
-    verify(statsMock, times(9)).addLatencyMeasurement(anyLong());
-    verify(statsMock, times(9)).incrementEvaluationCount();
+    verify(statsMock, times(10)).addLatencyMeasurement(anyLong());
+    verify(statsMock, times(10)).incrementEvaluationCount();
     verify(statsMock, never()).incrementErrorCount();
   }
 
@@ -172,6 +192,20 @@ public class EvaluationTaskTest extends BaseTest {
   }
 
   @Test
+  public void whenRunning_andRunBeforesAnAbortException_thenNoExceptionShouldBeThrown() throws Throwable {
+    setExecutionCount(1);
+    doThrow(new AbortTestException()).when(statementMock).runBefores();
+    try {
+      task.run();
+      fail("Expected exception");
+    } catch (AbortTestException e) {
+      // expected
+    } finally {
+      verify(statementMock, never()).evaluate();  
+    }
+  }
+  
+  @Test
   public void whenRunning_andRunBeforesThrowsAnInterruptedException_thenNoExceptionShouldBeThrown() throws Throwable {
     setExecutionCount(1);
     doThrow(new InterruptedException("test")).when(statementMock).runBefores();
@@ -185,6 +219,20 @@ public class EvaluationTaskTest extends BaseTest {
     doThrow(new InterruptedException("test")).when(statementMock).runAfters();
     task.run();
     verify(statementMock).evaluate();
+  }
+
+  @Test
+  public void whenRunning_andRunAftersThrowsATestAbortedException_thenNoExceptionShouldBeThrown() throws Throwable {
+    setExecutionCount(1);
+    doThrow(new AbortTestException()).when(statementMock).runAfters();
+    try {
+      task.run();
+      fail("Expected exception");
+    } catch (AbortTestException e) {
+      // expected
+    } finally {
+      verify(statementMock).evaluate();  
+    }
   }
 
   @Test
@@ -202,6 +250,16 @@ public class EvaluationTaskTest extends BaseTest {
     }
   }
 
+  private void mockAssumptionFailures(int desiredFailureCount) throws Throwable {
+    AtomicInteger executions = new AtomicInteger();
+    doAnswer(invocation -> {
+      if (executions.getAndIncrement() < desiredFailureCount) {
+        throw new AbortTestException();
+      }
+      return null;
+    }).when(statementMock).evaluate();
+  }
+  
   private void mockEvaluationFailures(int desiredFailureCount) throws Throwable {
     AtomicInteger executions = new AtomicInteger();
     doAnswer(invocation -> {
@@ -255,4 +313,8 @@ public class EvaluationTaskTest extends BaseTest {
     stub.thenReturn(true);
   }
 
+  private static class AbortTestException extends RuntimeException {
+    
+  }
+  
 }

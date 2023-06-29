@@ -4,10 +4,12 @@ import com.github.noconnor.junitperf.BaseTest;
 import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.collect.ImmutableMap;
+import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.concurrent.ThreadFactory;
@@ -23,6 +25,9 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,6 +59,7 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
 
   @Before
   public void setup() {
+    ExceptionsRegistry.clearRegistry();
     initialiseThreadFactoryMock();
     initialiseContext();
     statement = PerformanceEvaluationStatement.builder()
@@ -204,6 +210,36 @@ public class PerformanceEvaluationStatementTest extends BaseTest {
     statement.runParallelEvaluation();
     statement.runParallelEvaluation();
     verify(statisticsCalculatorMock, times(3)).reset();
+  }
+
+  @Test
+  public void whenBaseStatementThrowsAnAbortException_thenExceptionShouldBeReThrown() throws Throwable {
+
+    ExceptionsRegistry.registerAbort(AssumptionViolatedException.class);
+
+    ArgumentCaptor<Runnable> captor = ArgumentCaptor.forClass(Runnable.class);
+    when(threadFactoryMock.newThread(captor.capture())).thenReturn(threadMock);
+    doAnswer((invocation) -> {
+      captor.getValue().run();
+      return null;
+    }).when(threadMock).start();
+    
+    AssumptionViolatedException abort = new AssumptionViolatedException("unittest"); 
+    doThrow(abort).when(baseStatementMock).evaluate();
+    when(contextMock.isAborted()).thenReturn(true);
+    when(contextMock.getAbortedException()).thenReturn(abort);
+    
+    try {
+      statement.runParallelEvaluation();
+    } catch (AssumptionViolatedException e) {
+      // expected
+    } catch (Throwable t) {
+      fail("Unexpected exception");
+    } finally {
+      verify(contextMock).setAbortedException(abort);
+      verify(listenerMock).accept(null);
+      verify(contextMock, never()).runValidation();
+    }
   }
 
   private void initialiseThreadFactoryMock() {

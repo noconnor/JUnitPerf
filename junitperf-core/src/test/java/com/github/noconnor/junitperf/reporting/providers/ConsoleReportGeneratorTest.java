@@ -40,6 +40,13 @@ public class ConsoleReportGeneratorTest extends BaseReportGeneratorTest {
   }
 
   @Test
+  public void whenGeneratingAReport_andTestsContainsSomeAborts_thenAppropriateReportShouldBeGenerated() {
+    LinkedHashSet<EvaluationContext> contexts = new LinkedHashSet<>();
+    contexts.add(createdAbortedEvaluationContext("unittest1"));
+    reportGenerator.generateReport(contexts);
+  }
+
+  @Test
   public void whenGeneratingAReport_andGenerateIsCalledMultipleTimes_thenOnlyNewResultsShouldBePrinted() {
     LinkedHashSet<EvaluationContext> contexts = generateSomeFailuresContext();
     reportGenerator.generateReport(contexts);

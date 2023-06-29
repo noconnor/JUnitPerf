@@ -8,6 +8,7 @@ import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
 import com.github.noconnor.junitperf.statements.DefaultStatement;
+import com.github.noconnor.junitperf.statements.ExceptionsRegistry;
 import com.github.noconnor.junitperf.statements.MeasurableStatement;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
@@ -19,6 +20,8 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.junit.AssumptionViolatedException;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -27,6 +30,11 @@ import org.junit.runners.model.Statement;
 public class JUnitPerfRule implements TestRule {
 
   static final Map<Class<?>, LinkedHashSet<EvaluationContext>> ACTIVE_CONTEXTS = new HashMap<>();
+  
+  static {
+    ExceptionsRegistry.registerIgnorable(InterruptedException.class);
+    ExceptionsRegistry.registerAbort(AssumptionViolatedException.class);
+  }
 
   private final Set<ReportGenerator> reporters;
 

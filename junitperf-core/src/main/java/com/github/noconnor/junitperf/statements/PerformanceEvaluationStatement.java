@@ -68,6 +68,10 @@ public class PerformanceEvaluationStatement {
       stopSignal.set(true);
       threads.forEach(Thread::interrupt);
     }
+    if (context.isAborted()) {
+      listener.accept(null);
+      throw context.getAbortedException();
+    }
     context.setFinishTimeNs(nanoTime());
     context.setStatistics(statistics);
     context.runValidation();
@@ -78,16 +82,21 @@ public class PerformanceEvaluationStatement {
   private Runnable createTask(AtomicBoolean stopSignal, CountDownLatch latch) {
     StatisticsCalculator stats = context.isAsyncEvaluation() ? NoOpStatisticsCollector.INSTANCE : statistics;
     return () -> {
-      EvaluationTask.builder()
-              .statement(baseStatement)
-              .rateLimiter(rateLimiter)
-              .stats(stats)
-              .terminator(stopSignal::get)
-              .warmUpPeriodMs(context.getConfiguredWarmUp())
-              .executionTarget(context.getConfiguredExecutionTarget())
-              .build()
-              .run();
-      latch.countDown();
+      try {
+        EvaluationTask.builder()
+                .statement(baseStatement)
+                .rateLimiter(rateLimiter)
+                .stats(stats)
+                .terminator(stopSignal::get)
+                .warmUpPeriodMs(context.getConfiguredWarmUp())
+                .executionTarget(context.getConfiguredExecutionTarget())
+                .build()
+                .run();
+      } catch (Throwable t) {
+       context.setAbortedException(t);
+      } finally {
+        latch.countDown();  
+      }
     };
   }
 

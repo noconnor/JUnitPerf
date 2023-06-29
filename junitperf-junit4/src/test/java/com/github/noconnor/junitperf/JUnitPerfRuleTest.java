@@ -1,27 +1,16 @@
 package com.github.noconnor.junitperf;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Answers.RETURNS_SELF;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.github.noconnor.junitperf.statements.DefaultStatement;
+import com.github.noconnor.junitperf.statements.ExceptionsRegistry;
 import com.github.noconnor.junitperf.statements.MeasurableStatement;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
 import com.github.noconnor.junitperf.statements.TestStatement;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
-import java.util.LinkedHashSet;
-import java.util.function.Consumer;
 import org.junit.After;
+import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.Description;
@@ -30,6 +19,21 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import java.util.LinkedHashSet;
+import java.util.function.Consumer;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Answers.RETURNS_SELF;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 
 public class JUnitPerfRuleTest {
@@ -172,6 +176,14 @@ public class JUnitPerfRuleTest {
   public void whenCallingCreateEvaluationContext_thenContextShouldHaveAsyncFlagSetToFalse() {
     EvaluationContext context = perfRule.createEvaluationContext(descriptionMock);
     assertThat(context.isAsyncEvaluation(), is(false));
+  }
+
+  @Test
+  public void verifyCorrectExceptionsAreRegistered() {
+      assertEquals(1, ExceptionsRegistry.ignorables().size());
+      assertEquals(1, ExceptionsRegistry.abortables().size());
+      assertTrue(ExceptionsRegistry.ignorables().contains(InterruptedException.class));
+      assertTrue(ExceptionsRegistry.abortables().contains(AssumptionViolatedException.class));
   }
 
   private void triggerReportGeneration() {

@@ -9,6 +9,8 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.LinkedHashSet;
+
+import org.junit.AssumptionViolatedException;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
@@ -25,6 +27,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -85,6 +89,15 @@ public class BaseReportGeneratorTest extends BaseTest {
     return context;
   }
 
+  protected EvaluationContext createdAbortedEvaluationContext(String name) {
+    EvaluationContext context = new EvaluationContext(name, nanoTime());
+    context.loadConfiguration(perfTestAnnotationMock);
+    context.loadRequirements(perfTestRequirementAnnotationMock);
+    context.setStatistics(createAbortedMock());
+    context.setAbortedException(new AssumptionViolatedException("unittest"));
+    return context;
+  }
+
   protected EvaluationContext createdSomeFailuresEvaluationContext(String name) {
     EvaluationContext context = new EvaluationContext(name, nanoTime());
     context.setFinishTimeNs(nanoTime() + SECONDS.toNanos(10));
@@ -137,6 +150,18 @@ public class BaseReportGeneratorTest extends BaseTest {
     return statisticsMock;
   }
 
+  private StatisticsCalculator createAbortedMock() {
+    StatisticsCalculator statisticsMock = mock(StatisticsCalculator.class);
+    when(statisticsMock.getErrorPercentage()).thenReturn(0.0F);
+    when(statisticsMock.getLatencyPercentile(anyInt(), eq(MILLISECONDS))).thenReturn(0F);
+    when(statisticsMock.getEvaluationCount()).thenReturn(0L);
+    when(statisticsMock.getErrorCount()).thenReturn(0L);
+    when(statisticsMock.getMaxLatency(MILLISECONDS)).thenReturn(0F);
+    when(statisticsMock.getMinLatency(MILLISECONDS)).thenReturn(0F);
+    when(statisticsMock.getMeanLatency(MILLISECONDS)).thenReturn(0F);
+    return statisticsMock;
+  }
+
   protected void initialisePerfTestAnnotationMock() {
     when(perfTestAnnotationMock.durationMs()).thenReturn(10_000);
     when(perfTestAnnotationMock.warmUpMs()).thenReturn(100);
@@ -184,6 +209,15 @@ public class BaseReportGeneratorTest extends BaseTest {
     verifyAllValidationFailed(context1);
     verifyAllValidationPassed(context2);
     return newLinkedHashSet(newArrayList(context1, context2));
+  }
+
+  protected LinkedHashSet<EvaluationContext> generateAbortedFailedAndSuccessContexts() {
+    EvaluationContext context1 = createdFailedEvaluationContext("unittest1");
+    EvaluationContext context2 = createdAbortedEvaluationContext("unittest2");
+    EvaluationContext context3 = createdSuccessfulEvaluationContext("unittest3");
+    verifyAllValidationFailed(context1);
+    verifyAllValidationPassed(context3);
+    return newLinkedHashSet(newArrayList(context1, context2, context3));
   }
 
   protected LinkedHashSet<EvaluationContext> generateSomeFailuresContext() {

@@ -6,10 +6,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Getter
@@ -17,6 +19,7 @@ public class ViewData {
 
     static final String SUCCESS_COLOUR = "#2b67a4";
     static final String FAILED_COLOUR = "#d9534f";
+    static final String SKIPPED_COLOUR = "#dcdcdc";
 
     @Getter
     @Setter
@@ -59,7 +62,7 @@ public class ViewData {
 
     public ViewData(EvaluationContext context) {
         this.testName = buildTestName(context);
-        this.testNameColour = context.isSuccessful() ? SUCCESS_COLOUR : FAILED_COLOUR;
+        this.testNameColour = context.isAborted() ? SKIPPED_COLOUR : context.isSuccessful() ? SUCCESS_COLOUR : FAILED_COLOUR;
         this.chartData = buildChartData(context);
         this.csvData = buildCsvData(context);
         this.startTime = context.getStartTime();
@@ -88,10 +91,17 @@ public class ViewData {
     }
 
     private static String buildTestName(EvaluationContext context) {
-        return nonNull(context.getGroupName()) ? context.getGroupName() + " : " + context.getTestName() : context.getTestName();
+        String baseName = nonNull(context.getGroupName()) ? context.getGroupName() + " : " + context.getTestName() : context.getTestName();
+        if (context.isAborted()){
+            baseName = baseName + (" (skipped)");
+        }
+        return baseName;
     }
 
     private List<RequiredPercentilesData> buildRequiredPercentileData(EvaluationContext context) {
+        if (isNull(context.getPercentileResults())) {
+            return Collections.emptyList();
+        }
         return context.getRequiredPercentiles().entrySet()
                 .stream()
                 .map(entry -> {

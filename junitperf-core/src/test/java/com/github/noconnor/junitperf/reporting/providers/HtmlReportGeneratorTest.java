@@ -68,6 +68,13 @@ public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
     }
 
     @Test
+    public void whenGeneratingAReport_andTestsContainsSomeAbortsAndFailures_thenAppropriateReportShouldBeGenerated() throws IOException {
+        reportGenerator.generateReport(generateAbortedFailedAndSuccessContexts());
+        File expectedContents = getResourceFile("html/example_aborted_failed_success.html");
+        assertEquals(readFileContents(expectedContents), readFileContents(reportFile));
+    }
+
+    @Test
     public void whenCallingGetReportPath_andCustomPathHasBeenSpecified_thenCorrectPathShouldBeReturned() {
         assertThat(reportGenerator.getReportPath(), is(reportFile.getPath()));
     }

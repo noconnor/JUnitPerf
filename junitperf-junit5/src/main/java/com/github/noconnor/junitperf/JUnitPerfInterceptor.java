@@ -4,6 +4,7 @@ import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.github.noconnor.junitperf.reporting.providers.ConsoleReportGenerator;
 import com.github.noconnor.junitperf.statements.FullStatement;
+import com.github.noconnor.junitperf.statements.ExceptionsRegistry;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
+import org.opentest4j.TestAbortedException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -41,6 +43,11 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     protected static final ReportGenerator DEFAULT_REPORTER = new ConsoleReportGenerator();
     protected static final Map<String, TestDetails> testContexts = new ConcurrentHashMap<>();
     protected static final Map<String, SharedConfig> sharedContexts = new ConcurrentHashMap<>();
+
+    static {
+        ExceptionsRegistry.registerIgnorable(InterruptedException.class);
+        ExceptionsRegistry.registerAbort(TestAbortedException.class);
+    }
 
     @Data
     protected static class TestDetails {

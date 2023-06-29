@@ -6,12 +6,15 @@ import com.github.noconnor.junitperf.data.EvaluationContext;
 import com.github.noconnor.junitperf.reporting.ReportGenerator;
 import com.github.noconnor.junitperf.reporting.providers.ConsoleReportGenerator;
 import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
+import com.github.noconnor.junitperf.statements.ExceptionsRegistry;
 import com.github.noconnor.junitperf.statements.FullStatement;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement;
 import com.github.noconnor.junitperf.statements.PerformanceEvaluationStatement.PerformanceEvaluationStatementBuilder;
 import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsCalculator;
 import com.github.noconnor.junitperf.suite.SuiteRegistry;
+import org.junit.Assert;
+import org.junit.AssumptionViolatedException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -26,6 +29,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.opentest4j.TestAbortedException;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -426,6 +430,14 @@ class JUnitPerfInterceptorTest {
         ExtensionContext extensionContextMock = mockTestContext();
         interceptor.postProcessTestInstance(this, getParent(extensionContextMock));
         assertTrue(interceptor.resolveParameter(null, extensionContextMock) instanceof TestContextSupplier);
+    }
+
+    @Test
+    void verifyCorrectExceptionsAreRegistered() {
+        assertEquals(1, ExceptionsRegistry.ignorables().size());
+        assertEquals(1, ExceptionsRegistry.abortables().size());
+        assertTrue(ExceptionsRegistry.ignorables().contains(InterruptedException.class));
+        assertTrue(ExceptionsRegistry.abortables().contains(TestAbortedException.class));
     }
     
     private static void mockActiveSuite(ExtensionContext testMethodContext, Class<?> suiteClass) {
