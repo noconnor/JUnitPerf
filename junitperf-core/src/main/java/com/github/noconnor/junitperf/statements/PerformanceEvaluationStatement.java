@@ -68,7 +68,7 @@ public class PerformanceEvaluationStatement {
       stopSignal.set(true);
       threads.forEach(Thread::interrupt);
     }
-    if (nonNull(context.getAbortedException())) {
+    if (context.isAborted()) {
       listener.accept(null);
       throw context.getAbortedException();
     }
