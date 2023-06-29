@@ -52,6 +52,9 @@ public class EvaluationContext {
   private long finishTimeNs;
   @Getter
   private final boolean isAsyncEvaluation;
+  @Setter
+  @Getter
+  private Throwable abortedException;
 
   @Getter
   private Map<Integer, Float> requiredPercentiles = emptyMap();
@@ -118,6 +121,10 @@ public class EvaluationContext {
     this.isAsyncEvaluation = isAsyncEvaluation;
   }
 
+  public boolean isAborted() {
+    return nonNull(abortedException);
+  }
+  
   @SuppressWarnings("WeakerAccess")
   public long getThroughputQps() {
     return (long)((evaluationCount/ ((float)configuredDuration - configuredWarmUp)) * 1000);

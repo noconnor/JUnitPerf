@@ -23,6 +23,7 @@ import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.junit.After;
+import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -420,6 +421,15 @@ public class EvaluationContextTest extends BaseTest {
     context.setFinishTimeNs(startTimeNs + 300_000_000L);
     context.loadConfiguration(perfTestAnnotation);
     assertEquals("300ms", context.getTestDurationFormatted());
+  }
+
+  @Test
+  public void whenContextContainsAbortedException_thenIsAbortedShouldBeTrue() {
+    Exception abort = new AssumptionViolatedException("unittest");
+    assertFalse(context.isAborted());
+    context.setAbortedException(abort);
+    assertTrue(context.isAborted());
+    assertEquals(abort, context.getAbortedException());
   }
 
   private void initialiseContext() {

@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.System.getProperty;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Slf4j
 public class HtmlReportGenerator implements ReportGenerator {
@@ -85,17 +86,19 @@ public class HtmlReportGenerator implements ReportGenerator {
                 ViewData c = new ViewData(context);
 
                 String overview = ViewProcessor.populateTemplate(c, "context", blocks.get(OVERVIEW_MARKER));
-                String detail = ViewProcessor.populateTemplate(c, "context", blocks.get(DETAILS_MARKER));
-                String percentileData = ViewProcessor.populateTemplate(
-                        c.getRequiredPercentiles(),
-                        "context.percentiles",
-                        blocks.get(PERCENTILE_TARGETS_MARKER)
-                );
-
-                detail = detail.replaceAll(asRegex(PERCENTILE_TARGETS_MARKER), percentileData);
-
                 overviews.append(overview).append("\n");
-                details.append(detail).append("\n");
+                
+                if (isNull(context.getAbortedException())) {
+                    String detail = ViewProcessor.populateTemplate(c, "context", blocks.get(DETAILS_MARKER));
+                    String percentileData = ViewProcessor.populateTemplate(
+                            c.getRequiredPercentiles(),
+                            "context.percentiles",
+                            blocks.get(PERCENTILE_TARGETS_MARKER)
+                    );
+
+                    detail = detail.replaceAll(asRegex(PERCENTILE_TARGETS_MARKER), percentileData);
+                    details.append(detail).append("\n");
+                }
             }
 
             root = root.replaceAll(asRegex(OVERVIEW_MARKER), overviews.toString());
