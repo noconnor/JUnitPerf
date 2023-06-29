@@ -40,7 +40,7 @@ public class ExampleSuccessTests {
   @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000, totalExecutions = 100)
   public void whenAssumptionFails_thenTestShouldBeSkipped() throws IOException {
     //noinspection DataFlowIssue
-    assumeFalse(true); // dummy tests to illustrate skipped tests
+    assumeFalse(true); // dummy test to illustrate skipped tests
     try (Socket socket = new Socket()) {
       socket.connect(new InetSocketAddress("www.google.com", 80), 1000);
     }
