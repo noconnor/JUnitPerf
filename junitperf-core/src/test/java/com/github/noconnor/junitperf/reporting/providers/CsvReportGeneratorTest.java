@@ -8,6 +8,7 @@ import com.github.noconnor.junitperf.reporting.BaseReportGeneratorTest;
 
 import static java.lang.System.getProperty;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class CsvReportGeneratorTest extends BaseReportGeneratorTest {
@@ -61,6 +62,13 @@ public class CsvReportGeneratorTest extends BaseReportGeneratorTest {
     reportGenerator.generateReport(generateSomeFailuresContext());
     File expectedContents = getResourceFile("csv/some_failures.csv");
     assertThat(readFileContents(reportFile), is(readFileContents(expectedContents)));
+  }
+
+  @Test
+  public void whenGeneratingAReport_andTestsContainsSomeAbortsAndFailures_thenAppropriateReportShouldBeGenerated() throws IOException {
+    reportGenerator.generateReport(generateAbortedFailedAndSuccessContexts());
+    File expectedContents = getResourceFile("csv/fail_abort_succeed.csv");
+    assertEquals(readFileContents(expectedContents), readFileContents(reportFile));
   }
 
   @Test

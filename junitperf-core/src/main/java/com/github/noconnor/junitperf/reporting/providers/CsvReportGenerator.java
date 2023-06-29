@@ -46,9 +46,11 @@ public class CsvReportGenerator implements ReportGenerator {
       writer.newLine();
       history.forEach(context -> {
 
-        String record = String.format("%s,%d,%d,%d,%.4f,%.4f,%.4f,%s",
-          context.getTestName(),
-          context.getConfiguredDuration(),
+        String name = context.isAborted() ? context.getTestName() + " (skipped)" : context.getTestName();
+        int duration = context.isAborted() ? 0 : context.getConfiguredDuration();
+        String record = String.format("%s,%s,%d,%d,%.4f,%.4f,%.4f,%s", 
+          name,
+          duration,
           context.getConfiguredThreads(),
           context.getThroughputQps(),
           context.getMinLatencyMs(),
