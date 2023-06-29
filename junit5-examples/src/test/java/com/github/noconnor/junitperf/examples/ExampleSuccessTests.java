@@ -1,9 +1,9 @@
 package com.github.noconnor.junitperf.examples;
 
 import com.github.noconnor.junitperf.JUnitPerfInterceptor;
+import com.github.noconnor.junitperf.JUnitPerfReportingConfig;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestActiveConfig;
-import com.github.noconnor.junitperf.JUnitPerfReportingConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +14,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import static com.github.noconnor.junitperf.examples.utils.ReportingUtils.newHtmlReporter;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 @ExtendWith(JUnitPerfInterceptor.class)
 public class ExampleSuccessTests {
@@ -45,6 +46,17 @@ public class ExampleSuccessTests {
     @Test
     @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000, totalExecutions = 50)
     public void whenTotalNumberOfExecutionsIsSet_thenTotalExecutionsShouldOverrideDurationMs() throws IOException {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress("www.google.com", 80), 1000);
+        }
+    }
+
+    @Test
+    @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000, maxExecutionsPerSecond = 100)
+    public void whenAssumptionFails_thenTestWillBeSkipped() throws IOException {
+        //noinspection DataFlowIssue
+        assumeFalse(true); // dummy tests to illustrate skipped tests
+        
         try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress("www.google.com", 80), 1000);
         }
