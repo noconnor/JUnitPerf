@@ -123,7 +123,8 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
             parallelExecution.runParallelEvaluation();
 
-            proceedQuietly(invocation);
+            // Must be called for framework to proceed
+            invocation.skip();
 
         } else {
             invocation.proceed();
@@ -200,16 +201,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         }
         return scanForReportingConfig(testInstance, testClass.getSuperclass());
     }
-
-    private static void proceedQuietly(Invocation<Void> invocation) throws Throwable {
-        try {
-            // Must be called for framework to proceed
-            invocation.proceed();
-        } catch (Throwable e) {
-            log.trace("Proceed error", e);
-        }
-    }
-
+    
     private static TestDetails getTestDetails(ExtensionContext extensionContext) {
         String testId = extensionContext.getUniqueId();
         testContexts.computeIfAbsent(testId, newTestId -> {

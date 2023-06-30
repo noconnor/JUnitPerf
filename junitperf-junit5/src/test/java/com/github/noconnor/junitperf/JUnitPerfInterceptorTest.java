@@ -204,9 +204,9 @@ class JUnitPerfInterceptorTest {
         // Override statement builder
         getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
         interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
-
-        verify(invocationMock).proceed();
+        
         verify(statementMock).runParallelEvaluation();
+        verify(invocationMock).skip();
 
         assertNotNull(getTestContext(extensionContextMock));
         EvaluationContext context = captureEvaluationContext();
