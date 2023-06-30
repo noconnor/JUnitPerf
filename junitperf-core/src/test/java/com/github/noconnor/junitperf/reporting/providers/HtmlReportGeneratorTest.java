@@ -75,6 +75,14 @@ public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
     }
 
     @Test
+    public void whenGeneratingAReport_andTestsContainsSomeAbortsAndFailures_andGenerateIsCalledMultipleTimes_thenAppropriateReportShouldBeGenerated() throws IOException {
+        reportGenerator.generateReport(generateAbortedFailedAndSuccessContexts());
+        reportGenerator.generateReport(generateAbortedFailedAndSuccessContexts());
+        File expectedContents = getResourceFile("html/example_aborted_failed_success.html");
+        assertEquals(readFileContents(expectedContents), readFileContents(reportFile));
+    }
+
+    @Test
     public void whenCallingGetReportPath_andCustomPathHasBeenSpecified_thenCorrectPathShouldBeReturned() {
         assertThat(reportGenerator.getReportPath(), is(reportFile.getPath()));
     }
@@ -101,7 +109,7 @@ public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
         assertTrue(blocks.containsKey("{% DETAILED_BLOCK %}"));
         assertTrue(blocks.containsKey("{% PERCENTILES_BLOCK %}"));
 
-        assertEquals(919, blocks.get("root").length());
+        assertEquals(918, blocks.get("root").length());
         assertEquals(296, blocks.get("{% OVERVIEW_BLOCK %}").length());
         assertEquals(7883, blocks.get("{% DETAILED_BLOCK %}").length());
         assertEquals(704, blocks.get("{% PERCENTILES_BLOCK %}").length());

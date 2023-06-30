@@ -67,6 +67,12 @@ public class EvaluationContextTest extends BaseTest {
   }
 
   @Test
+  public void whenANewContextIsCreated_thenAUniqueIdShouldBeAssignedToTheContext() {
+    int expected = String.valueOf(nanoTime()).length();
+    assertTrue(context.getUniqueId().matches("UNITTEST_[\\d]{"+expected+"}"));
+  }
+
+  @Test
   public void whenLoadingJUnitPerfTestSettings_thenAppropriateContextSettingsShouldBeUpdated() {
     context.loadConfiguration(perfTestAnnotation);
     assertEquals(perfTestAnnotation.durationMs(), context.getConfiguredDuration());

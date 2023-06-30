@@ -14,20 +14,20 @@
         <table border='1' cellspacing='0' cellpadding='3px' style='border-color:#eee'>
             <tr>
                 <th style='background-color:#ffffdd; color:#044e9b'>&nbsp;&nbsp;&nbsp;</th>
-                <th style='background-color:#ffffdd; color:#044e9b'>Tests</th>
+                <th style='background-color:#ffffdd; color:#044e9b'>Test</th>
             <tr>
 
              
                 <tr>
                     <!-- Success: #2b67a4 failure: #d9534f -->
                     <td style='background-color:#d9534f;'>&nbsp;</td>
-                    <td><a href='#unittest1'>unittest1</td>
+                    <td><a href='#unittest1_unique_id'>unittest1</td>
                 <tr>
              
                 <tr>
                     <!-- Success: #2b67a4 failure: #d9534f -->
                     <td style='background-color:#d9534f;'>&nbsp;</td>
-                    <td><a href='#unittest2'>unittest2</td>
+                    <td><a href='#unittest2_unique_id'>unittest2</td>
                 <tr>
              
         </table>
@@ -36,7 +36,7 @@
 
 
         
-        <a name='unittest1'><h2 style='color:#2b67a4'>unittest1</h2></a>
+        <a name='unittest1_unique_id'><h2 style='color:#2b67a4'>unittest1</h2></a>
         <table width='970'>
             <tr>
                 <td>
@@ -269,7 +269,7 @@
                                 dataOpacity: 0.5
                             };
 
-                            var chart = new google.visualization.ScatterChart(document.getElementById('unittest1'));
+                            var chart = new google.visualization.ScatterChart(document.getElementById('unittest1_unique_id'));
 
                             chart.draw(data, options);
                         }
@@ -481,15 +481,15 @@
                             ]);
                             var csvFormattedDataTable = google.visualization.dataTableToCsv(csvData);
                             var encodedUri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csvFormattedDataTable);
-                            var link = document.getElementById('Export-unittest1')
+                            var link = document.getElementById('Export-unittest1_unique_id')
                             link.href=encodedUri;
-                            link.download = 'unittest1.csv';
+                            link.download = 'unittest1_unique_id.csv';
                             link.target = '_blank';
                         }
 
                     </script>
-                    <div id="unittest1" style="width: 600px; height: 400px;"></div>
-                    <a id="Export-unittest1" href="#" style="margin-left: 230px;">Download as csv</a>
+                    <div id="unittest1_unique_id" style="width: 600px; height: 400px;"></div>
+                    <a id="Export-unittest1_unique_id" href="#" style="margin-left: 230px;">Download as csv</a>
                 </td>
                 <td>
                     <table style='font-family:sans-serif;'>
@@ -597,7 +597,7 @@
         <br/>
         <br/><br/><br/>
         
-        <a name='unittest2'><h2 style='color:#2b67a4'>unittest2</h2></a>
+        <a name='unittest2_unique_id'><h2 style='color:#2b67a4'>unittest2</h2></a>
         <table width='970'>
             <tr>
                 <td>
@@ -830,7 +830,7 @@
                                 dataOpacity: 0.5
                             };
 
-                            var chart = new google.visualization.ScatterChart(document.getElementById('unittest2'));
+                            var chart = new google.visualization.ScatterChart(document.getElementById('unittest2_unique_id'));
 
                             chart.draw(data, options);
                         }
@@ -1042,15 +1042,15 @@
                             ]);
                             var csvFormattedDataTable = google.visualization.dataTableToCsv(csvData);
                             var encodedUri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csvFormattedDataTable);
-                            var link = document.getElementById('Export-unittest2')
+                            var link = document.getElementById('Export-unittest2_unique_id')
                             link.href=encodedUri;
-                            link.download = 'unittest2.csv';
+                            link.download = 'unittest2_unique_id.csv';
                             link.target = '_blank';
                         }
 
                     </script>
-                    <div id="unittest2" style="width: 600px; height: 400px;"></div>
-                    <a id="Export-unittest2" href="#" style="margin-left: 230px;">Download as csv</a>
+                    <div id="unittest2_unique_id" style="width: 600px; height: 400px;"></div>
+                    <a id="Export-unittest2_unique_id" href="#" style="margin-left: 230px;">Download as csv</a>
                 </td>
                 <td>
                     <table style='font-family:sans-serif;'>

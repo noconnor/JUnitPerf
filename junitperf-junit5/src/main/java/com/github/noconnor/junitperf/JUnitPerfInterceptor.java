@@ -12,6 +12,7 @@ import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsC
 import com.github.noconnor.junitperf.suite.SuiteRegistry;
 import com.github.noconnor.junitperf.utils.TestReflectionUtils;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
@@ -50,8 +51,11 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     }
 
     @Data
+    @EqualsAndHashCode(onlyExplicitlyIncluded = true)
     protected static class TestDetails {
+        @EqualsAndHashCode.Include
         private Class<?> testClass;
+        @EqualsAndHashCode.Include
         private Method testMethod;
         private long measurementsStartTimeMs;
         private EvaluationContext context;
@@ -98,7 +102,8 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         JUnitPerfTestRequirement requirementsAnnotation = getJUnitPerfTestRequirementDetails(method, extensionContext);
 
         if (nonNull(perfTestAnnotation)) {
-
+            log.trace("Using {} for {} : {}", perfTestAnnotation, getUniqueId(extensionContext), getUniqueId(extensionContext.getRoot()));
+            
             boolean isAsync = invocationContext.getArguments().stream().anyMatch(arg -> arg instanceof TestContextSupplier);
             EvaluationContext context = createEvaluationContext(method, isAsync);
             context.loadConfiguration(perfTestAnnotation);
@@ -123,14 +128,16 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
             parallelExecution.runParallelEvaluation();
 
-            proceedQuietly(invocation);
+            // Must be called for framework to proceed
+            invocation.skip();
 
         } else {
+            log.trace("No @JUnitPerfTest annotation for {} : {}", getUniqueId(extensionContext), getUniqueId(extensionContext.getRoot()));
             invocation.proceed();
         }
 
     }
-
+    
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         return parameterContext.getParameter().getType() == TestContextSupplier.class;
@@ -162,7 +169,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
     protected EvaluationContext createEvaluationContext(Method method, boolean isAsync) {
         EvaluationContext ctx = new EvaluationContext(method.getName(), nanoTime(), isAsync);
-        ctx.setGroupName(method.getDeclaringClass().getSimpleName());
+        ctx.setGroupName(method.getDeclaringClass().getName());
         return ctx;
     }
 
@@ -201,13 +208,8 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         return scanForReportingConfig(testInstance, testClass.getSuperclass());
     }
 
-    private static void proceedQuietly(Invocation<Void> invocation) throws Throwable {
-        try {
-            // Must be called for framework to proceed
-            invocation.proceed();
-        } catch (Throwable e) {
-            log.trace("Proceed error", e);
-        }
+    private static String getUniqueId(ExtensionContext extensionContext) {
+        return nonNull(extensionContext) ? extensionContext.getUniqueId() : "(no root)";
     }
 
     private static TestDetails getTestDetails(ExtensionContext extensionContext) {

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.LinkedHashSet;
 
@@ -52,7 +53,7 @@ public class BaseReportGeneratorTest extends BaseTest {
   }
 
   protected String readFileContents(final File file) throws IOException {
-    return new String(Files.readAllBytes(file.toPath()), Charset.forName("utf-8")).replaceAll("\\s+", "");
+    return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8).replaceAll("\\s+", "");
   }
 
   protected void verifyAllValidationFailed(EvaluationContext context) {
@@ -70,7 +71,7 @@ public class BaseReportGeneratorTest extends BaseTest {
   }
 
   protected EvaluationContext createdFailedEvaluationContext(String name) {
-    EvaluationContext context = new EvaluationContext(name, nanoTime());
+    EvaluationContext context = new EvaluationContext("unique_id", name, nanoTime());
     context.setFinishTimeNs(nanoTime() + SECONDS.toNanos(10));
     context.loadConfiguration(perfTestAnnotationMock);
     context.loadRequirements(perfTestRequirementAnnotationMock);
@@ -80,7 +81,7 @@ public class BaseReportGeneratorTest extends BaseTest {
   }
 
   protected EvaluationContext createdSuccessfulEvaluationContext(String name) {
-    EvaluationContext context = new EvaluationContext(name, nanoTime());
+    EvaluationContext context = new EvaluationContext("unique_id", name, nanoTime());
     context.setFinishTimeNs(nanoTime() + SECONDS.toNanos(10));
     context.loadConfiguration(perfTestAnnotationMock);
     context.loadRequirements(perfTestRequirementAnnotationMock);
@@ -90,7 +91,7 @@ public class BaseReportGeneratorTest extends BaseTest {
   }
 
   protected EvaluationContext createdAbortedEvaluationContext(String name) {
-    EvaluationContext context = new EvaluationContext(name, nanoTime());
+    EvaluationContext context = new EvaluationContext("unique_id", name, nanoTime());
     context.loadConfiguration(perfTestAnnotationMock);
     context.loadRequirements(perfTestRequirementAnnotationMock);
     context.setStatistics(createAbortedMock());
@@ -99,7 +100,7 @@ public class BaseReportGeneratorTest extends BaseTest {
   }
 
   protected EvaluationContext createdSomeFailuresEvaluationContext(String name) {
-    EvaluationContext context = new EvaluationContext(name, nanoTime());
+    EvaluationContext context = new EvaluationContext("unique_id", name, nanoTime());
     context.setFinishTimeNs(nanoTime() + SECONDS.toNanos(10));
     context.loadConfiguration(perfTestAnnotationMock);
     context.loadRequirements(perfTestRequirementAnnotationMock);
