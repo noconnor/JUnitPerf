@@ -102,7 +102,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         JUnitPerfTestRequirement requirementsAnnotation = getJUnitPerfTestRequirementDetails(method, extensionContext);
 
         if (nonNull(perfTestAnnotation)) {
-            log.trace("Using{} for {} : {}", perfTestAnnotation, getUniqueId(extensionContext), getUniqueId(extensionContext.getRoot()));
+            log.trace("Using {} for {} : {}", perfTestAnnotation, getUniqueId(extensionContext), getUniqueId(extensionContext.getRoot()));
             
             boolean isAsync = invocationContext.getArguments().stream().anyMatch(arg -> arg instanceof TestContextSupplier);
             EvaluationContext context = createEvaluationContext(method, isAsync);
