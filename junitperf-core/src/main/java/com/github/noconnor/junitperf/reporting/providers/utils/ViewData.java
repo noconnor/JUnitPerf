@@ -33,6 +33,7 @@ public class ViewData {
     }
 
     private final String testName;
+    private final String uniqueId;
     private final String testNameColour;
     private final String chartData;
     private final String csvData;
@@ -62,6 +63,7 @@ public class ViewData {
 
     public ViewData(EvaluationContext context) {
         this.testName = buildTestName(context);
+        this.uniqueId = context.getUniqueId();
         this.testNameColour = context.isAborted() ? SKIPPED_COLOUR : context.isSuccessful() ? SUCCESS_COLOUR : FAILED_COLOUR;
         this.chartData = buildChartData(context);
         this.csvData = buildCsvData(context);

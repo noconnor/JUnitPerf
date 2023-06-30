@@ -72,6 +72,14 @@ public class CsvReportGeneratorTest extends BaseReportGeneratorTest {
   }
 
   @Test
+  public void whenGeneratingAReport_andTestsContainsSomeAbortsAndFailures_andGenerateReportIsCalledMultipleTimes_thenAppropriateReportShouldBeGenerated() throws IOException {
+    reportGenerator.generateReport(generateAbortedFailedAndSuccessContexts());
+    reportGenerator.generateReport(generateAbortedFailedAndSuccessContexts());
+    File expectedContents = getResourceFile("csv/fail_abort_succeed.csv");
+    assertEquals(readFileContents(expectedContents), readFileContents(reportFile));
+  }
+
+  @Test
   public void whenCallingGetReportPath_andCustomPathHasBeenSpecified_thenCorrectPathShouldBeReturned() {
     assertThat(reportGenerator.getReportPath(), is(reportFile.getPath()));
   }

@@ -14,7 +14,7 @@
         <table border='1' cellspacing='0' cellpadding='3px' style='border-color:#eee'>
             <tr>
                 <th style='background-color:#ffffdd; color:#044e9b'>&nbsp;&nbsp;&nbsp;</th>
-                <th style='background-color:#ffffdd; color:#044e9b'>Tests</th>
+                <th style='background-color:#ffffdd; color:#044e9b'>Test</th>
             <tr>
 
              
@@ -22,7 +22,7 @@
                 <tr>
                     <!-- Success: #2b67a4 failure: #d9534f -->
                     <td style='background-color:{{ context.testNameColour }};'>&nbsp;</td>
-                    <td><a href='#{{ context.testName }}'>{{ context.testName }}</td>
+                    <td><a href='#{{ context.uniqueId }}'>{{ context.testName }}</td>
                 <tr>
              
         {% END %}
@@ -33,7 +33,7 @@
 
         
         {% DETAILED_BLOCK %}
-        <a name='{{ context.testName }}'><h2 style='color:#2b67a4'>{{ context.testName }}</h2></a>
+        <a name='{{ context.uniqueId }}'><h2 style='color:#2b67a4'>{{ context.testName }}</h2></a>
         <table width='970'>
             <tr>
                 <td>
@@ -68,7 +68,7 @@
                                 dataOpacity: 0.5
                             };
 
-                            var chart = new google.visualization.ScatterChart(document.getElementById('{{ context.testName }}'));
+                            var chart = new google.visualization.ScatterChart(document.getElementById('{{ context.uniqueId }}'));
 
                             chart.draw(data, options);
                         }
@@ -80,15 +80,15 @@
                             ]);
                             var csvFormattedDataTable = google.visualization.dataTableToCsv(csvData);
                             var encodedUri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csvFormattedDataTable);
-                            var link = document.getElementById('Export-{{ context.testName }}')
+                            var link = document.getElementById('Export-{{ context.uniqueId }}')
                             link.href=encodedUri;
-                            link.download = '{{ context.testName }}.csv';
+                            link.download = '{{ context.uniqueId }}.csv';
                             link.target = '_blank';
                         }
 
                     </script>
-                    <div id="{{ context.testName }}" style="width: 600px; height: 400px;"></div>
-                    <a id="Export-{{ context.testName }}" href="#" style="margin-left: 230px;">Download as csv</a>
+                    <div id="{{ context.uniqueId }}" style="width: 600px; height: 400px;"></div>
+                    <a id="Export-{{ context.uniqueId }}" href="#" style="margin-left: 230px;">Download as csv</a>
                 </td>
                 <td>
                     <table style='font-family:sans-serif;'>

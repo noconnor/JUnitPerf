@@ -3,6 +3,7 @@ package com.github.noconnor.junitperf.data;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.newTreeMap;
+import static java.lang.System.nanoTime;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -17,6 +18,7 @@ import com.github.noconnor.junitperf.statistics.StatisticsCalculator;
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
@@ -109,12 +111,23 @@ public class EvaluationContext {
   @Getter
   @Setter
   private String groupName;
+  @Getter
+  private final String uniqueId;
 
   public EvaluationContext(String testName, long startTimeNs) {
-    this(testName, startTimeNs, false);
+    this(String.valueOf(nanoTime()), testName, startTimeNs);  
   }
 
   public EvaluationContext(String testName, long startTimeNs, boolean isAsyncEvaluation) {
+    this(String.valueOf(nanoTime()), testName, startTimeNs, isAsyncEvaluation);
+  }
+  
+  public EvaluationContext(String uniqueId, String testName, long startTimeNs) {
+    this(uniqueId, testName, startTimeNs, false);
+  }
+
+  public EvaluationContext(String uniqueId, String testName, long startTimeNs, boolean isAsyncEvaluation) {
+    this.uniqueId = testName + "_" + uniqueId;
     this.testName = testName;
     this.startTimeNs = startTimeNs;
     this.startTime = DatetimeUtils.now();
@@ -178,6 +191,19 @@ public class EvaluationContext {
       isMeanLatencyAchieved &&
       isErrorThresholdAchieved &&
       noLatencyPercentileFailures();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    EvaluationContext context = (EvaluationContext) o;
+    return Objects.equals(testName, context.testName) && Objects.equals(groupName, context.groupName) && Objects.equals(uniqueId, context.uniqueId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(testName, groupName, uniqueId);
   }
 
   private boolean validateLatency(float actualMs, float requiredMs) {

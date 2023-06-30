@@ -12,6 +12,7 @@ import com.github.noconnor.junitperf.statistics.providers.DescriptiveStatisticsC
 import com.github.noconnor.junitperf.suite.SuiteRegistry;
 import com.github.noconnor.junitperf.utils.TestReflectionUtils;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
@@ -50,8 +51,11 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     }
 
     @Data
+    @EqualsAndHashCode(onlyExplicitlyIncluded = true)
     protected static class TestDetails {
+        @EqualsAndHashCode.Include
         private Class<?> testClass;
+        @EqualsAndHashCode.Include
         private Method testMethod;
         private long measurementsStartTimeMs;
         private EvaluationContext context;
@@ -163,7 +167,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
 
     protected EvaluationContext createEvaluationContext(Method method, boolean isAsync) {
         EvaluationContext ctx = new EvaluationContext(method.getName(), nanoTime(), isAsync);
-        ctx.setGroupName(method.getDeclaringClass().getSimpleName());
+        ctx.setGroupName(method.getDeclaringClass().getName());
         return ctx;
     }
 
