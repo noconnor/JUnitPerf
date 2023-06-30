@@ -102,7 +102,8 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         JUnitPerfTestRequirement requirementsAnnotation = getJUnitPerfTestRequirementDetails(method, extensionContext);
 
         if (nonNull(perfTestAnnotation)) {
-
+            log.trace("Using{} for {} : {}", perfTestAnnotation, getUniqueId(extensionContext), getUniqueId(extensionContext.getRoot()));
+            
             boolean isAsync = invocationContext.getArguments().stream().anyMatch(arg -> arg instanceof TestContextSupplier);
             EvaluationContext context = createEvaluationContext(method, isAsync);
             context.loadConfiguration(perfTestAnnotation);
@@ -131,11 +132,12 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
             invocation.skip();
 
         } else {
+            log.trace("No @JUnitPerfTest annotation for {} : {}", getUniqueId(extensionContext), getUniqueId(extensionContext.getRoot()));
             invocation.proceed();
         }
 
     }
-
+    
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         return parameterContext.getParameter().getType() == TestContextSupplier.class;
@@ -205,7 +207,11 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         }
         return scanForReportingConfig(testInstance, testClass.getSuperclass());
     }
-    
+
+    private static String getUniqueId(ExtensionContext extensionContext) {
+        return nonNull(extensionContext) ? extensionContext.getUniqueId() : "(no root)";
+    }
+
     private static TestDetails getTestDetails(ExtensionContext extensionContext) {
         String testId = extensionContext.getUniqueId();
         testContexts.computeIfAbsent(testId, newTestId -> {
