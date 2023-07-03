@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Setter;
 import org.junit.AssumptionViolatedException;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -42,6 +43,11 @@ public class JUnitPerfRule implements TestRule {
   PerformanceEvaluationStatementBuilder perEvalBuilder;
   boolean excludeBeforeAndAfters;
 
+  @Setter
+  private JUnitPerfTest defaultPerfTestAnnotation;
+  @Setter
+  private JUnitPerfTestRequirement defaultRequirementsAnnotation;
+  
   public JUnitPerfRule() {
     this(false);
   }
@@ -84,8 +90,12 @@ public class JUnitPerfRule implements TestRule {
     JUnitPerfTest perfTestAnnotation = description.getAnnotation(JUnitPerfTest.class);
     JUnitPerfTestRequirement requirementsAnnotation = description.getAnnotation(JUnitPerfTestRequirement.class);
 
+    perfTestAnnotation = nonNull(perfTestAnnotation) ? perfTestAnnotation : defaultPerfTestAnnotation;
+    requirementsAnnotation = nonNull(requirementsAnnotation) ? requirementsAnnotation : defaultRequirementsAnnotation;
+            
     if (nonNull(perfTestAnnotation)) {
       EvaluationContext context = createEvaluationContext(description);
+      context.setGroupName(description.getTestClass().getName());
       context.loadConfiguration(perfTestAnnotation);
       context.loadRequirements(requirementsAnnotation);
 

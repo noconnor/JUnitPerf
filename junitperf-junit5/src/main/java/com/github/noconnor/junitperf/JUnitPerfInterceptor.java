@@ -74,7 +74,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     @Override
     public synchronized void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
         if (sharedContexts.containsKey(context.getUniqueId())) {
-            log.debug("Test already configured");
+            log.info("Test already configured");
             return;
         }
 

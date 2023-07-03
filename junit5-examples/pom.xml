@@ -14,6 +14,21 @@
     </properties>
     
     <dependencies>
+
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>5.9.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.noconnor</groupId>
+            <artifactId>junitperf</artifactId>
+            <version>1.36.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        
         <dependency>
             <groupId>com.github.noconnor</groupId>
             <artifactId>junitperf-junit5</artifactId>
@@ -25,6 +40,12 @@
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite-engine</artifactId>
             <version>1.9.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

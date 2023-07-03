@@ -2,8 +2,12 @@ package com.github.noconnor.junitperf.examples;
 
 import com.github.noconnor.junitperf.JUnitPerfInterceptor;
 import com.github.noconnor.junitperf.JUnitPerfReportingConfig;
+import com.github.noconnor.junitperf.JUnitPerfRule;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestActiveConfig;
+import com.github.noconnor.junitperf.reporting.ReportGenerator;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,11 +23,19 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 @ExtendWith(JUnitPerfInterceptor.class)
 public class ExampleSuccessTests {
 
+    private static final ReportGenerator reporter = newHtmlReporter("success.html");
+    
+    // JUnit 5
     // Should be static or new instance will be created for each @Test method
     @JUnitPerfTestActiveConfig
     private final static JUnitPerfReportingConfig PERF_CONFIG = JUnitPerfReportingConfig.builder()
-            .reportGenerator(newHtmlReporter("success.html"))
+            .reportGenerator(reporter)
             .build();
+
+    // JUnit 4
+    @Rule
+    public final JUnitPerfRule perfRule = new JUnitPerfRule( true, reporter);
+
 
     @BeforeEach
     public void setup() throws InterruptedException {
@@ -35,13 +47,21 @@ public class ExampleSuccessTests {
         Thread.sleep(10);
     }
 
-    @Test
-    @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000, maxExecutionsPerSecond = 100)
-    public void whenNoRequirementsArePresent_thenTestShouldAlwaysPass() throws IOException {
-        try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress("www.google.com", 80), 1000);
-        }
+    
+    
+    @org.junit.Test
+    @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000, totalExecutions = 50)
+    public void oldTest() {
+        System.out.println("Running old test");
     }
+    
+//    @Test
+//    @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000, maxExecutionsPerSecond = 100)
+//    public void whenNoRequirementsArePresent_thenTestShouldAlwaysPass() throws IOException {
+//        try (Socket socket = new Socket()) {
+//            socket.connect(new InetSocketAddress("www.google.com", 80), 1000);
+//        }
+//    }
 
     @Test
     @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000, totalExecutions = 50)
@@ -50,15 +70,15 @@ public class ExampleSuccessTests {
             socket.connect(new InetSocketAddress("www.google.com", 80), 1000);
         }
     }
-
-    @Test
-    @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000, maxExecutionsPerSecond = 100)
-    public void whenAssumptionFails_thenTestWillBeSkipped() throws IOException {
-        //noinspection DataFlowIssue
-        assumeFalse(true); // dummy test to illustrate skipped tests
-        
-        try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress("www.google.com", 80), 1000);
-        }
-    }
+//
+//    @Test
+//    @JUnitPerfTest(threads = 10, durationMs = 10_000, warmUpMs = 1_000, rampUpPeriodMs = 2_000, maxExecutionsPerSecond = 100)
+//    public void whenAssumptionFails_thenTestWillBeSkipped() throws IOException {
+//        //noinspection DataFlowIssue
+//        assumeFalse(true); // dummy test to illustrate skipped tests
+//        
+//        try (Socket socket = new Socket()) {
+//            socket.connect(new InetSocketAddress("www.google.com", 80), 1000);
+//        }
+//    }
 }
