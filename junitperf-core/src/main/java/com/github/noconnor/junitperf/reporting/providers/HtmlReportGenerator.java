@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -106,7 +107,7 @@ public class HtmlReportGenerator implements ReportGenerator {
             root = root.replaceAll(asRegex(OVERVIEW_MARKER), overviews.toString());
             root = root.replaceAll(asRegex(DETAILS_MARKER), details.toString());
 
-            Files.write(outputPath, root.getBytes());
+            Files.write(outputPath, root.getBytes(StandardCharsets.UTF_8));
 
         } catch (Exception e) {
             throw new IllegalStateException(e);
