@@ -2,6 +2,9 @@ package com.github.noconnor.junitperf.reporting.providers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import com.github.noconnor.junitperf.reporting.BaseReportGeneratorTest;
@@ -13,6 +16,8 @@ import static org.junit.Assert.assertThat;
 
 public class CsvReportGeneratorTest extends BaseReportGeneratorTest {
 
+  private Locale defaultLocale;
+
   private CsvReportGenerator reportGenerator;
 
   private File reportFile;
@@ -23,6 +28,16 @@ public class CsvReportGeneratorTest extends BaseReportGeneratorTest {
     reportGenerator = new CsvReportGenerator(reportFile.getPath());
     initialisePerfTestAnnotationMock();
     initialisePerfTestRequirementAnnotationMock();
+    defaultLocale = Locale.getDefault();
+    // set local to en-US as this test expects numbers to use "."
+    // as a decimal separator and "," as a grouping separator, e.g. 1,337.42
+    Locale.setDefault(Locale.US);
+  }
+
+  @After
+  public void after() {
+    // restore default locale
+    Locale.setDefault(defaultLocale);
   }
 
   @Test
