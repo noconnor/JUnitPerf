@@ -2,11 +2,13 @@ package com.github.noconnor.junitperf.reporting.providers;
 
 import com.github.noconnor.junitperf.datetime.DatetimeUtils;
 import com.github.noconnor.junitperf.reporting.BaseReportGeneratorTest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Map;
 
 import static java.lang.System.getProperty;
@@ -17,6 +19,8 @@ import static org.junit.Assert.assertTrue;
 
 public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
 
+    private Locale defaultLocale;
+
     private HtmlReportGenerator reportGenerator;
 
     @Before
@@ -26,6 +30,16 @@ public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
         DatetimeUtils.setOverride("unittest o'clock");
         initialisePerfTestAnnotationMock();
         initialisePerfTestRequirementAnnotationMock();
+        defaultLocale = Locale.getDefault();
+        // set local to en-US as this test expects numbers to use "."
+        // as a decimal separator and "," as a grouping separator, e.g. 1,337.42
+        Locale.setDefault(Locale.US);
+    }
+
+    @After
+    public void after() {
+        // restore default locale
+        Locale.setDefault(defaultLocale);
     }
 
     @Test

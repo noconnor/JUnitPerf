@@ -2,12 +2,17 @@ package com.github.noconnor.junitperf.reporting.providers.utils;
 
 import com.github.noconnor.junitperf.BaseTest;
 import com.github.noconnor.junitperf.data.EvaluationContext;
+import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
@@ -20,6 +25,24 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ViewDataTest extends BaseTest {
+
+    private Locale defaultLocale;
+
+    private HtmlReportGenerator reportGenerator;
+
+    @Before
+    public void setup() throws IOException {
+        defaultLocale = Locale.getDefault();
+        // set local to en-US as this test expects numbers to use "."
+        // as a decimal separator and "," as a grouping separator, e.g. 1,337.42
+        Locale.setDefault(Locale.US);
+    }
+
+    @After
+    public void after() {
+        // restore default locale
+        Locale.setDefault(defaultLocale);
+    }
 
     @Test
     public void whenSuccessfulEvaluationContextIsProvided_thenViewDataShouldBeMappedCorrectly() {
