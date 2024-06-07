@@ -29,6 +29,7 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -89,6 +90,16 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     }
 
     @Override
+    public void interceptTestTemplateMethod(Invocation<Void> invocation,
+                                            ReflectiveInvocationContext<Method> invocationContext,
+                                            ExtensionContext extensionContext) throws Throwable {
+
+
+        // Will be called for every instance of @ParameterizedTest
+        interceptTestMethod(invocation, invocationContext, extensionContext);
+    }
+
+    @Override
     public void interceptTestMethod(Invocation<Void> invocation,
                                     ReflectiveInvocationContext<Method> invocationContext,
                                     ExtensionContext extensionContext) throws Throwable {
@@ -104,8 +115,7 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         if (nonNull(perfTestAnnotation)) {
             log.trace("Using {} for {} : {}", perfTestAnnotation, getUniqueId(extensionContext), getUniqueId(extensionContext.getRoot()));
             
-            boolean isAsync = invocationContext.getArguments().stream().anyMatch(arg -> arg instanceof TestContextSupplier);
-            EvaluationContext context = createEvaluationContext(method, isAsync);
+            EvaluationContext context = createEvaluationContext(extensionContext, invocationContext);
             context.loadConfiguration(perfTestAnnotation);
             context.loadRequirements(requirementsAnnotation);
 
@@ -167,9 +177,13 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
         return nonNull(specifiedAnnotation) ? specifiedAnnotation : suiteAnnotation;
     }
 
-    protected EvaluationContext createEvaluationContext(Method method, boolean isAsync) {
-        EvaluationContext ctx = new EvaluationContext(method.getName(), nanoTime(), isAsync);
-        ctx.setGroupName(method.getDeclaringClass().getName());
+    protected EvaluationContext createEvaluationContext(ExtensionContext extensionContext, ReflectiveInvocationContext<Method> invocationContext) {
+        String testName = extensionContext.getDisplayName();
+        String groupName = invocationContext.getExecutable().getDeclaringClass().getName();
+        boolean isAsync = invocationContext.getArguments().stream().anyMatch(arg -> arg instanceof TestContextSupplier);
+
+        EvaluationContext ctx = new EvaluationContext(testName, nanoTime(), isAsync);
+        ctx.setGroupName(groupName);
         return ctx;
     }
 
@@ -215,15 +229,28 @@ public class JUnitPerfInterceptor implements InvocationInterceptor, TestInstance
     private static TestDetails getTestDetails(ExtensionContext extensionContext) {
         String testId = extensionContext.getUniqueId();
         testContexts.computeIfAbsent(testId, newTestId -> {
-            String parentId = extensionContext.getParent().map(ExtensionContext::getUniqueId).orElse("");
-            SharedConfig parentDetails = sharedContexts.getOrDefault(parentId, new SharedConfig());
+            SharedConfig sharedDetails = getParentSharedContext(extensionContext);
             TestDetails testDetails = new TestDetails();
-            testDetails.setStatementBuilder(parentDetails.getStatementBuilder().get());
-            testDetails.setActiveReporters(parentDetails.getActiveReporters());
-            testDetails.setStatsCalculator(parentDetails.getStatsSupplier().get());
+            testDetails.setStatementBuilder(sharedDetails.getStatementBuilder().get());
+            testDetails.setActiveReporters(sharedDetails.getActiveReporters());
+            testDetails.setStatsCalculator(sharedDetails.getStatsSupplier().get());
             return testDetails;
         });
         return testContexts.get(testId);
     }
 
+    private static SharedConfig getParentSharedContext(ExtensionContext extensionContext) {
+        Optional<ExtensionContext> parentContext = extensionContext.getParent();
+        Optional<SharedConfig> sharedDetails = parentContext.map(ExtensionContext::getUniqueId).map(sharedContexts::get);
+
+        if (sharedDetails.isPresent()) {
+            return sharedDetails.get();
+        }
+
+        if (parentContext.isPresent()) {
+            return getParentSharedContext(parentContext.get());
+        }
+
+        return new SharedConfig();
+    }
 }

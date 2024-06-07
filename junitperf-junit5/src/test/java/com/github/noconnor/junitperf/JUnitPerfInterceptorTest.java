@@ -160,6 +160,7 @@ class JUnitPerfInterceptorTest {
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
+        when(invocationContextMock.getExecutable()).thenReturn(methodMock);
 
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
         when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
@@ -191,6 +192,7 @@ class JUnitPerfInterceptorTest {
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
+        when(invocationContextMock.getExecutable()).thenReturn(methodMock);
 
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
         when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
@@ -223,6 +225,7 @@ class JUnitPerfInterceptorTest {
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
+        when(invocationContextMock.getExecutable()).thenReturn(methodMock);
 
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
         when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
@@ -253,6 +256,7 @@ class JUnitPerfInterceptorTest {
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
+        when(invocationContextMock.getExecutable()).thenReturn(methodMock);
 
         when(invocationContextMock.getArguments()).thenReturn(mockAsyncArgs());
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
@@ -272,6 +276,36 @@ class JUnitPerfInterceptorTest {
     }
 
     @Test
+    void whenTestMethodHasCustomDisplayName_thenEvaluationContextShouldUseThisAsTestName() throws Throwable {
+        ExtensionContext extensionContextMock = mockTestContext();
+        assertNull(getSharedContext(extensionContextMock));
+
+        SampleAnnotatedTest test = new SampleAnnotatedTest();
+
+        Method methodMock = test.getClass().getMethod("someTestMethod");
+        PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
+        Invocation<Void> invocationMock = mock(Invocation.class);
+        ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
+        when(invocationContextMock.getExecutable()).thenReturn(methodMock);
+
+        String displayName = "Custom display name for Test";
+        when(extensionContextMock.getDisplayName()).thenReturn(displayName);
+        when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
+        when(extensionContextMock.getRequiredTestInstance()).thenReturn(test);
+
+        when(statementBuilderMock.build()).thenReturn(statementMock);
+
+        interceptor.postProcessTestInstance(test, getParent(extensionContextMock));
+
+        getSharedContext(extensionContextMock).setStatementBuilder(() -> statementBuilderMock);
+
+        interceptor.interceptTestMethod(invocationMock, invocationContextMock, extensionContextMock);
+
+        EvaluationContext context = captureEvaluationContext();
+        assertEquals(displayName, context.getTestName());
+    }
+
+    @Test
     void whenASuiteAnnotationsAreAvailable_thenSuiteAnnotationsShouldBeUsed() throws Throwable {
         ExtensionContext extensionContextMock = mockTestContext();
         assertNull(getSharedContext(extensionContextMock));
@@ -282,6 +316,7 @@ class JUnitPerfInterceptorTest {
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
+        when(invocationContextMock.getExecutable()).thenReturn(methodMock);
         mockActiveSuite(extensionContextMock, SuiteSampleTest.class);
         
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
@@ -321,6 +356,7 @@ class JUnitPerfInterceptorTest {
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
+        when(invocationContextMock.getExecutable()).thenReturn(methodMock);
 
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
         when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
@@ -359,6 +395,7 @@ class JUnitPerfInterceptorTest {
         PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
         Invocation<Void> invocationMock = mock(Invocation.class);
         ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
+        when(invocationContextMock.getExecutable()).thenReturn(methodMock);
 
         when(extensionContextMock.getRequiredTestMethod()).thenReturn(methodMock);
         when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
@@ -415,6 +452,36 @@ class JUnitPerfInterceptorTest {
         when(extensionContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
         
         assertThrows(IllegalStateException.class, () -> interceptor.postProcessTestInstance(test, getParent(extensionContextMock)));
+    }
+
+    @Test
+    void whenReportingConfigIsFoundInParentSharedContext_thenThisConfigShouldBeUsedForCurrentTestContext() throws Throwable {
+        ExtensionContext postProcessContextMock = mockTestContext();
+        assertNull(getSharedContext(postProcessContextMock));
+
+        SampleChildTest test = new SampleChildTest();
+
+        Method methodMock = test.getClass().getMethod("someTestMethod");
+        PerformanceEvaluationStatement statementMock = mock(PerformanceEvaluationStatement.class);
+        Invocation<Void> invocationMock = mock(Invocation.class);
+        ReflectiveInvocationContext<Method> invocationContextMock = mock(ReflectiveInvocationContext.class);
+        when(invocationContextMock.getExecutable()).thenReturn(methodMock);
+
+        when(statementBuilderMock.build()).thenReturn(statementMock);
+
+        interceptor.postProcessTestInstance(test, getParent(postProcessContextMock));
+
+        getSharedContext(postProcessContextMock).setStatementBuilder(() -> statementBuilderMock);
+
+        ExtensionContext interceptContextMock = mockTestContext(postProcessContextMock);
+        when(interceptContextMock.getRequiredTestMethod()).thenReturn(methodMock);
+        when(interceptContextMock.getRequiredTestClass()).thenReturn((Class) test.getClass());
+        when(interceptContextMock.getRequiredTestInstance()).thenReturn(test);
+
+        interceptor.interceptTestMethod(invocationMock, invocationContextMock, interceptContextMock);
+
+        assertEquals(SampleChildTest.config.getReportGenerators(), getSharedContext(postProcessContextMock).getActiveReporters());
+        assertEquals(SampleChildTest.config.getReportGenerators(), getTestContext(interceptContextMock).getActiveReporters());
     }
 
     @Test
@@ -482,6 +549,13 @@ class JUnitPerfInterceptorTest {
         ExtensionContext test = mock(ExtensionContext.class);
         when(test.getUniqueId()).thenReturn("test:" + ThreadLocalRandom.current().nextInt());
         when(parent.getUniqueId()).thenReturn("class:" + ThreadLocalRandom.current().nextInt());
+        when(test.getParent()).thenReturn(Optional.of(parent));
+        return test;
+    }
+
+    private static ExtensionContext mockTestContext(ExtensionContext parent) {
+        ExtensionContext test = mock(ExtensionContext.class);
+        when(test.getUniqueId()).thenReturn("context:" + ThreadLocalRandom.current().nextInt());
         when(test.getParent()).thenReturn(Optional.of(parent));
         return test;
     }
