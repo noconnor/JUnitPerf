@@ -152,11 +152,7 @@
                             <goal>sign</goal>
                         </goals>
                         <configuration>
-                            <!-- Prevent gpg from using pinentry programs: https://github.com/actions/setup-java/issues/83 -->
-                            <gpgArguments>
-                                <arg>--pinentry-mode</arg>
-                                <arg>loopback</arg>
-                            </gpgArguments>
+                            <signer>bc</signer>
                         </configuration>
                     </execution>
                 </executions>
