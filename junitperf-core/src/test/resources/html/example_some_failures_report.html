@@ -475,7 +475,7 @@
                             ]);
                             var csvFormattedDataTable = google.visualization.dataTableToCsv(csvData);
                             var encodedUri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csvFormattedDataTable);
-                            var link = document.getElementById('Export-unittest1_unique_id')
+                            var link = document.getElementById('Export-unittest1_unique_id');
                             link.href=encodedUri;
                             link.download = 'unittest1_unique_id.csv';
                             link.target = '_blank';

@@ -125,7 +125,7 @@ public class HtmlReportGeneratorTest extends BaseReportGeneratorTest {
 
         assertEquals(918, blocks.get("root").length());
         assertEquals(296, blocks.get("{% OVERVIEW_BLOCK %}").length());
-        assertEquals(7883, blocks.get("{% DETAILED_BLOCK %}").length());
+        assertEquals(7884, blocks.get("{% DETAILED_BLOCK %}").length());
         assertEquals(704, blocks.get("{% PERCENTILES_BLOCK %}").length());
     }
 }
