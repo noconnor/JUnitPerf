@@ -80,7 +80,7 @@
                             ]);
                             var csvFormattedDataTable = google.visualization.dataTableToCsv(csvData);
                             var encodedUri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csvFormattedDataTable);
-                            var link = document.getElementById('Export-{{ context.uniqueId }}')
+                            var link = document.getElementById('Export-{{ context.uniqueId }}');
                             link.href=encodedUri;
                             link.download = '{{ context.uniqueId }}.csv';
                             link.target = '_blank';
