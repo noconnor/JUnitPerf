@@ -25,6 +25,7 @@ jobs:
           git checkout -b version-update-${LATEST_TAG}
           git config user.name "github-actions[release]"
           git config user.email "github-actions[release]@users.noreply.github.com"
+          gpg -k
       - name: Publish package
         run: mvn -B -DprojectVersionPolicyId=SemVerVersionPolicy release:prepare release:perform
         env:
