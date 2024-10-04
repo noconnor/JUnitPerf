@@ -15,21 +15,19 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
           server-id: ossrh
-          server-username: OSSRH_USERNAME
-          server-password: OSSRH_TOKEN
+          server-username: MAVEN_CENTRAL_USERNAME
+          server-password: MAVEN_CENTRAL_PASSWORD
           gpg-private-key: ${{ secrets.GPG_SIGNING_KEY }}
-          gpg-passphrase: GPG_PASSPHRASE
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
       - name: Setup git config
         run: |  
           LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
           git checkout -b version-update-${LATEST_TAG}
           git config user.name "github-actions[release]"
           git config user.email "github-actions[release]@users.noreply.github.com"
-          gpg -k
       - name: Publish package
         run: mvn -B -DprojectVersionPolicyId=SemVerVersionPolicy release:prepare release:perform
         env:
-          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          MAVEN_GPG_KEY: ${{ secrets.GPG_SIGNING_KEY }}
